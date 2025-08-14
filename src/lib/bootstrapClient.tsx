@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import "../../styles/custom-bootstrap.scss";
+import "../styles/custom-bootstrap.scss";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 export default function BootstrapClient() {

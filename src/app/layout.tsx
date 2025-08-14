@@ -1,7 +1,7 @@
+import { AuthProvider } from "@/context/AuthContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import BootstrapClient from "@/lib/bootstrapClient";
 import type { Metadata } from "next";
-import BootstrapClient from "./utils/bootstrapClient";
-import { AuthProvider } from "./((context))/AuthContext";
-import { ThemeProvider, useTheme } from "./((context))/ThemeContext";
 
 export const metadata: Metadata = {
   title: "Senior Citizen Portal",
