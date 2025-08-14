@@ -1,14 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
-
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 interface NavRoute {
   route: string;
@@ -49,13 +42,11 @@ const NAV_ROUTES: NavRoute[] = [
   },
 ];
 
-export default function Navbar({ children }: { children: React.ReactNode }) {
+export default function Navbar() {
   const { logout } = useAuth();
 
   return (
-    <div
-      className={`container-fluid ${geistSans.variable} ${geistMono.variable}`}
-    >
+    <div className="container-fluid">
       {/* ===== Desktop Sidebar ===== */}
       <aside
         className="d-none d-md-flex flex-column border-end position-fixed top-0 start-0 p-0 bg-body-tertiary"
@@ -133,10 +124,7 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
               })}
             </div>
             <div className="ms-auto d-flex align-items-center gap-2">
-              <button
-                className="btn btn-primary w-100"
-                onClick={logout}
-              >
+              <button className="btn btn-primary w-100" onClick={logout}>
                 <i className="bi bi-box-arrow-right me-2"></i> My Account
               </button>
               <button className="btn btn-danger w-100" onClick={logout}>
@@ -146,16 +134,6 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </nav>
-
-      {/* ===== Main Content Layout ===== */}
-      <div className="d-flex">
-        {/* Desktop spacer (to avoid overlap with fixed sidebar) */}
-        <div className="d-none d-md-block" style={{ width: 240 }} />
-
-        <main className="flex-grow-1 px-0">
-          <div className="px-4 py-4">{children}</div>
-        </main>
-      </div>
     </div>
   );
 }
