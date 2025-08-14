@@ -846,13 +846,13 @@ export default function DashboardPage() {
     };
     return (
       <>
-        <div className="row mt-2">
+        <div className="row">
           <div className="col-md-6">
-            <h5>Cohabitants</h5>
+            <h5 className="mt-3">Cohabitants</h5>
             {cohabitantOptions()}
           </div>
           <div className="col-md-6">
-            <h5>Living Condition</h5>
+            <h5 className="mt-3">Living Condition</h5>
             {livingConditionOptions()}
           </div>
         </div>
@@ -966,17 +966,17 @@ export default function DashboardPage() {
     return (
       <>
         <div className="row">
-          <div className="col-md-4 mt-3">
-            <h5>Highest Educational Attainment</h5>
+          <div className="col-md-4">
+            <h5 className="mt-3">Highest Educational Attainment</h5>
             {educationOptions()}
           </div>
-          <div className="col-md-4 mt-3">
-            <h5>Specialization / Technical Skills</h5>
+          <div className="col-md-4">
+            <h5 className="mt-3">Specialization / Technical Skills</h5>
             {technicalSkillsOptions()}
           </div>
           <div className="col-md-4">
-            <label htmlFor="sharedSkills" className="form-label mt-3">
-              <h5>Shared Skills</h5>
+            <label htmlFor="sharedSkills" className="form-label">
+              <h5 className="mt-3">Shared Skills</h5>
             </label>
             <textarea
               className="form-control"
@@ -985,6 +985,392 @@ export default function DashboardPage() {
             ></textarea>
             <h5 className="mt-3">Involvement in Community Activities</h5>
             {communityActivitiesOptions()}
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  const economicProfile = () => {
+    const sourcesOfIncome = [
+      "Own earnings, salary/ wages",
+      "Own Pension",
+      "Stocks/ Dividends",
+      "Dependent on children/ relatives",
+      "Spouse's salary",
+      "Spouse Pension",
+      "Insurance",
+      "Rental/ Sharecorp",
+      "Savings",
+      "Livestock/ orchard/ farm",
+      "Fishing",
+    ];
+
+    const monthlyIncome = [
+      "60000 and above",
+      "50000 to 60000",
+      "40000 to 50000",
+      "20000 to 30000",
+      "10000 to 20000",
+      "5000 to 10000",
+      "below 5000",
+      "None",
+    ];
+
+    const assetA = [
+      "House",
+      "Lot/ Farmland",
+      "House & Lot",
+      "Commercial Building",
+      "Fishpond/ resort",
+    ];
+
+    const assetB = [
+      "Automobile",
+      "Personal Computer",
+      "Boats",
+      "Heavy Equipment",
+      "Laptops",
+      "Motorcycle",
+      "Mobile Phones",
+    ];
+
+    const problems = [
+      "Lack of incomes/ resource",
+      "Lose of income/ resource",
+      "Skills/ capability training",
+    ];
+
+    const sourcesOfIncomeOptions = () => {
+      return sourcesOfIncome.map((sourceOfIncome) => {
+        return (
+          <div className="form-check" key={sourceOfIncome}>
+            <input
+              className="form-check-input"
+              type="checkbox"
+              value={sourceOfIncome}
+              id={sourceOfIncome}
+            ></input>
+            <label className="form-check-label" htmlFor={sourceOfIncome}>
+              {sourceOfIncome}
+            </label>
+          </div>
+        );
+      });
+    };
+
+    const monthlyIncomeOptions = () => {
+      return monthlyIncome.map((income) => {
+        return (
+          <div className="form-check" key={income}>
+            <input
+              name="educationOptions"
+              className="form-check-input"
+              type="radio"
+              value={income}
+              id={income}
+            ></input>
+            <label className="form-check-label" htmlFor={income}>
+              {income}
+            </label>
+          </div>
+        );
+      });
+    };
+
+    const assetAOptions = () => {
+      return assetA.map((asset) => {
+        return (
+          <div className="form-check" key={asset}>
+            <input
+              className="form-check-input"
+              type="checkbox"
+              value={asset}
+              id={asset}
+            ></input>
+            <label className="form-check-label" htmlFor={asset}>
+              {asset}
+            </label>
+          </div>
+        );
+      });
+    };
+
+    const assetBOptions = () => {
+      return assetB.map((asset) => {
+        return (
+          <div className="form-check" key={asset}>
+            <input
+              className="form-check-input"
+              type="checkbox"
+              value={asset}
+              id={asset}
+            ></input>
+            <label className="form-check-label" htmlFor={asset}>
+              {asset}
+            </label>
+          </div>
+        );
+      });
+    };
+
+    const problemsOptions = () => {
+      return problems.map((problem) => {
+        return (
+          <div className="form-check" key={problem}>
+            <input
+              className="form-check-input"
+              type="checkbox"
+              value={problem}
+              id={problem}
+            ></input>
+            <label className="form-check-label" htmlFor={problem}>
+              {problem}
+            </label>
+          </div>
+        );
+      });
+    };
+
+    return (
+      <>
+        <div className="row">
+          <div className="col-md-4">
+            <h5 className="mt-3">Sources of Income</h5>
+            {sourcesOfIncomeOptions()}
+
+            <h5 className="mt-3">Monthly Income</h5>
+            {monthlyIncomeOptions()}
+          </div>
+          <div className="col-md-4">
+            <h5 className="mt-3">A Assets: Real and Immovable Properties</h5>
+            {assetAOptions()}
+
+            <h5 className="mt-3">Problems / Needs Commonly Encountered</h5>
+            {problemsOptions()}
+          </div>
+
+          <div className="col-md-4">
+            <h5 className="mt-3">B Assets: Personal and Movable Properties</h5>
+            {assetBOptions()}
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  const healthProfile = () => {
+    const healthProblems = [
+      "Hypertension",
+      "Arthritis/ Gout",
+      "Coronary Heart Disease",
+      "Diabetes",
+      "Chronic Kidney Disease",
+      "Alzheimer's/ Dementia",
+      "Chronic Obstructive Pulmonary Disease",
+    ];
+
+    const dentalConcerns = ["Needs Dental Care"];
+
+    const visualConcerns = ["Eye impairment", "Needs eye care"];
+
+    const hearingCondition = ["Aural impairment"];
+
+    const emotionalConditions = [
+      "Feeling neglect/ rejection",
+      "Feeling helplessness/ worthlessness",
+      "Feeling loneliness/ isolate",
+      "Lack leisure/ recreational activities",
+      "Lack SC friendly environment",
+    ];
+
+    const areaOfDifficulty = [
+      "High Cost of medicine",
+      "Lack of medicines",
+      "Lack of medical attention",
+    ];
+
+    const bloodTypes = ["", "O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"];
+
+    const bloodTypeOptions = () => {
+      return (
+        <>
+          {bloodTypes.map((bloodType) => {
+            return (
+              <option key={bloodType} value={bloodType}>
+                {bloodType}
+              </option>
+            );
+          })}
+        </>
+      );
+    };
+
+    const healthProblemOptions = () => {
+      return healthProblems.map((sourceOfIncome) => {
+        return (
+          <div className="form-check" key={sourceOfIncome}>
+            <input
+              className="form-check-input"
+              type="checkbox"
+              value={sourceOfIncome}
+              id={sourceOfIncome}
+            ></input>
+            <label className="form-check-label" htmlFor={sourceOfIncome}>
+              {sourceOfIncome}
+            </label>
+          </div>
+        );
+      });
+    };
+
+    const dentalConcernOptions = () => {
+      return dentalConcerns.map((asset) => {
+        return (
+          <div className="form-check" key={asset}>
+            <input
+              className="form-check-input"
+              type="checkbox"
+              value={asset}
+              id={asset}
+            ></input>
+            <label className="form-check-label" htmlFor={asset}>
+              {asset}
+            </label>
+          </div>
+        );
+      });
+    };
+
+    const visualConcernOptions = () => {
+      return visualConcerns.map((asset) => {
+        return (
+          <div className="form-check" key={asset}>
+            <input
+              className="form-check-input"
+              type="checkbox"
+              value={asset}
+              id={asset}
+            ></input>
+            <label className="form-check-label" htmlFor={asset}>
+              {asset}
+            </label>
+          </div>
+        );
+      });
+    };
+
+    const hearingConditionOptions = () => {
+      return hearingCondition.map((asset) => {
+        return (
+          <div className="form-check" key={asset}>
+            <input
+              className="form-check-input"
+              type="checkbox"
+              value={asset}
+              id={asset}
+            ></input>
+            <label className="form-check-label" htmlFor={asset}>
+              {asset}
+            </label>
+          </div>
+        );
+      });
+    };
+
+    const emotionalConditionOptions = () => {
+      return emotionalConditions.map((problem) => {
+        return (
+          <div className="form-check" key={problem}>
+            <input
+              className="form-check-input"
+              type="checkbox"
+              value={problem}
+              id={problem}
+            ></input>
+            <label className="form-check-label" htmlFor={problem}>
+              {problem}
+            </label>
+          </div>
+        );
+      });
+    };
+
+    const areaOfDifficultyOptions = () => {
+      return areaOfDifficulty.map((problem) => {
+        return (
+          <div className="form-check" key={problem}>
+            <input
+              className="form-check-input"
+              type="checkbox"
+              value={problem}
+              id={problem}
+            ></input>
+            <label className="form-check-label" htmlFor={problem}>
+              {problem}
+            </label>
+          </div>
+        );
+      });
+    };
+
+    return (
+      <>
+        <div className="row">
+          <div className="col-md-4">
+            <label className="form-label">
+              <h5 className="mt-3">Blood Type</h5>
+            </label>
+            <select
+              className="form-select"
+              name="bloodType"
+              onChange={handleChange}
+            >
+              {bloodTypeOptions()}
+            </select>
+
+            <label className="form-label">
+              <h5 className="mt-3">Physical Disability</h5>
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              name="physicalDisability"
+              onChange={handleChange}
+            />
+            <h5 className="mt-3">Health Problems / Ailments</h5>
+            {healthProblemOptions()}
+          </div>
+          <div className="col-md-4">
+            <h5 className="mt-3">b. Dental Concern</h5>
+            {dentalConcernOptions()}
+
+            <h5 className="mt-3"> c. Visual Concern</h5>
+            {visualConcernOptions()}
+
+            <h5 className="mt-3">d. Aural/ Hearing Condition</h5>
+            {hearingConditionOptions()}
+          </div>
+
+          <div className="col-md-4">
+            <h5 className="mt-3">e. Social/ Emotional</h5>
+            {emotionalConditionOptions()}
+
+            <h5 className="mt-3">f. Area of Difficulty</h5>
+            {areaOfDifficultyOptions()}
+          </div>
+
+          <div className="col-md-12">
+            <label htmlFor="listOfMedicines" className="form-label">
+              <h5 className="mt-3">List of Medicines for Maintenance</h5>
+            </label>
+            <textarea
+              className="form-control"
+              id="listOfMedicines"
+              name="listOfMedicines"
+              onChange={handleChange}
+              rows={3}
+            ></textarea>
           </div>
         </div>
       </>
@@ -1029,6 +1415,8 @@ export default function DashboardPage() {
             {accordionItem(familyComposition, "II. Family Composition")}
             {accordionItem(dependencyProfile, "III. Dependency Profile")}
             {accordionItem(educationProfile, "IV. Education/HR Profile")}
+            {accordionItem(economicProfile, "V. Economic Profile")}
+            {accordionItem(healthProfile, "VI. Health Profile")}
           </div>
           <div className="mt-4 d-grid">
             <button type="submit" className="btn btn-primary">
