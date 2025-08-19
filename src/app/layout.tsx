@@ -10,19 +10,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <html lang="en" data-bs-theme={"dark"}>
-          <body className={"antialiased"}>
-            {children}
-            <BootstrapClient />
-          </body>
-        </html>
-      </ThemeProvider>
-    </AuthProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className="antialiased">  
+        <AuthProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </AuthProvider>
+        <BootstrapClient />
+      </body>
+    </html>
   );
 }

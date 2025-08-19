@@ -2,11 +2,14 @@
 
 import Sidebar from "@/components/Navbar";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return (
+  const { theme } = useTheme();
+
+  return theme ? (
     <ProtectedRoute>
       <Sidebar />
 
@@ -29,5 +32,7 @@ export default function RootLayout({
         }
       `}</style>
     </ProtectedRoute>
+  ) : (
+    <></>
   );
 }

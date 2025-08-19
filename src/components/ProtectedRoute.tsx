@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { ROUTES } from "@/lib/constants";
 
 export default function ProtectedRoute({
   children,
@@ -12,15 +13,15 @@ export default function ProtectedRoute({
   const { isAuthenticated } = useAuth();
   const router = useRouter();
 
-  // useEffect(() => {
-  //   if (!isAuthenticated) {
-  //     router.replace("/login");
-  //   }
-  // }, [isAuthenticated, router]);
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace(ROUTES.LOGIN);
+    }
+  }, [isAuthenticated, router]);
 
-  // if (!isAuthenticated) {
-  //   return null;
-  // }
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return <>{children}</>;
 }

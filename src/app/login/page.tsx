@@ -1,6 +1,7 @@
 "use client";
 
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { ROUTES } from "@/lib/constants";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -18,7 +19,7 @@ export default function Page() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace("/senior/dashboard");
+      router.replace(ROUTES.DASHBOARD);
     }
   }, [isAuthenticated]);
 
@@ -43,7 +44,7 @@ export default function Page() {
         name: "Admin User",
         email: "admin@example.com",
       });
-      router.push("/senior/dashboard");
+      router.push(ROUTES.DASHBOARD);
     } else {
       setFormError("Invalid credentials");
     }

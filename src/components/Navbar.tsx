@@ -1,6 +1,9 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
+import { ROUTES } from "@/lib/constants";
+import { ThemeEnum } from "@/lib/enums";
 import Link from "next/link";
 
 interface NavRoute {
@@ -11,32 +14,32 @@ interface NavRoute {
 
 const NAV_ROUTES: NavRoute[] = [
   {
-    route: "/senior/dashboard",
+    route: ROUTES.DASHBOARD,
     label: "Dashboard",
-    iconClassName: "bi bi-speedometer2",
+    iconClassName: "bi bi-bar-chart-fill",
   },
   {
-    route: "/senior/add-senior",
+    route: ROUTES.ADD_SENIOR,
     label: "Add Senior",
     iconClassName: "bi bi-person-fill-add",
   },
   {
-    route: "/senior/barangays",
-    label: "Barangays",
-    iconClassName: "bi bi-geo-alt-fill",
+    route: ROUTES.VIEW_SENIORS,
+    label: "View Seniors",
+    iconClassName: "bi bi-card-checklist",
   },
   {
-    route: "/senior/pending-profiles",
+    route: ROUTES.PENDING_PROFILES,
     label: "Pending Profiles",
-    iconClassName: "bi bi-check-lg",
+    iconClassName: "bi bi-clock-history",
   },
   {
-    route: "/senior/deceased-seniors",
+    route: ROUTES.DECEASED_SENIORS,
     label: "Deceased Seniors",
     iconClassName: "bi bi-flower3",
   },
   {
-    route: "/senior/generate-backup",
+    route: ROUTES.GENERATE_BACKUP,
     label: "Generate Backup",
     iconClassName: "bi bi-cloud-arrow-down-fill",
   },
@@ -44,6 +47,14 @@ const NAV_ROUTES: NavRoute[] = [
 
 export default function Navbar() {
   const { logout } = useAuth();
+  const { theme, toggle } = useTheme();
+
+  const themeToggleIcon =
+    theme?.theme === ThemeEnum.Dark ? (
+      <i className="bi bi-moon-fill me-2"></i>
+    ) : (
+      <i className="bi bi-brightness-high-fill me-2"></i>
+    );
 
   return (
     <div className="container-fluid">
@@ -80,11 +91,17 @@ export default function Navbar() {
         </ul>
 
         <div className="mt-auto p-3 border-top gap-3">
-          <button className="btn btn-primary w-100 mb-2" onClick={logout}>
-            <i className="bi bi-box-arrow-right me-2"></i> My Account
+          <button
+            className={`btn ${
+              theme?.theme === ThemeEnum.Dark ? "btn-light" : "btn-dark"
+            } w-100 mb-2`}
+            onClick={toggle}
+          >
+            {themeToggleIcon}
           </button>
+          <button className="btn btn-primary w-100 mb-2">My Account</button>
           <button className="btn btn-danger w-100" onClick={logout}>
-            <i className="bi bi-box-arrow-right me-2"></i> Logout
+            Logout
           </button>
         </div>
       </aside>
@@ -124,11 +141,19 @@ export default function Navbar() {
               })}
             </div>
             <div className="ms-auto d-flex align-items-center gap-2">
+              <button
+                className={`btn ${
+                  theme?.theme === ThemeEnum.Dark ? "btn-light" : "btn-dark"
+                } w-100`}
+                onClick={toggle}
+              >
+                {themeToggleIcon}
+              </button>
               <button className="btn btn-primary w-100" onClick={logout}>
-                <i className="bi bi-box-arrow-right me-2"></i> My Account
+                My Account
               </button>
               <button className="btn btn-danger w-100" onClick={logout}>
-                <i className="bi bi-box-arrow-right me-2"></i> Logout
+                Logout
               </button>
             </div>
           </div>

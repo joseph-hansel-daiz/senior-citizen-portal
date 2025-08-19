@@ -1,5 +1,6 @@
 "use client";
 
+import { ThemeEnum } from "@/lib/enums";
 import React, {
   createContext,
   useContext,
@@ -8,9 +9,7 @@ import React, {
   useEffect,
 } from "react";
 
-type Theme = {
-  theme: string;
-};
+type Theme = { theme: ThemeEnum };
 
 type ThemeContextType = {
   theme: Theme | null;
@@ -23,19 +22,22 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme | null>(null);
 
   useEffect(() => {
-    const storedTheme = localStorage.getItem("theme");
-    if (storedTheme) {
-      setTheme(JSON.parse(storedTheme));
-    } else {
-      setTheme({ theme: "light" });
-    }
+    const stored = localStorage.getItem("theme");
+    setTheme(stored ? JSON.parse(stored) : { theme: ThemeEnum.Light });
   }, []);
 
+  useEffect(() => {
+    if (theme) {
+      localStorage.setItem("theme", JSON.stringify(theme));
+      document.documentElement.setAttribute("data-bs-theme", theme.theme);
+    }
+  }, [theme]);
+
   const toggle = () => {
-    if (theme?.theme === "light") {
-      setTheme({ theme: "dark" });
+    if (theme?.theme === ThemeEnum.Light) {
+      setTheme({ theme: ThemeEnum.Dark });
     } else {
-      setTheme({ theme: "light" });
+      setTheme({ theme: ThemeEnum.Light });
     }
   };
 
