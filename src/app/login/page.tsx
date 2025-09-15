@@ -23,7 +23,7 @@ export default function Page() {
     }
   }, [isAuthenticated]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Reset error state
@@ -39,14 +39,41 @@ export default function Page() {
       return;
     }
 
-    if (username === "admin" && password === "admin") {
-      login({
-        name: "Admin User",
-        email: "admin@example.com",
+    try {
+      const res = await fetch("http://localhost:8000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
       });
+
+      // parse JSON even on non-2xx to show backend message
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        const errorMessage = (data && data.message) || "Login failed";
+        setFormError(errorMessage);
+        return;
+      }
+
+      const { token, user } = data;
+
+      const userPayload = {
+        id: Number(user.id),
+        username: user.username,
+        name: user.name,
+        role: user.role,
+        barangayId: user.barangayId === null ? null : Number(user.barangayId),
+      };
+
+      login(userPayload, token);
+
       router.push(ROUTES.DASHBOARD);
-    } else {
-      setFormError("Invalid credentials");
+    } catch (err) {
+      setFormError(
+        "Network error. Please check your connection and try again."
+      );
     }
   };
 

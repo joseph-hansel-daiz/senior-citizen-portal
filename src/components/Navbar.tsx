@@ -5,6 +5,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { ROUTES } from "@/lib/constants";
 import { ThemeEnum } from "@/lib/enums";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface NavRoute {
   route: string;
@@ -48,6 +49,7 @@ const NAV_ROUTES: NavRoute[] = [
 export default function Navbar() {
   const { logout } = useAuth();
   const { theme, toggle } = useTheme();
+  const router = useRouter();
 
   const themeToggleIcon =
     theme?.theme === ThemeEnum.Dark ? (
@@ -99,7 +101,12 @@ export default function Navbar() {
           >
             {themeToggleIcon}
           </button>
-          <button className="btn btn-primary w-100 mb-2">My Account</button>
+          <button
+            className="btn btn-primary w-100 mb-2"
+            onClick={() => router.push(ROUTES.MY_ACCOUNT)}
+          >
+            My Account
+          </button>
           <button className="btn btn-danger w-100" onClick={logout}>
             Logout
           </button>
@@ -149,7 +156,10 @@ export default function Navbar() {
               >
                 {themeToggleIcon}
               </button>
-              <button className="btn btn-primary w-100" onClick={logout}>
+              <button
+                className="btn btn-primary w-100"
+                onClick={() => router.push(ROUTES.MY_ACCOUNT)}
+              >
                 My Account
               </button>
               <button className="btn btn-danger w-100" onClick={logout}>

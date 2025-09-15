@@ -10,14 +10,17 @@ import React, {
 import { useRouter } from "next/navigation";
 
 type User = {
+  id: number;
+  username: string;
   name: string;
-  email: string;
-  token?: string;
+  role: string;
+  barangayId: number | null;
 };
 
 type AuthContextType = {
   user: User | null;
-  login: (user: User) => void;
+  token: string | null;
+  login: (user: User, token: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
 };
@@ -26,28 +29,36 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+      setToken(storedToken)
     }
   }, []);
 
-  const login = (userData: User) => {
+  const login = (userData: User, tokenData: string) => {
     setUser(userData);
+    setToken(tokenData);
     localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("token", tokenData);
   };
 
   const logout = () => {
     setUser(null);
+    setToken(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
     router.push("/login");
   };
 
   const value = {
     user,
+    token,
     login,
     logout,
     isAuthenticated: !!user,

@@ -5,5 +5,7 @@ export const ROUTES = {
   PENDING_PROFILES: "/pending-profiles",
   DECEASED_SENIORS: "/deceased-seniors",
   GENERATE_BACKUP: "/generate-backup",
+
+  MY_ACCOUNT: "/my-account",
   LOGIN: "/login",
 };
