@@ -1,5 +1,24 @@
 "use client";
 
+import {
+  useAreaOfDifficulties,
+  useAuralConcerns,
+  useCohabitants,
+  useCommunityInvolvements,
+  useDentalConcerns,
+  useHealthProblems,
+  useEducationalAttainments,
+  useIncomeSources,
+  useLivingConditions,
+  useMonthlyIncomes,
+  usePersonalProperties,
+  useProblemsNeeds,
+  useRealProperties,
+  useSocialEmotionalConcerns,
+  useTechnicalSkills,
+  useVisualConcerns,
+} from "@/hooks/options";
+import { renderCheckboxOptions, renderRadioOptions } from "@/lib/renderOptions";
 import { JSX, useState } from "react";
 
 interface SeniorCitizen {
@@ -88,6 +107,23 @@ export default function DashboardPage() {
   );
   const [children, setChildren] = useState<Member[]>([DEFAULT_MEMBER]);
   const [dependents, setDependents] = useState<Member[]>([DEFAULT_MEMBER]);
+
+  const { data: areaOfDifficulties } = useAreaOfDifficulties();
+  const { data: hearingConditions } = useAuralConcerns();
+  const { data: cohabitants } = useCohabitants();
+  const { data: comunityInvolvements } = useCommunityInvolvements();
+  const { data: dentalConcerns } = useDentalConcerns();
+  const { data: healthProblems } = useHealthProblems();
+  const { data: educationalAttainments } = useEducationalAttainments();
+  const { data: incomeSources } = useIncomeSources();
+  const { data: livingConditions } = useLivingConditions();
+  const { data: monthlyIncomes } = useMonthlyIncomes();
+  const { data: personalProperties } = usePersonalProperties();
+  const { data: problemsNeeds } = useProblemsNeeds();
+  const { data: realProperties } = useRealProperties();
+  const { data: socialEmotionalConcerns } = useSocialEmotionalConcerns();
+  const { data: technicalSkills } = useTechnicalSkills();
+  const { data: visualConcerns } = useVisualConcerns();
 
   const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
@@ -789,71 +825,16 @@ export default function DashboardPage() {
   };
 
   const dependencyProfile = () => {
-    const cohabitants = [
-      "Grand Children",
-      "Common Law Spouse",
-      "Spouse",
-      "In-laws",
-      "Care Institution",
-      "Children",
-      "Relative",
-      "Friends",
-    ];
-
-    const livingConditions = [
-      "No privacy",
-      "Overcrowded in home",
-      "Informal Settler",
-      "No permanent house",
-      "High cost of rent",
-      "Longing for independent living quiet atmosphere",
-    ];
-
-    const cohabitantOptions = () => {
-      return cohabitants.map((cohabitant) => {
-        return (
-          <div className="form-check" key={cohabitant}>
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value={cohabitant}
-              id={cohabitant}
-            ></input>
-            <label className="form-check-label" htmlFor={cohabitant}>
-              {cohabitant}
-            </label>
-          </div>
-        );
-      });
-    };
-
-    const livingConditionOptions = () => {
-      return livingConditions.map((livingCondition) => {
-        return (
-          <div className="form-check" key={livingCondition}>
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value={livingCondition}
-              id={livingCondition}
-            ></input>
-            <label className="form-check-label" htmlFor={livingCondition}>
-              {livingCondition}
-            </label>
-          </div>
-        );
-      });
-    };
     return (
       <>
         <div className="row">
           <div className="col-md-6">
             <h5 className="mt-3">Cohabitants</h5>
-            {cohabitantOptions()}
+            {renderCheckboxOptions(cohabitants)}
           </div>
           <div className="col-md-6">
             <h5 className="mt-3">Living Condition</h5>
-            {livingConditionOptions()}
+            {renderCheckboxOptions(livingConditions)}
           </div>
         </div>
       </>
@@ -861,118 +842,19 @@ export default function DashboardPage() {
   };
 
   const educationProfile = () => {
-    const education = [
-      "Not Attended School",
-      "Elementary Level",
-      "Elementary Graduate",
-      "Highschool Level",
-      "Highschool Graduate",
-      "Vocational",
-      "College Level",
-      "College Graduate",
-      "Post Graduate",
-    ];
-
-    const technicalSkills = [
-      "Medical",
-      "Dental",
-      "Fishing",
-      "Engineering",
-      "Barber",
-      "Evangelization",
-      "Millwright",
-      "Teaching",
-      "Counselling",
-      "Cooking",
-      "Carpenter",
-      "Mason",
-      "Tailor",
-      "Legal Services",
-      "Farming",
-      "Arts",
-      "Plumber",
-      "Shoemaker",
-      "Chef/Cook",
-      "Information Technology",
-    ];
-
-    const comunityActivities = [
-      "Medical",
-      "Resource Volunteer",
-      "Community Beautification",
-      "Community/Organization Leader",
-      "Friendly Visits",
-      "Neighborhood Support Services",
-      "Legal Services",
-      "Religious",
-      "Counselling/Referral",
-      "Sponsorship",
-    ];
-
-    const educationOptions = () => {
-      return education.map((cohabitant) => {
-        return (
-          <div className="form-check" key={cohabitant}>
-            <input
-              name="educationOptions"
-              className="form-check-input"
-              type="radio"
-              value={cohabitant}
-              id={cohabitant}
-            ></input>
-            <label className="form-check-label" htmlFor={cohabitant}>
-              {cohabitant}
-            </label>
-          </div>
-        );
-      });
-    };
-
-    const technicalSkillsOptions = () => {
-      return technicalSkills.map((cohabitant) => {
-        return (
-          <div className="form-check" key={cohabitant}>
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value={cohabitant}
-              id={cohabitant}
-            ></input>
-            <label className="form-check-label" htmlFor={cohabitant}>
-              {cohabitant}
-            </label>
-          </div>
-        );
-      });
-    };
-
-    const communityActivitiesOptions = () => {
-      return comunityActivities.map((cohabitant) => {
-        return (
-          <div className="form-check" key={cohabitant}>
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value={cohabitant}
-              id={cohabitant}
-            ></input>
-            <label className="form-check-label" htmlFor={cohabitant}>
-              {cohabitant}
-            </label>
-          </div>
-        );
-      });
-    };
     return (
       <>
         <div className="row">
           <div className="col-md-4">
             <h5 className="mt-3">Highest Educational Attainment</h5>
-            {educationOptions()}
+            {renderRadioOptions(
+              educationalAttainments,
+              "educationalAttainments"
+            )}
           </div>
           <div className="col-md-4">
             <h5 className="mt-3">Specialization / Technical Skills</h5>
-            {technicalSkillsOptions()}
+            {renderCheckboxOptions(technicalSkills)}
           </div>
           <div className="col-md-4">
             <label htmlFor="sharedSkills" className="form-label">
@@ -984,7 +866,7 @@ export default function DashboardPage() {
               rows={3}
             ></textarea>
             <h5 className="mt-3">Involvement in Community Activities</h5>
-            {communityActivitiesOptions()}
+            {renderCheckboxOptions(comunityInvolvements)}
           </div>
         </div>
       </>
@@ -992,167 +874,27 @@ export default function DashboardPage() {
   };
 
   const economicProfile = () => {
-    const sourcesOfIncome = [
-      "Own earnings, salary/ wages",
-      "Own Pension",
-      "Stocks/ Dividends",
-      "Dependent on children/ relatives",
-      "Spouse's salary",
-      "Spouse Pension",
-      "Insurance",
-      "Rental/ Sharecorp",
-      "Savings",
-      "Livestock/ orchard/ farm",
-      "Fishing",
-    ];
-
-    const monthlyIncome = [
-      "60000 and above",
-      "50000 to 60000",
-      "40000 to 50000",
-      "20000 to 30000",
-      "10000 to 20000",
-      "5000 to 10000",
-      "below 5000",
-      "None",
-    ];
-
-    const assetA = [
-      "House",
-      "Lot/ Farmland",
-      "House & Lot",
-      "Commercial Building",
-      "Fishpond/ resort",
-    ];
-
-    const assetB = [
-      "Automobile",
-      "Personal Computer",
-      "Boats",
-      "Heavy Equipment",
-      "Laptops",
-      "Motorcycle",
-      "Mobile Phones",
-    ];
-
-    const problems = [
-      "Lack of incomes/ resource",
-      "Lose of income/ resource",
-      "Skills/ capability training",
-    ];
-
-    const sourcesOfIncomeOptions = () => {
-      return sourcesOfIncome.map((sourceOfIncome) => {
-        return (
-          <div className="form-check" key={sourceOfIncome}>
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value={sourceOfIncome}
-              id={sourceOfIncome}
-            ></input>
-            <label className="form-check-label" htmlFor={sourceOfIncome}>
-              {sourceOfIncome}
-            </label>
-          </div>
-        );
-      });
-    };
-
-    const monthlyIncomeOptions = () => {
-      return monthlyIncome.map((income) => {
-        return (
-          <div className="form-check" key={income}>
-            <input
-              name="educationOptions"
-              className="form-check-input"
-              type="radio"
-              value={income}
-              id={income}
-            ></input>
-            <label className="form-check-label" htmlFor={income}>
-              {income}
-            </label>
-          </div>
-        );
-      });
-    };
-
-    const assetAOptions = () => {
-      return assetA.map((asset) => {
-        return (
-          <div className="form-check" key={asset}>
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value={asset}
-              id={asset}
-            ></input>
-            <label className="form-check-label" htmlFor={asset}>
-              {asset}
-            </label>
-          </div>
-        );
-      });
-    };
-
-    const assetBOptions = () => {
-      return assetB.map((asset) => {
-        return (
-          <div className="form-check" key={asset}>
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value={asset}
-              id={asset}
-            ></input>
-            <label className="form-check-label" htmlFor={asset}>
-              {asset}
-            </label>
-          </div>
-        );
-      });
-    };
-
-    const problemsOptions = () => {
-      return problems.map((problem) => {
-        return (
-          <div className="form-check" key={problem}>
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value={problem}
-              id={problem}
-            ></input>
-            <label className="form-check-label" htmlFor={problem}>
-              {problem}
-            </label>
-          </div>
-        );
-      });
-    };
-
     return (
       <>
         <div className="row">
           <div className="col-md-4">
             <h5 className="mt-3">Sources of Income</h5>
-            {sourcesOfIncomeOptions()}
+            {renderCheckboxOptions(incomeSources)}
 
             <h5 className="mt-3">Monthly Income</h5>
-            {monthlyIncomeOptions()}
+            {renderRadioOptions(monthlyIncomes, "monthlyIncomes")}
           </div>
           <div className="col-md-4">
             <h5 className="mt-3">A Assets: Real and Immovable Properties</h5>
-            {assetAOptions()}
+            {renderCheckboxOptions(realProperties)}
 
             <h5 className="mt-3">Problems / Needs Commonly Encountered</h5>
-            {problemsOptions()}
+            {renderCheckboxOptions(problemsNeeds)}
           </div>
 
           <div className="col-md-4">
             <h5 className="mt-3">B Assets: Personal and Movable Properties</h5>
-            {assetBOptions()}
+            {renderCheckboxOptions(personalProperties)}
           </div>
         </div>
       </>
@@ -1160,36 +902,6 @@ export default function DashboardPage() {
   };
 
   const healthProfile = () => {
-    const healthProblems = [
-      "Hypertension",
-      "Arthritis/ Gout",
-      "Coronary Heart Disease",
-      "Diabetes",
-      "Chronic Kidney Disease",
-      "Alzheimer's/ Dementia",
-      "Chronic Obstructive Pulmonary Disease",
-    ];
-
-    const dentalConcerns = ["Needs Dental Care"];
-
-    const visualConcerns = ["Eye impairment", "Needs eye care"];
-
-    const hearingCondition = ["Aural impairment"];
-
-    const emotionalConditions = [
-      "Feeling neglect/ rejection",
-      "Feeling helplessness/ worthlessness",
-      "Feeling loneliness/ isolate",
-      "Lack leisure/ recreational activities",
-      "Lack SC friendly environment",
-    ];
-
-    const areaOfDifficulty = [
-      "High Cost of medicine",
-      "Lack of medicines",
-      "Lack of medical attention",
-    ];
-
     const bloodTypes = ["", "O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"];
 
     const bloodTypeOptions = () => {
@@ -1204,114 +916,6 @@ export default function DashboardPage() {
           })}
         </>
       );
-    };
-
-    const healthProblemOptions = () => {
-      return healthProblems.map((sourceOfIncome) => {
-        return (
-          <div className="form-check" key={sourceOfIncome}>
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value={sourceOfIncome}
-              id={sourceOfIncome}
-            ></input>
-            <label className="form-check-label" htmlFor={sourceOfIncome}>
-              {sourceOfIncome}
-            </label>
-          </div>
-        );
-      });
-    };
-
-    const dentalConcernOptions = () => {
-      return dentalConcerns.map((asset) => {
-        return (
-          <div className="form-check" key={asset}>
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value={asset}
-              id={asset}
-            ></input>
-            <label className="form-check-label" htmlFor={asset}>
-              {asset}
-            </label>
-          </div>
-        );
-      });
-    };
-
-    const visualConcernOptions = () => {
-      return visualConcerns.map((asset) => {
-        return (
-          <div className="form-check" key={asset}>
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value={asset}
-              id={asset}
-            ></input>
-            <label className="form-check-label" htmlFor={asset}>
-              {asset}
-            </label>
-          </div>
-        );
-      });
-    };
-
-    const hearingConditionOptions = () => {
-      return hearingCondition.map((asset) => {
-        return (
-          <div className="form-check" key={asset}>
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value={asset}
-              id={asset}
-            ></input>
-            <label className="form-check-label" htmlFor={asset}>
-              {asset}
-            </label>
-          </div>
-        );
-      });
-    };
-
-    const emotionalConditionOptions = () => {
-      return emotionalConditions.map((problem) => {
-        return (
-          <div className="form-check" key={problem}>
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value={problem}
-              id={problem}
-            ></input>
-            <label className="form-check-label" htmlFor={problem}>
-              {problem}
-            </label>
-          </div>
-        );
-      });
-    };
-
-    const areaOfDifficultyOptions = () => {
-      return areaOfDifficulty.map((problem) => {
-        return (
-          <div className="form-check" key={problem}>
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value={problem}
-              id={problem}
-            ></input>
-            <label className="form-check-label" htmlFor={problem}>
-              {problem}
-            </label>
-          </div>
-        );
-      });
     };
 
     return (
@@ -1339,25 +943,25 @@ export default function DashboardPage() {
               onChange={handleChange}
             />
             <h5 className="mt-3">Health Problems / Ailments</h5>
-            {healthProblemOptions()}
+            {renderCheckboxOptions(healthProblems)}
           </div>
           <div className="col-md-4">
             <h5 className="mt-3">b. Dental Concern</h5>
-            {dentalConcernOptions()}
+            {renderCheckboxOptions(dentalConcerns)}
 
             <h5 className="mt-3"> c. Visual Concern</h5>
-            {visualConcernOptions()}
+            {renderCheckboxOptions(visualConcerns)}
 
             <h5 className="mt-3">d. Aural/ Hearing Condition</h5>
-            {hearingConditionOptions()}
+            {renderCheckboxOptions(hearingConditions)}
           </div>
 
           <div className="col-md-4">
             <h5 className="mt-3">e. Social/ Emotional</h5>
-            {emotionalConditionOptions()}
+            {renderCheckboxOptions(socialEmotionalConcerns)}
 
             <h5 className="mt-3">f. Area of Difficulty</h5>
-            {areaOfDifficultyOptions()}
+            {renderCheckboxOptions(areaOfDifficulties)}
           </div>
 
           <div className="col-md-12">
