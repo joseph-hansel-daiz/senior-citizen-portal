@@ -52,19 +52,19 @@ export default function DataTable<T extends { id: number | string }>({
   };
 
   return (
-    <div className="container p-5 card">
+    <div className="container p-4 card">
       {/* Title + Search */}
       {(title || searchableField) && (
-        <div className="row mb-3 align-items-center">
-          <div className="col text-start">
-            {title && <h2 className="mb-0">{title}</h2>}
+        <div className="row mb-3">
+          <div className="col-12 col-md-6 mb-2 mb-md-0 d-flex align-items-center">
+            {title && <h2 className="h5 mb-0">{title}</h2>}
           </div>
-          <div className="col text-end">
+          <div className="col-12 col-md-6 d-flex justify-content-md-end">
             {searchableField && (
               <input
                 type="text"
                 className="form-control"
-                style={{ width: "250px", display: "inline-block" }}
+                style={{ maxWidth: "250px", width: "100%" }}
                 placeholder="Search"
                 value={searchTerm}
                 onChange={(e) => {
@@ -80,7 +80,10 @@ export default function DataTable<T extends { id: number | string }>({
       {/* Table */}
       <div className="row">
         <div className="table-responsive">
-          <table className="table" style={{ minWidth: "800px" }}>
+          <table
+            className="table table-striped table-hover"
+            style={{ minWidth: "800px" }}
+          >
             <thead>
               <tr>
                 {columns.map((col) => (
@@ -118,41 +121,47 @@ export default function DataTable<T extends { id: number | string }>({
       </div>
 
       {/* Pagination */}
-      <div className="row align-items-center mt-3">
-        <div className="col-auto">
-          <select
-            className="form-select"
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-          >
-            {pageSizeOptions.map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="col">
-          <button
-            className="btn btn-outline-secondary m-2"
-            onClick={() => goToPage(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            <i className="bi bi-chevron-double-left"></i>
-          </button>
-          <span>
-            Page {currentPage} of {totalPages || 1}
-          </span>
-          <button
-            className="btn btn-outline-secondary m-2"
-            onClick={() => goToPage(currentPage + 1)}
-            disabled={currentPage === totalPages || totalPages === 0}
-          >
-            <i className="bi bi-chevron-double-right"></i>
-          </button>
+      <div className="row mt-3">
+        <div className="col-12 d-flex flex-wrap justify-content-between align-items-center gap-2">
+          {/* Page size selector */}
+          <div>
+            <select
+              className="form-select"
+              style={{ width: "auto" }}
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+            >
+              {pageSizeOptions.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Page navigation */}
+          <div className="d-flex align-items-center gap-2">
+            <button
+              className="btn btn-outline-secondary"
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <i className="bi bi-chevron-double-left"></i>
+            </button>
+            <span>
+              Page {currentPage} of {totalPages || 1}
+            </span>
+            <button
+              className="btn btn-outline-secondary"
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages || totalPages === 0}
+            >
+              <i className="bi bi-chevron-double-right"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>
