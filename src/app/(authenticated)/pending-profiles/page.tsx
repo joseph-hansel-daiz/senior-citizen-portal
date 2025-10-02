@@ -40,14 +40,16 @@ export default function DashboardPage() {
 
   const renderActions = (item: SeniorCitizen) => (
     <div className="d-grid gap-2">
-      <button className="btn btn-primary btn-sm w-100">View</button>
+      <button className="btn btn-secondary btn-sm w-100">View</button>
+      <button className="btn btn-primary btn-sm w-100">Approve</button>
+      <button className="btn btn-danger btn-sm w-100">Decline</button>
     </div>
   );
 
   return (
     <section>
       <DataTable
-        title="Senior Citizens"
+        title="Pending Profiles"
         data={data}
         columns={columns}
         searchableField="fullName"
