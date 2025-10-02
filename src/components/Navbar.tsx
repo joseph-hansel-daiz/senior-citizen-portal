@@ -13,7 +13,23 @@ interface NavRoute {
   iconClassName: string;
 }
 
-const NAV_ROUTES: NavRoute[] = [
+enum Role {
+  ADMIN = "admin",
+  OSCA = "osca",
+  BARANGAY = "barangay",
+  VIEW_ONLY = "viewOnly",
+}
+
+// ===== Route definitions =====
+const ADMIN_ROUTES: NavRoute[] = [
+  {
+    route: ROUTES.GENERATE_BACKUP,
+    label: "Generate Backup",
+    iconClassName: "bi bi-cloud-arrow-down-fill",
+  },
+];
+
+const OSCA_ROUTES: NavRoute[] = [
   {
     route: ROUTES.DASHBOARD,
     label: "Dashboard",
@@ -39,15 +55,54 @@ const NAV_ROUTES: NavRoute[] = [
     label: "Deceased Seniors",
     iconClassName: "bi bi-flower3",
   },
+];
+
+const BARANGAY_ROUTES: NavRoute[] = [
   {
-    route: ROUTES.GENERATE_BACKUP,
-    label: "Generate Backup",
-    iconClassName: "bi bi-cloud-arrow-down-fill",
+    route: ROUTES.DASHBOARD,
+    label: "Dashboard",
+    iconClassName: "bi bi-bar-chart-fill",
+  },
+  {
+    route: ROUTES.ADD_SENIOR,
+    label: "Add Senior",
+    iconClassName: "bi bi-person-fill-add",
+  },
+  {
+    route: ROUTES.VIEW_SENIORS,
+    label: "View Seniors",
+    iconClassName: "bi bi-card-checklist",
+  },
+  {
+    route: ROUTES.DECEASED_SENIORS,
+    label: "Deceased Seniors",
+    iconClassName: "bi bi-flower3",
   },
 ];
 
+const VIEW_ONLY_ROUTES: NavRoute[] = [
+  {
+    route: ROUTES.DASHBOARD,
+    label: "Dashboard",
+    iconClassName: "bi bi-bar-chart-fill",
+  },
+  {
+    route: ROUTES.VIEW_SENIORS,
+    label: "View Seniors",
+    iconClassName: "bi bi-card-checklist",
+  },
+];
+
+// Map roles to routes
+const ROLE_ROUTES: Record<Role, NavRoute[]> = {
+  [Role.ADMIN]: ADMIN_ROUTES,
+  [Role.OSCA]: OSCA_ROUTES,
+  [Role.BARANGAY]: BARANGAY_ROUTES,
+  [Role.VIEW_ONLY]: VIEW_ONLY_ROUTES,
+};
+
 export default function Navbar() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const { theme, toggle } = useTheme();
   const router = useRouter();
 
@@ -57,6 +112,9 @@ export default function Navbar() {
     ) : (
       <i className="bi bi-brightness-high-fill me-2"></i>
     );
+
+  // Get role-based routes
+  const navRoutes = user?.role ? ROLE_ROUTES[user?.role as Role] || [] : [];
 
   return (
     <div className="container-fluid">
@@ -79,11 +137,11 @@ export default function Navbar() {
         </div>
 
         <ul className="nav flex-column px-1">
-          {NAV_ROUTES.map((nav) => (
+          {navRoutes.map((nav) => (
             <li className="nav-item" key={nav.route}>
               <Link
                 className="nav-link d-flex align-items-center gap-2 fw-bold"
-                href={`${nav.route}`}
+                href={nav.route}
               >
                 <i className={nav.iconClassName}></i>
                 {nav.label}
@@ -134,18 +192,16 @@ export default function Navbar() {
           </button>
           <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div className="navbar-nav">
-              {NAV_ROUTES.map((nav) => {
-                return (
-                  <Link
-                    className="nav-item nav-link fw-bold"
-                    key={nav.route}
-                    href={nav.route}
-                  >
-                    <i className={`${nav.iconClassName} mx-2`}></i>
-                    {nav.label}
-                  </Link>
-                );
-              })}
+              {navRoutes.map((nav) => (
+                <Link
+                  className="nav-item nav-link fw-bold"
+                  key={nav.route}
+                  href={nav.route}
+                >
+                  <i className={`${nav.iconClassName} mx-2`}></i>
+                  {nav.label}
+                </Link>
+              ))}
             </div>
             <div className="ms-auto d-flex align-items-center gap-2">
               <button
