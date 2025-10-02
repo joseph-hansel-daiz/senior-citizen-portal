@@ -15,6 +15,7 @@ type User = {
   name: string;
   role: string;
   barangayId: number | null;
+  logo: { type: "Buffer"; data: number[] } | null;
 };
 
 type AuthContextType = {
@@ -37,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const storedToken = localStorage.getItem("token");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
-      setToken(storedToken)
+      setToken(storedToken);
     }
   }, []);
 
