@@ -6,8 +6,8 @@ import {
   useCohabitants,
   useCommunityInvolvements,
   useDentalConcerns,
-  useHealthProblems,
   useEducationalAttainments,
+  useHealthProblems,
   useIncomeSources,
   useLivingConditions,
   useMonthlyIncomes,
@@ -18,7 +18,7 @@ import {
   useTechnicalSkills,
   useVisualConcerns,
 } from "@/hooks/options";
-import { renderCheckboxOptions, renderRadioOptions } from "@/lib/renderOptions";
+import { useCreateSenior } from "@/hooks/useCreateSenior";
 import { JSX, useState } from "react";
 
 interface SeniorCitizen {
@@ -107,6 +107,52 @@ export default function DashboardPage() {
   );
   const [children, setChildren] = useState<Member[]>([DEFAULT_MEMBER]);
   const [dependents, setDependents] = useState<Member[]>([DEFAULT_MEMBER]);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [selectedCohabitants, setSelectedCohabitants] = useState<number[]>([]);
+  const [selectedLivingConditions, setSelectedLivingConditions] = useState<
+    number[]
+  >([]);
+  const [selectedEducationalAttainments, setSelectedEducationalAttainments] =
+    useState<number[]>([]);
+  const [selectedTechnicalSkills, setSelectedTechnicalSkills] = useState<
+    number[]
+  >([]);
+  const [selectedCommunityInvolvements, setSelectedCommunityInvolvements] =
+    useState<number[]>([]);
+  const [selectedIncomeSources, setSelectedIncomeSources] = useState<number[]>(
+    []
+  );
+  const [selectedMonthlyIncomes, setSelectedMonthlyIncomes] = useState<
+    number[]
+  >([]);
+  const [selectedRealProperties, setSelectedRealProperties] = useState<
+    number[]
+  >([]);
+  const [selectedPersonalProperties, setSelectedPersonalProperties] = useState<
+    number[]
+  >([]);
+  const [selectedProblemsNeeds, setSelectedProblemsNeeds] = useState<number[]>(
+    []
+  );
+  const [selectedHealthProblems, setSelectedHealthProblems] = useState<
+    number[]
+  >([]);
+  const [selectedDentalConcerns, setSelectedDentalConcerns] = useState<
+    number[]
+  >([]);
+  const [selectedVisualConcerns, setSelectedVisualConcerns] = useState<
+    number[]
+  >([]);
+  const [selectedAuralConcerns, setSelectedAuralConcerns] = useState<number[]>(
+    []
+  );
+  const [selectedSocialEmotionalConcerns, setSelectedSocialEmotionalConcerns] =
+    useState<number[]>([]);
+  const [selectedAreaOfDifficulties, setSelectedAreaOfDifficulties] = useState<
+    number[]
+  >([]);
+
+  const { createSenior, loading, error, data } = useCreateSenior();
 
   const { data: areaOfDifficulties } = useAreaOfDifficulties();
   const { data: hearingConditions } = useAuralConcerns();
@@ -130,14 +176,130 @@ export default function DashboardPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPhotoFile(file);
+      setFormData((prev) => ({ ...prev, picture: file }));
+    }
+  };
+
+  const handleCheckboxChange = (
+    optionId: number,
+    setter: (ids: number[]) => void,
+    currentIds: number[]
+  ) => {
+    if (currentIds.includes(optionId)) {
+      setter(currentIds.filter((id) => id !== optionId));
+    } else {
+      setter([...currentIds, optionId]);
+    }
+  };
+
+  const handleRadioChange = (
+    optionId: number,
+    setter: (ids: number[]) => void
+  ) => {
+    setter([optionId]);
+  };
+
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    console.log(formData);
-    // Submit logic here
+
+    try {
+      // Transform form data to match backend API structure
+      const payload = {
+        barangayId: 1, // You might want to make this dynamic
+        photo: photoFile || null,
+        identifyingInformation: {
+          lastname: formData.lastName,
+          firstname: formData.firstName,
+          middlename: formData.middleName,
+          extension: formData.extName,
+          region: formData.region,
+          province: formData.province,
+          city: formData.city,
+          barangay: formData.barangay,
+          residence: formData.street, // Using street as residence
+          street: formData.street,
+          birthDate: formData.birthDate,
+          birthPlace: formData.birthPlace,
+          maritalStatus: formData.maritalStatus,
+          religion: formData.religion,
+          sexAtBirth: formData.sexAtBirth,
+          contactNumber: formData.contactNumber,
+          emailAddress: formData.email,
+          fbMessengerName: formData.fbMessenger,
+          ethnicOrigin: formData.ethnicOrigin,
+          languageSpoken: formData.languageSpoken,
+          oscaIdNo: formData.oscaId,
+          gsisSssNo: formData.gsisSssNo,
+          tin: formData.tinNo,
+          philhealthNo: formData.philhealthNo,
+          scAssociationIdNo: formData.scAssociationId,
+          otherGovIdNo: formData.otherGovId,
+          employmentBusiness: formData.employment,
+          hasPension: formData.hasPension === "Yes",
+          pensionList: "", // You might want to add this field to the form
+          capabilityToTravel: formData.canTravel === "Yes",
+        },
+        familyComposition: {
+          spouseLastname: null, // You might want to add spouse fields to the form
+          spouseFirstname: null,
+          spouseMiddlename: null,
+          spouseExtension: null,
+          fatherLastname: null, // You might want to add parent fields to the form
+          fatherFirstname: null,
+          fatherMiddlename: null,
+          fatherExtension: null,
+          motherLastname: null,
+          motherFirstname: null,
+          motherMiddlename: null,
+        },
+        dependencyProfile: {
+          cohabitants: selectedCohabitants,
+          livingConditions: selectedLivingConditions,
+        },
+        educationProfile: {
+          sharedSkills: "", // You might want to add this field to the form
+          highestEducationalAttainments: selectedEducationalAttainments,
+          specializationTechnicalSkills: selectedTechnicalSkills,
+          communityInvolvements: selectedCommunityInvolvements,
+        },
+        economicProfile: {
+          incomeAssistanceSources: selectedIncomeSources,
+          realImmovableProperties: selectedRealProperties,
+          personalMovableProperties: selectedPersonalProperties,
+          monthlyIncomes: selectedMonthlyIncomes,
+          problemsNeedsCommonlyEncountereds: selectedProblemsNeeds,
+        },
+        healthProfile: {
+          bloodType: null,
+          physicalDisability: null,
+          listMedicines: null,
+          checkUp: false,
+          scheduleCheckUp: null,
+          healthProblemAilments: selectedHealthProblems,
+          dentalConcerns: selectedDentalConcerns,
+          visualConcerns: selectedVisualConcerns,
+          auralConcerns: selectedAuralConcerns,
+          socialEmotionalConcerns: selectedSocialEmotionalConcerns,
+          areaOfDifficulties: selectedAreaOfDifficulties,
+        },
+      };
+
+      await createSenior(payload);
+      // Handle success - maybe redirect or show success message
+      alert("Senior citizen created successfully!");
+    } catch (err) {
+      console.error("Error creating senior:", err);
+      // Error is already handled by the hook
+    }
   };
 
   const handleCancel = () => {
     setFormData(DEFAULT_SENIOR_CITIZEN);
+    setPhotoFile(null);
   };
 
   const booleanOptions = () => {
@@ -170,8 +332,14 @@ export default function DashboardPage() {
             type="file"
             className="form-control"
             accept="image/png, image/jpeg"
+            onChange={handlePhotoChange}
           />
           <div className="form-text">Only JPG and PNG formats accepted.</div>
+          {photoFile && (
+            <div className="mt-2">
+              <small className="text-muted">Selected: {photoFile.name}</small>
+            </div>
+          )}
         </div>
 
         <div className="row">
@@ -194,6 +362,7 @@ export default function DashboardPage() {
               name="firstName"
               value={formData.firstName}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="col-md-3">
@@ -204,6 +373,7 @@ export default function DashboardPage() {
               name="middleName"
               value={formData.middleName}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="col-md-3">
@@ -231,6 +401,7 @@ export default function DashboardPage() {
               name="region"
               value={formData.region}
               onChange={handleChange}
+              required
             >
               <option value="">Select Region</option>
               <option value="Region VIII">Region VIII</option>
@@ -244,6 +415,7 @@ export default function DashboardPage() {
               name="province"
               value={formData.province}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="col-md-3">
@@ -254,6 +426,7 @@ export default function DashboardPage() {
               name="city"
               value={formData.city}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="col-md-3">
@@ -264,6 +437,7 @@ export default function DashboardPage() {
               name="barangay"
               value={formData.barangay}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="col-12 mt-2">
@@ -273,6 +447,7 @@ export default function DashboardPage() {
               className="form-control"
               name="street"
               onChange={handleChange}
+              required
             />
           </div>
         </div>
@@ -288,6 +463,7 @@ export default function DashboardPage() {
               className="form-control"
               name="birthDate"
               onChange={handleChange}
+              required
             />
           </div>
           <div className="col-md-3">
@@ -297,6 +473,7 @@ export default function DashboardPage() {
               className="form-control"
               name="birthPlace"
               onChange={handleChange}
+              required
             />
           </div>
           <div className="col-md-3">
@@ -305,6 +482,7 @@ export default function DashboardPage() {
               className="form-select"
               name="maritalStatus"
               onChange={handleChange}
+              required
             >
               <option value="">Select Marital Status</option>
               <option value="Single">Single</option>
@@ -330,6 +508,7 @@ export default function DashboardPage() {
               className="form-select"
               name="sexAtBirth"
               onChange={handleChange}
+              required
             >
               <option value="">Select</option>
               <option value="Male">Male</option>
@@ -343,6 +522,7 @@ export default function DashboardPage() {
               className="form-control"
               name="contactNumber"
               onChange={handleChange}
+              required
             />
           </div>
           <div className="col-md-3">
@@ -624,7 +804,6 @@ export default function DashboardPage() {
               className="form-control"
               name="lastName"
               onChange={handleChange}
-              required
             />
           </div>
           <div className="col-md-3">
@@ -666,7 +845,6 @@ export default function DashboardPage() {
               className="form-control"
               name="lastName"
               onChange={handleChange}
-              required
             />
           </div>
           <div className="col-md-3">
@@ -708,7 +886,6 @@ export default function DashboardPage() {
               className="form-control"
               name="lastName"
               onChange={handleChange}
-              required
             />
           </div>
           <div className="col-md-3">
@@ -830,11 +1007,57 @@ export default function DashboardPage() {
         <div className="row">
           <div className="col-md-6">
             <h5 className="mt-3">Cohabitants</h5>
-            {renderCheckboxOptions(cohabitants)}
+            {cohabitants.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value={option.id.toString()}
+                  id={`cohabitants-${option.id}-${option.name}`}
+                  checked={selectedCohabitants.includes(option.id)}
+                  onChange={() =>
+                    handleCheckboxChange(
+                      option.id,
+                      setSelectedCohabitants,
+                      selectedCohabitants
+                    )
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`cohabitants-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
           </div>
           <div className="col-md-6">
             <h5 className="mt-3">Living Condition</h5>
-            {renderCheckboxOptions(livingConditions)}
+            {livingConditions.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value={option.id.toString()}
+                  id={`living-${option.id}-${option.name}`}
+                  checked={selectedLivingConditions.includes(option.id)}
+                  onChange={() =>
+                    handleCheckboxChange(
+                      option.id,
+                      setSelectedLivingConditions,
+                      selectedLivingConditions
+                    )
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`living-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
           </div>
         </div>
       </>
@@ -847,14 +1070,57 @@ export default function DashboardPage() {
         <div className="row">
           <div className="col-md-4">
             <h5 className="mt-3">Highest Educational Attainment</h5>
-            {renderRadioOptions(
-              educationalAttainments,
-              "educationalAttainments"
-            )}
+            {educationalAttainments.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="educationalAttainments"
+                  value={option.id.toString()}
+                  id={`education-${option.id}-${option.name}`}
+                  checked={selectedEducationalAttainments.includes(option.id)}
+                  onChange={() =>
+                    handleRadioChange(
+                      option.id,
+                      setSelectedEducationalAttainments
+                    )
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`education-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
           </div>
           <div className="col-md-4">
             <h5 className="mt-3">Specialization / Technical Skills</h5>
-            {renderCheckboxOptions(technicalSkills)}
+            {technicalSkills.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value={option.id.toString()}
+                  id={`technical-${option.id}-${option.name}`}
+                  checked={selectedTechnicalSkills.includes(option.id)}
+                  onChange={() =>
+                    handleCheckboxChange(
+                      option.id,
+                      setSelectedTechnicalSkills,
+                      selectedTechnicalSkills
+                    )
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`technical-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
           </div>
           <div className="col-md-4">
             <label htmlFor="sharedSkills" className="form-label">
@@ -866,7 +1132,30 @@ export default function DashboardPage() {
               rows={3}
             ></textarea>
             <h5 className="mt-3">Involvement in Community Activities</h5>
-            {renderCheckboxOptions(comunityInvolvements)}
+            {comunityInvolvements.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value={option.id.toString()}
+                  id={`community-${option.id}-${option.name}`}
+                  checked={selectedCommunityInvolvements.includes(option.id)}
+                  onChange={() =>
+                    handleCheckboxChange(
+                      option.id,
+                      setSelectedCommunityInvolvements,
+                      selectedCommunityInvolvements
+                    )
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`community-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
           </div>
         </div>
       </>
@@ -879,22 +1168,134 @@ export default function DashboardPage() {
         <div className="row">
           <div className="col-md-4">
             <h5 className="mt-3">Sources of Income</h5>
-            {renderCheckboxOptions(incomeSources)}
+            {incomeSources.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value={option.id.toString()}
+                  id={`income-${option.id}-${option.name}`}
+                  checked={selectedIncomeSources.includes(option.id)}
+                  onChange={() =>
+                    handleCheckboxChange(
+                      option.id,
+                      setSelectedIncomeSources,
+                      selectedIncomeSources
+                    )
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`income-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
 
             <h5 className="mt-3">Monthly Income</h5>
-            {renderRadioOptions(monthlyIncomes, "monthlyIncomes")}
+            {monthlyIncomes.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="monthlyIncomes"
+                  value={option.id.toString()}
+                  id={`monthly-${option.id}-${option.name}`}
+                  checked={selectedMonthlyIncomes.includes(option.id)}
+                  onChange={() =>
+                    handleRadioChange(option.id, setSelectedMonthlyIncomes)
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`monthly-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
           </div>
           <div className="col-md-4">
             <h5 className="mt-3">A Assets: Real and Immovable Properties</h5>
-            {renderCheckboxOptions(realProperties)}
+            {realProperties.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value={option.id.toString()}
+                  id={`real-${option.id}-${option.name}`}
+                  checked={selectedRealProperties.includes(option.id)}
+                  onChange={() =>
+                    handleCheckboxChange(
+                      option.id,
+                      setSelectedRealProperties,
+                      selectedRealProperties
+                    )
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`real-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
 
             <h5 className="mt-3">Problems / Needs Commonly Encountered</h5>
-            {renderCheckboxOptions(problemsNeeds)}
+            {problemsNeeds.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value={option.id.toString()}
+                  id={`problems-${option.id}-${option.name}`}
+                  checked={selectedProblemsNeeds.includes(option.id)}
+                  onChange={() =>
+                    handleCheckboxChange(
+                      option.id,
+                      setSelectedProblemsNeeds,
+                      selectedProblemsNeeds
+                    )
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`problems-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
           </div>
 
           <div className="col-md-4">
             <h5 className="mt-3">B Assets: Personal and Movable Properties</h5>
-            {renderCheckboxOptions(personalProperties)}
+            {personalProperties.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value={option.id.toString()}
+                  id={`personal-${option.id}-${option.name}`}
+                  checked={selectedPersonalProperties.includes(option.id)}
+                  onChange={() =>
+                    handleCheckboxChange(
+                      option.id,
+                      setSelectedPersonalProperties,
+                      selectedPersonalProperties
+                    )
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`personal-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
           </div>
         </div>
       </>
@@ -943,25 +1344,163 @@ export default function DashboardPage() {
               onChange={handleChange}
             />
             <h5 className="mt-3">Health Problems / Ailments</h5>
-            {renderCheckboxOptions(healthProblems)}
+            {healthProblems.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value={option.id.toString()}
+                  id={`health-${option.id}-${option.name}`}
+                  checked={selectedHealthProblems.includes(option.id)}
+                  onChange={() =>
+                    handleCheckboxChange(
+                      option.id,
+                      setSelectedHealthProblems,
+                      selectedHealthProblems
+                    )
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`health-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
           </div>
           <div className="col-md-4">
             <h5 className="mt-3">b. Dental Concern</h5>
-            {renderCheckboxOptions(dentalConcerns)}
+            {dentalConcerns.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value={option.id.toString()}
+                  id={`dental-${option.id}-${option.name}`}
+                  checked={selectedDentalConcerns.includes(option.id)}
+                  onChange={() =>
+                    handleCheckboxChange(
+                      option.id,
+                      setSelectedDentalConcerns,
+                      selectedDentalConcerns
+                    )
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`dental-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
 
             <h5 className="mt-3"> c. Visual Concern</h5>
-            {renderCheckboxOptions(visualConcerns)}
+            {visualConcerns.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value={option.id.toString()}
+                  id={`visual-${option.id}-${option.name}`}
+                  checked={selectedVisualConcerns.includes(option.id)}
+                  onChange={() =>
+                    handleCheckboxChange(
+                      option.id,
+                      setSelectedVisualConcerns,
+                      selectedVisualConcerns
+                    )
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`visual-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
 
             <h5 className="mt-3">d. Aural/ Hearing Condition</h5>
-            {renderCheckboxOptions(hearingConditions)}
+            {hearingConditions.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value={option.id.toString()}
+                  id={`aural-${option.id}-${option.name}`}
+                  checked={selectedAuralConcerns.includes(option.id)}
+                  onChange={() =>
+                    handleCheckboxChange(
+                      option.id,
+                      setSelectedAuralConcerns,
+                      selectedAuralConcerns
+                    )
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`aural-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
           </div>
 
           <div className="col-md-4">
             <h5 className="mt-3">e. Social/ Emotional</h5>
-            {renderCheckboxOptions(socialEmotionalConcerns)}
+            {socialEmotionalConcerns.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value={option.id.toString()}
+                  id={`social-${option.id}-${option.name}`}
+                  checked={selectedSocialEmotionalConcerns.includes(option.id)}
+                  onChange={() =>
+                    handleCheckboxChange(
+                      option.id,
+                      setSelectedSocialEmotionalConcerns,
+                      selectedSocialEmotionalConcerns
+                    )
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`social-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
 
             <h5 className="mt-3">f. Area of Difficulty</h5>
-            {renderCheckboxOptions(areaOfDifficulties)}
+            {areaOfDifficulties.map((option) => (
+              <div className="form-check" key={`${option.id}-${option.name}`}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value={option.id.toString()}
+                  id={`area-${option.id}-${option.name}`}
+                  checked={selectedAreaOfDifficulties.includes(option.id)}
+                  onChange={() =>
+                    handleCheckboxChange(
+                      option.id,
+                      setSelectedAreaOfDifficulties,
+                      selectedAreaOfDifficulties
+                    )
+                  }
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`area-${option.id}-${option.name}`}
+                >
+                  {option.name}
+                </label>
+              </div>
+            ))}
           </div>
 
           <div className="col-md-12">
@@ -1023,17 +1562,47 @@ export default function DashboardPage() {
             {accordionItem(healthProfile, "VI. Health Profile")}
           </div>
           <div className="mt-4 d-grid">
-            <button type="submit" className="btn btn-primary">
-              Submit
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                  Creating...
+                </>
+              ) : (
+                "Submit"
+              )}
             </button>
             <button
               type="button"
               className="btn btn-danger mt-2"
               onClick={handleCancel}
+              disabled={loading}
             >
               Reset
             </button>
           </div>
+
+          {error && (
+            <div className="alert alert-danger mt-3" role="alert">
+              <h4 className="alert-heading">Error!</h4>
+              <p>Failed to create senior citizen: {error.message}</p>
+            </div>
+          )}
+
+          {data && (
+            <div className="alert alert-success mt-3" role="alert">
+              <h4 className="alert-heading">Success!</h4>
+              <p>Senior citizen created successfully with ID: {data.id}</p>
+            </div>
+          )}
         </form>
       </div>
     </section>
