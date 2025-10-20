@@ -2,6 +2,9 @@
 
 import DataTable, { Column } from "@/components/DataTable";
 import { useSeniors } from "@/hooks/useSeniors";
+import SeniorFormModal from "@/components/SeniorFormModal";
+import { useState } from "react";
+import { useUpdateSenior } from "@/hooks/useUpdateSenior";
 
 interface SeniorCitizen {
   id: number;
@@ -15,6 +18,10 @@ interface SeniorCitizen {
 
 export default function DashboardPage() {
   const { data: seniors, loading, error } = useSeniors();
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedSeniorId, setSelectedSeniorId] = useState<number | null>(null);
+  const { updateSenior, loading: updating, error: updateError } = useUpdateSenior();
 
   // Transform backend data to match table structure
   const data: SeniorCitizen[] = seniors.map((senior) => {
@@ -63,9 +70,46 @@ export default function DashboardPage() {
     { label: "Has Pension", accessor: "hasPension" },
   ];
 
+  const handleViewSenior = (seniorId: number) => {
+    setSelectedSeniorId(seniorId);
+    setShowViewModal(true);
+  };
+
+  const handleEditSenior = (seniorId: number) => {
+    setSelectedSeniorId(seniorId);
+    setShowEditModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowViewModal(false);
+    setShowEditModal(false);
+    setSelectedSeniorId(null);
+  };
+
+  // Get the selected senior from the existing data
+  const selectedSenior = seniors.find(
+    (senior) => senior.id === selectedSeniorId
+  );
+
+  // Pass the full senior data structure
+  const getInitialData = () => {
+    return selectedSenior || undefined;
+  };
+
   const renderActions = (item: SeniorCitizen) => (
     <div className="d-grid gap-2">
-      <button className="btn btn-primary btn-sm w-100">View</button>
+      <button
+        className="btn btn-primary btn-sm w-100"
+        onClick={() => handleViewSenior(item.id)}
+      >
+        View
+      </button>
+      <button
+        className="btn btn-secondary btn-sm w-100"
+        onClick={() => handleEditSenior(item.id)}
+      >
+        Edit
+      </button>
     </div>
   );
 
@@ -103,6 +147,36 @@ export default function DashboardPage() {
         columns={columns}
         searchableField="fullName"
         renderActions={renderActions}
+      />
+
+      {/* View Modal */}
+      <SeniorFormModal
+        show={showViewModal}
+        onHide={handleCloseModal}
+        title="View Senior Citizen"
+        mode="view"
+        initialData={getInitialData()}
+        onSubmit={() => {}} // No-op for view mode
+      />
+
+      {/* Edit Modal */}
+      <SeniorFormModal
+        show={showEditModal}
+        onHide={handleCloseModal}
+        title="Edit Senior Citizen"
+        mode="update"
+        initialData={getInitialData()}
+        onSubmit={async (payload) => {
+          if (!selectedSeniorId) return;
+          try {
+            await updateSenior(selectedSeniorId, payload);
+            handleCloseModal();
+          } catch (e) {
+            // error is surfaced via updateError
+          }
+        }}
+        loading={updating}
+        error={updateError}
       />
     </section>
   );
