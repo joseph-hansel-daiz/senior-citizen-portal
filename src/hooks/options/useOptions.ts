@@ -10,9 +10,24 @@ export function useOptions(endpoint: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
+  const fetchAll = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`http://localhost:8000/options/${endpoint}`);
+      if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
+      const json: Option[] = await res.json();
+      setData(json);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     let active = true;
-    const fetchData = async () => {
+    (async () => {
       try {
         const res = await fetch(`http://localhost:8000/options/${endpoint}`);
         if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
@@ -23,13 +38,48 @@ export function useOptions(endpoint: string) {
       } finally {
         if (active) setLoading(false);
       }
-    };
-    fetchData();
+    })();
 
     return () => {
       active = false;
     };
   }, [endpoint]);
 
-  return { data, loading, error };
+  return { data, loading, error, refetch: fetchAll };
+}
+
+export async function createOption(endpoint: string, name: string) {
+  const res = await fetch(`http://localhost:8000/options/${endpoint}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error((data && (data.error || data.message)) || `Failed to create ${endpoint}`);
+  }
+  return res.json();
+}
+
+export async function updateOption(endpoint: string, id: number, name: string) {
+  const res = await fetch(`http://localhost:8000/options/${endpoint}/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error((data && (data.error || data.message)) || `Failed to update ${endpoint}`);
+  }
+  return res.json();
+}
+
+export async function deleteOption(endpoint: string, id: number) {
+  const res = await fetch(`http://localhost:8000/options/${endpoint}/${id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok && res.status !== 204) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error((data && (data.error || data.message)) || `Failed to delete ${endpoint}`);
+  }
 }

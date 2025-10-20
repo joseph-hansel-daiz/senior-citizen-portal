@@ -60,6 +60,11 @@ const OSCA_ROUTES: NavRoute[] = [
     label: "Helpdesk",
     iconClassName: "bi bi-flag",
   },
+  {
+    route: ROUTES.OPTIONS,
+    label: "Options",
+    iconClassName: "bi bi-sliders",
+  },
 ];
 
 const BARANGAY_ROUTES: NavRoute[] = [
