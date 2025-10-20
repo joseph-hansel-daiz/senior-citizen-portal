@@ -5,6 +5,10 @@ import { useSeniors } from "@/hooks/useSeniors";
 import SeniorFormModal from "@/components/SeniorFormModal";
 import { useState } from "react";
 import { useUpdateSenior } from "@/hooks/useUpdateSenior";
+import MarkDeceasedModal from "@/components/MarkDeceasedModal";
+import DeleteConfirmModal from "@/components/DeleteConfirmModal";
+import { useMarkDeceased } from "@/hooks/useMarkDeceased";
+import { useDeleteSenior } from "@/hooks/useDeleteSenior";
 
 interface SeniorCitizen {
   id: number;
@@ -22,6 +26,10 @@ export default function DashboardPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedSeniorId, setSelectedSeniorId] = useState<number | null>(null);
   const { updateSenior, loading: updating, error: updateError } = useUpdateSenior();
+  const { markDeceased, loading: marking, error: markError } = useMarkDeceased();
+  const { deleteSenior, loading: deleting, error: deleteError } = useDeleteSenior();
+  const [showMarkDeceased, setShowMarkDeceased] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Transform backend data to match table structure
   const data: SeniorCitizen[] = seniors.map((senior) => {
@@ -80,9 +88,21 @@ export default function DashboardPage() {
     setShowEditModal(true);
   };
 
+  const handleMarkDeceased = (seniorId: number) => {
+    setSelectedSeniorId(seniorId);
+    setShowMarkDeceased(true);
+  };
+
+  const handleDelete = (seniorId: number) => {
+    setSelectedSeniorId(seniorId);
+    setShowDeleteConfirm(true);
+  };
+
   const handleCloseModal = () => {
     setShowViewModal(false);
     setShowEditModal(false);
+    setShowMarkDeceased(false);
+    setShowDeleteConfirm(false);
     setSelectedSeniorId(null);
   };
 
@@ -109,6 +129,18 @@ export default function DashboardPage() {
         onClick={() => handleEditSenior(item.id)}
       >
         Edit
+      </button>
+      <button
+        className="btn btn-warning btn-sm w-100"
+        onClick={() => handleMarkDeceased(item.id)}
+      >
+        Mark as Deceased
+      </button>
+      <button
+        className="btn btn-danger btn-sm w-100"
+        onClick={() => handleDelete(item.id)}
+      >
+        Delete
       </button>
     </div>
   );
@@ -177,6 +209,39 @@ export default function DashboardPage() {
         }}
         loading={updating}
         error={updateError}
+      />
+
+      {/* Mark as Deceased Modal */}
+      <MarkDeceasedModal
+        show={showMarkDeceased}
+        onHide={handleCloseModal}
+        onSubmit={async ({ dateOfDeath, deathCertificate }) => {
+          if (!selectedSeniorId) return;
+          try {
+            await markDeceased(selectedSeniorId, {
+              dateOfDeath,
+              deathCertificate,
+            });
+            handleCloseModal();
+          } catch {}
+        }}
+        loading={marking}
+        error={markError}
+      />
+
+      {/* Delete Confirm Modal */}
+      <DeleteConfirmModal
+        show={showDeleteConfirm}
+        onHide={handleCloseModal}
+        onConfirm={async () => {
+          if (!selectedSeniorId) return;
+          try {
+            await deleteSenior(selectedSeniorId);
+            handleCloseModal();
+          } catch {}
+        }}
+        loading={deleting}
+        error={deleteError}
       />
     </section>
   );
