@@ -55,6 +55,11 @@ const OSCA_ROUTES: NavRoute[] = [
     label: "Deceased Seniors",
     iconClassName: "bi bi-flower3",
   },
+  {
+    route: ROUTES.HELPDESK,
+    label: "Helpdesk",
+    iconClassName: "bi bi-flag",
+  },
 ];
 
 const BARANGAY_ROUTES: NavRoute[] = [

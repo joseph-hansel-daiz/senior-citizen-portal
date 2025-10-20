@@ -19,3 +19,5 @@ export const useSocialEmotionalConcerns = () =>
   useOptions("social-emotional-concerns");
 export const useTechnicalSkills = () => useOptions("technical-skills");
 export const useVisualConcerns = () => useOptions("visual-concerns");
+export const useHelpDeskRecordCategories = () =>
+  useOptions("help-desk-record-categories");
