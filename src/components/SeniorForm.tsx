@@ -3,6 +3,7 @@
 import {
   useAreaOfDifficulties,
   useAuralConcerns,
+  useBarangays,
   useCohabitants,
   useCommunityInvolvements,
   useDentalConcerns,
@@ -180,6 +181,8 @@ export default function SeniorForm({
     const identifying = activeSeniorData.identifyingInformation || activeSeniorData.IdentifyingInformation;
     if (identifying) {
       const info = identifying;
+      // Extract barangay name from the Barangay object if available
+      const barangayName = activeSeniorData.Barangay?.name || activeSeniorData.barangay?.name || info.barangay || "";
       return {
         lastName: info.lastname || "",
         firstName: info.firstname || "",
@@ -188,7 +191,7 @@ export default function SeniorForm({
         region: info.region || "",
         province: info.province || "",
         city: info.city || "",
-        barangay: info.barangay || "",
+        barangay: barangayName,
         street: info.street || "",
         birthDate: info.birthDate || "",
         birthPlace: info.birthPlace || "",
@@ -289,6 +292,7 @@ export default function SeniorForm({
 
   const { data: areaOfDifficulties } = useAreaOfDifficulties();
   const { data: hearingConditions } = useAuralConcerns();
+  const { data: barangays } = useBarangays();
   const { data: cohabitants } = useCohabitants();
   const { data: comunityInvolvements } = useCommunityInvolvements();
   const { data: dentalConcerns } = useDentalConcerns();
@@ -649,9 +653,15 @@ export default function SeniorForm({
         });
       }
 
+      // Find the selected barangay ID from the barangay name
+      const selectedBarangay = barangays.find((b) => b.name === formData.barangay);
+      if (!selectedBarangay) {
+        throw new Error("Please select a valid barangay");
+      }
+
       // Transform form data to match backend API structure
       const payload = {
-        barangayId: 1, // You might want to make this dynamic
+        barangayId: selectedBarangay.id,
         photo: photoBase64,
         identifyingInformation: {
           lastname: formData.lastName,
@@ -953,15 +963,21 @@ export default function SeniorForm({
           </div>
           <div className="col-md-3">
             <label className="form-label">Barangay</label>
-            <input
-              type="text"
-              className="form-control"
+            <select
+              className="form-select"
               name="barangay"
               value={formData.barangay}
               onChange={handleChange}
               required={!isReadOnly}
-              readOnly={isReadOnly}
-            />
+              disabled={isReadOnly}
+            >
+              <option value="">Select Barangay</option>
+              {barangays.map((barangay) => (
+                <option key={barangay.id} value={barangay.name}>
+                  {barangay.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="col-12 mt-2">
             <label className="form-label">Street (Zone/Purok/Sitio)</label>

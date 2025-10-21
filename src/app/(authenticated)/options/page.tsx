@@ -26,12 +26,14 @@ type OptionKey =
   | "social-emotional-concerns"
   | "technical-skills"
   | "visual-concerns"
+  | "barangays"
   | "help-desk-record-categories"
   | "vaccines";
 
 const OPTIONS: { key: OptionKey; label: string }[] = [
   { key: "area-of-difficulties", label: "Area of Difficulties" },
   { key: "aural-concerns", label: "Aural Concerns" },
+  { key: "barangays", label: "Barangays" },
   { key: "cohabitants", label: "Cohabitants" },
   { key: "community-involvements", label: "Community Involvements" },
   { key: "dental-concerns", label: "Dental Concerns" },
