@@ -2,7 +2,9 @@
 
 import DataTable, { Column } from "@/components/DataTable";
 import SeniorFormModal from "@/components/SeniorFormModal";
+import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import { useSeniors } from "@/hooks/useSeniors";
+import { useUnmarkDeceased } from "@/hooks/useUnmarkDeceased";
 import { useState } from "react";
 
 interface SeniorCitizen {
@@ -21,6 +23,8 @@ export default function DashboardPage() {
   const { data: seniors, loading, error } = useSeniors();
   const [selectedSeniorId, setSelectedSeniorId] = useState<number | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
+  const [showUnmarkConfirm, setShowUnmarkConfirm] = useState(false);
+  const { unmarkDeceased, loading: unmarking, error: unmarkError } = useUnmarkDeceased();
 
   // Transform backend data to match table structure
   // Filter to only show seniors with DeathInfo
@@ -86,7 +90,13 @@ export default function DashboardPage() {
 
   const handleCloseModal = () => {
     setShowViewModal(false);
+    setShowUnmarkConfirm(false);
     setSelectedSeniorId(null);
+  };
+
+  const handleUnmarkDeceased = (seniorId: number) => {
+    setSelectedSeniorId(seniorId);
+    setShowUnmarkConfirm(true);
   };
 
   const renderActions = (item: SeniorCitizen) => (
@@ -97,7 +107,10 @@ export default function DashboardPage() {
       >
         View
       </button>
-      <button className="btn btn-secondary btn-sm w-100" onClick={() => {}}>
+      <button
+        className="btn btn-secondary btn-sm w-100"
+        onClick={() => handleUnmarkDeceased(item.id)}
+      >
         Unmark as Deceased
       </button>
     </div>
@@ -147,6 +160,25 @@ export default function DashboardPage() {
         mode="view"
         seniorId={selectedSeniorId}
         onSubmit={() => {}} // No-op for view mode
+      />
+
+      {/* Unmark Confirm Modal */}
+      <DeleteConfirmModal
+        show={showUnmarkConfirm}
+        onHide={handleCloseModal}
+        onConfirm={async () => {
+          if (!selectedSeniorId) return;
+          try {
+            await unmarkDeceased(selectedSeniorId);
+            handleCloseModal();
+          } catch {}
+        }}
+        loading={unmarking}
+        error={unmarkError}
+        title="Unmark as Deceased"
+        message="Are you sure you want to unmark this senior as deceased? This will restore them to the active seniors list."
+        confirmText="Unmark as Deceased"
+        confirmButtonClass="btn-warning"
       />
     </section>
   );

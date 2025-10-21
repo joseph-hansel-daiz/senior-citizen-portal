@@ -6,9 +6,23 @@ interface Props {
   onConfirm: () => Promise<void> | void;
   loading?: boolean;
   error?: Error | null;
+  title?: string;
+  message?: string;
+  confirmText?: string;
+  confirmButtonClass?: string;
 }
 
-export default function DeleteConfirmModal({ show, onHide, onConfirm, loading = false, error }: Props) {
+export default function DeleteConfirmModal({ 
+  show, 
+  onHide, 
+  onConfirm, 
+  loading = false, 
+  error,
+  title = "Delete Senior",
+  message = "Are you sure you want to delete this senior?",
+  confirmText = "Delete",
+  confirmButtonClass = "btn-danger"
+}: Props) {
   if (!show) return null;
 
   const handleConfirm = async () => {
@@ -20,11 +34,11 @@ export default function DeleteConfirmModal({ show, onHide, onConfirm, loading = 
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">Delete Senior</h5>
+            <h5 className="modal-title">{title}</h5>
             <button type="button" className="btn-close" onClick={onHide}></button>
           </div>
           <div className="modal-body">
-            <p>Are you sure you want to delete this senior?</p>
+            <p>{message}</p>
             {error && (
               <div className="alert alert-danger" role="alert">
                 {error.message}
@@ -33,14 +47,14 @@ export default function DeleteConfirmModal({ show, onHide, onConfirm, loading = 
           </div>
           <div className="modal-footer">
             <button type="button" className="btn btn-secondary" onClick={onHide} disabled={loading}>Cancel</button>
-            <button type="button" className="btn btn-danger" onClick={handleConfirm} disabled={loading}>
+            <button type="button" className={`btn ${confirmButtonClass}`} onClick={handleConfirm} disabled={loading}>
               {loading ? (
                 <>
                   <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Deleting...
+                  Processing...
                 </>
               ) : (
-                "Delete"
+                confirmText
               )}
             </button>
           </div>
