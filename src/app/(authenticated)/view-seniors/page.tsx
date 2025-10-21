@@ -18,6 +18,7 @@ interface SeniorCitizen {
   contact: string;
   livingStatus: string;
   hasPension: string;
+  barangay: string;
 }
 
 export default function DashboardPage() {
@@ -31,8 +32,32 @@ export default function DashboardPage() {
   const [showMarkDeceased, setShowMarkDeceased] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  // Filter out deceased seniors and non-active seniors
+  const activeSeniors = seniors.filter((senior) => {
+    // Filter out deceased seniors
+    if (senior.DeathInfo) {
+      return false;
+    }
+
+    // Filter out seniors without Active status
+    if (senior.SeniorStatusHistories && senior.SeniorStatusHistories.length > 0) {
+      // Check if any status history entry is 'Active'
+      const hasActiveStatus = senior.SeniorStatusHistories.some(
+        (history) => history.status === 'Active'
+      );
+      if (!hasActiveStatus) {
+        return false;
+      }
+    } else {
+      // If no status history, exclude the senior
+      return false;
+    }
+
+    return true;
+  });
+
   // Transform backend data to match table structure
-  const data: SeniorCitizen[] = seniors.map((senior) => {
+  const data: SeniorCitizen[] = activeSeniors.map((senior) => {
     const identifyingInfo = senior.IdentifyingInformation;
     const fullName = identifyingInfo
       ? `${identifyingInfo.firstname} ${identifyingInfo.middlename} ${identifyingInfo.lastname}`.trim()
@@ -56,6 +81,7 @@ export default function DashboardPage() {
         ? "With Family"
         : "Alone";
     const hasPension = identifyingInfo?.hasPension ? "Yes" : "No";
+    const barangay = identifyingInfo?.barangay || "N/A";
 
     return {
       id: senior.id,
@@ -65,11 +91,12 @@ export default function DashboardPage() {
       contact,
       livingStatus,
       hasPension,
+      barangay,
     };
   });
 
   const columns: Column<SeniorCitizen>[] = [
-    { label: "OSCA #", accessor: "id" },
+    { label: "Barangay", accessor: "barangay" },
     { label: "Full Name", accessor: "fullName" },
     { label: "Age", accessor: "age" },
     { label: "Address", accessor: "address" },

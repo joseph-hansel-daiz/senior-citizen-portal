@@ -13,6 +13,7 @@ interface SeniorCitizen {
   contact: string;
   livingStatus: string;
   hasPension: string;
+  barangay: string;
 }
 
 export default function DashboardPage() {
@@ -20,8 +21,23 @@ export default function DashboardPage() {
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedSeniorId, setSelectedSeniorId] = useState<number | null>(null);
 
+  // Filter to only show seniors with exactly 1 status that is 'Pending'
+  const pendingSeniors = seniors.filter((senior) => {
+    // Filter out deceased seniors
+    if (senior.DeathInfo) {
+      return false;
+    }
+
+    // Only show seniors with exactly 1 status history entry that is 'Pending'
+    if (senior.SeniorStatusHistories && senior.SeniorStatusHistories.length === 1) {
+      return senior.SeniorStatusHistories[0].status === 'Pending';
+    }
+
+    return false;
+  });
+
   // Transform backend data to match table structure
-  const data: SeniorCitizen[] = seniors.map((senior) => {
+  const data: SeniorCitizen[] = pendingSeniors.map((senior) => {
     const identifyingInfo = senior.IdentifyingInformation;
     const fullName = identifyingInfo
       ? `${identifyingInfo.firstname} ${identifyingInfo.middlename} ${identifyingInfo.lastname}`.trim()
@@ -45,6 +61,7 @@ export default function DashboardPage() {
         ? "With Family"
         : "Alone";
     const hasPension = identifyingInfo?.hasPension ? "Yes" : "No";
+    const barangay = identifyingInfo?.barangay || "N/A";
 
     return {
       id: senior.id,
@@ -54,11 +71,12 @@ export default function DashboardPage() {
       contact,
       livingStatus,
       hasPension,
+      barangay,
     };
   });
 
   const columns: Column<SeniorCitizen>[] = [
-    { label: "OSCA #", accessor: "id" },
+    { label: "Barangay", accessor: "barangay" },
     { label: "Full Name", accessor: "fullName" },
     { label: "Age", accessor: "age" },
     { label: "Address", accessor: "address" },

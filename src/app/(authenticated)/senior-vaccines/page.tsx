@@ -11,7 +11,33 @@ export default function SeniorVaccinesPage() {
   const { data: vaccines } = useOptions("vaccines");
   const { data: seniorVaccines, refetch } = useSeniorVaccines(selectedSeniorId);
 
-  const selectedSenior = useMemo(() => seniors.find((s) => s.id === selectedSeniorId) || null, [seniors, selectedSeniorId]);
+  // Filter out deceased and non-active seniors
+  const activeSeniors = useMemo(() => {
+    return seniors.filter((senior) => {
+      // Filter out deceased seniors
+      if (senior.DeathInfo) {
+        return false;
+      }
+
+      // Filter out seniors without Active status
+      if (senior.SeniorStatusHistories && senior.SeniorStatusHistories.length > 0) {
+        // Check if any status history entry is 'Active'
+        const hasActiveStatus = senior.SeniorStatusHistories.some(
+          (history) => history.status === 'Active'
+        );
+        if (!hasActiveStatus) {
+          return false;
+        }
+      } else {
+        // If no status history, exclude the senior
+        return false;
+      }
+
+      return true;
+    });
+  }, [seniors]);
+
+  const selectedSenior = useMemo(() => activeSeniors.find((s) => s.id === selectedSeniorId) || null, [activeSeniors, selectedSeniorId]);
 
   const [showModal, setShowModal] = useState(false);
   const [modalVaccineId, setModalVaccineId] = useState<number | null>(null);
@@ -67,7 +93,7 @@ export default function SeniorVaccinesPage() {
               onChange={(e) => setSelectedSeniorId(e.target.value ? Number(e.target.value) : null)}
             >
               <option value="">-- Choose Senior --</option>
-              {seniors.map((s) => {
+              {activeSeniors.map((s) => {
                 const info = s.IdentifyingInformation;
                 const name = info
                   ? `${info.firstname} ${info.middlename || ""} ${info.lastname}`.replace(/\s+/g, " ").trim()

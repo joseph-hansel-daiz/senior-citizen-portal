@@ -13,6 +13,8 @@ interface SeniorCitizen {
   contact: string;
   livingStatus: string;
   hasPension: string;
+  barangay: string;
+  dateOfDeath: string;
 }
 
 export default function DashboardPage() {
@@ -21,7 +23,10 @@ export default function DashboardPage() {
   const [showViewModal, setShowViewModal] = useState(false);
 
   // Transform backend data to match table structure
-  const data: SeniorCitizen[] = seniors.map((senior) => {
+  // Filter to only show seniors with DeathInfo
+  const data: SeniorCitizen[] = seniors
+    .filter((senior) => senior.DeathInfo)
+    .map((senior) => {
     const identifyingInfo = senior.IdentifyingInformation;
     const fullName = identifyingInfo
       ? `${identifyingInfo.firstname} ${identifyingInfo.middlename} ${identifyingInfo.lastname}`.trim()
@@ -45,6 +50,10 @@ export default function DashboardPage() {
         ? "With Family"
         : "Alone";
     const hasPension = identifyingInfo?.hasPension ? "Yes" : "No";
+    const barangay = identifyingInfo?.barangay || "N/A";
+    const dateOfDeath = senior.DeathInfo?.dateOfDeath
+      ? new Date(senior.DeathInfo.dateOfDeath).toLocaleDateString()
+      : "N/A";
 
     return {
       id: senior.id,
@@ -54,13 +63,16 @@ export default function DashboardPage() {
       contact,
       livingStatus,
       hasPension,
+      barangay,
+      dateOfDeath,
     };
   });
 
   const columns: Column<SeniorCitizen>[] = [
-    { label: "OSCA #", accessor: "id" },
+    { label: "Barangay", accessor: "barangay" },
     { label: "Full Name", accessor: "fullName" },
     { label: "Age", accessor: "age" },
+    { label: "Date of Death", accessor: "dateOfDeath" },
     { label: "Address", accessor: "address" },
     { label: "Contact #", accessor: "contact" },
     { label: "Living Status", accessor: "livingStatus" },
