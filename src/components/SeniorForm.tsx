@@ -1980,7 +1980,6 @@ export default function SeniorForm({
             value={formData.bloodType}
             onChange={handleChange}
               disabled={isReadOnly}
-            required={!isReadOnly}
             >
               {bloodTypeOptions()}
             </select>
@@ -2020,7 +2019,6 @@ export default function SeniorForm({
             value={formData.scheduleCheckUp}
             onChange={handleChange}
               disabled={isReadOnly}
-            required={!isReadOnly}
             >
               {scheduleCheckUpOptions()}
             </select>

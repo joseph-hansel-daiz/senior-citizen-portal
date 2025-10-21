@@ -3,6 +3,10 @@
 import DataTable, { Column } from "@/components/DataTable";
 import { useSeniors } from "@/hooks/useSeniors";
 import SeniorFormModal from "@/components/SeniorFormModal";
+import ApproveModal from "@/components/ApproveModal";
+import DeclineModal from "@/components/DeclineModal";
+import { useApproveSenior } from "@/hooks/useApproveSenior";
+import { useDeclineSenior } from "@/hooks/useDeclineSenior";
 import { useState } from "react";
 
 interface SeniorCitizen {
@@ -19,7 +23,11 @@ interface SeniorCitizen {
 export default function DashboardPage() {
   const { data: seniors, loading, error } = useSeniors();
   const [showViewModal, setShowViewModal] = useState(false);
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showDeclineModal, setShowDeclineModal] = useState(false);
   const [selectedSeniorId, setSelectedSeniorId] = useState<number | null>(null);
+  const { approveSenior, loading: approveLoading, error: approveError } = useApproveSenior();
+  const { declineSenior, loading: declineLoading, error: declineError } = useDeclineSenior();
 
   // Filter to only show seniors with exactly 1 status that is 'Pending'
   const pendingSeniors = seniors.filter((senior) => {
@@ -95,6 +103,56 @@ export default function DashboardPage() {
     setSelectedSeniorId(null);
   };
 
+  const handleApproveSenior = (seniorId: number) => {
+    setSelectedSeniorId(seniorId);
+    setShowApproveModal(true);
+  };
+
+  const handleDeclineSenior = (seniorId: number) => {
+    setSelectedSeniorId(seniorId);
+    setShowDeclineModal(true);
+  };
+
+  const handleApproveSubmit = async (payload: { oscaId: string; note?: string }) => {
+    if (selectedSeniorId === null) return;
+    
+    try {
+      await approveSenior(selectedSeniorId, payload);
+      setShowApproveModal(false);
+      setSelectedSeniorId(null);
+      // Reload the page to refresh the data
+      window.location.reload();
+    } catch (error) {
+      // Error is handled by the hook
+      console.error("Failed to approve senior:", error);
+    }
+  };
+
+  const handleDeclineSubmit = async (payload: { note?: string }) => {
+    if (selectedSeniorId === null) return;
+    
+    try {
+      await declineSenior(selectedSeniorId, payload);
+      setShowDeclineModal(false);
+      setSelectedSeniorId(null);
+      // Reload the page to refresh the data
+      window.location.reload();
+    } catch (error) {
+      // Error is handled by the hook
+      console.error("Failed to decline senior:", error);
+    }
+  };
+
+  const handleCloseApproveModal = () => {
+    setShowApproveModal(false);
+    setSelectedSeniorId(null);
+  };
+
+  const handleCloseDeclineModal = () => {
+    setShowDeclineModal(false);
+    setSelectedSeniorId(null);
+  };
+
   const renderActions = (item: SeniorCitizen) => (
     <div className="d-grid gap-2">
       <button
@@ -103,8 +161,18 @@ export default function DashboardPage() {
       >
         View
       </button>
-      <button className="btn btn-primary btn-sm w-100">Approve</button>
-      <button className="btn btn-danger btn-sm w-100">Decline</button>
+      <button 
+        className="btn btn-success btn-sm w-100"
+        onClick={() => handleApproveSenior(item.id)}
+      >
+        Approve
+      </button>
+      <button 
+        className="btn btn-danger btn-sm w-100"
+        onClick={() => handleDeclineSenior(item.id)}
+      >
+        Decline
+      </button>
     </div>
   );
 
@@ -152,6 +220,24 @@ export default function DashboardPage() {
         mode="view"
         seniorId={selectedSeniorId}
         onSubmit={() => {}} // No-op for view mode
+      />
+
+      {/* Approve Modal */}
+      <ApproveModal
+        show={showApproveModal}
+        onHide={handleCloseApproveModal}
+        onSubmit={handleApproveSubmit}
+        loading={approveLoading}
+        error={approveError}
+      />
+
+      {/* Decline Modal */}
+      <DeclineModal
+        show={showDeclineModal}
+        onHide={handleCloseDeclineModal}
+        onSubmit={handleDeclineSubmit}
+        loading={declineLoading}
+        error={declineError}
       />
     </section>
   );
