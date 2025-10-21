@@ -23,9 +23,9 @@ enum Role {
 // ===== Route definitions =====
 const ADMIN_ROUTES: NavRoute[] = [
   {
-    route: ROUTES.GENERATE_BACKUP,
-    label: "Generate Backup",
-    iconClassName: "bi bi-cloud-arrow-down-fill",
+    route: ROUTES.OPTIONS,
+    label: "Options",
+    iconClassName: "bi bi-sliders",
   },
 ];
 
@@ -61,11 +61,6 @@ const OSCA_ROUTES: NavRoute[] = [
     iconClassName: "bi bi-flag",
   },
   {
-    route: ROUTES.OPTIONS,
-    label: "Options",
-    iconClassName: "bi bi-sliders",
-  },
-  {
     route: ROUTES.SENIOR_VACCINES,
     label: "Senior Vaccines",
     iconClassName: "bi bi-prescription",
@@ -93,6 +88,16 @@ const BARANGAY_ROUTES: NavRoute[] = [
     label: "Deceased Seniors",
     iconClassName: "bi bi-flower3",
   },
+  {
+    route: ROUTES.HELPDESK,
+    label: "Helpdesk",
+    iconClassName: "bi bi-flag",
+  },
+  {
+    route: ROUTES.SENIOR_VACCINES,
+    label: "Senior Vaccines",
+    iconClassName: "bi bi-prescription",
+  },
 ];
 
 const VIEW_ONLY_ROUTES: NavRoute[] = [
@@ -105,6 +110,21 @@ const VIEW_ONLY_ROUTES: NavRoute[] = [
     route: ROUTES.VIEW_SENIORS,
     label: "View Seniors",
     iconClassName: "bi bi-card-checklist",
+  },
+  {
+    route: ROUTES.DECEASED_SENIORS,
+    label: "Deceased Seniors",
+    iconClassName: "bi bi-flower3",
+  },
+  {
+    route: ROUTES.HELPDESK,
+    label: "Helpdesk",
+    iconClassName: "bi bi-flag",
+  },
+  {
+    route: ROUTES.SENIOR_VACCINES,
+    label: "Senior Vaccines",
+    iconClassName: "bi bi-prescription",
   },
 ];
 
