@@ -21,3 +21,5 @@ export const useTechnicalSkills = () => useOptions("technical-skills");
 export const useVisualConcerns = () => useOptions("visual-concerns");
 export const useHelpDeskRecordCategories = () =>
   useOptions("help-desk-record-categories");
+export const useVaccines = () =>
+  useOptions("vaccines");

@@ -26,7 +26,8 @@ type OptionKey =
   | "social-emotional-concerns"
   | "technical-skills"
   | "visual-concerns"
-  | "help-desk-record-categories";
+  | "help-desk-record-categories"
+  | "options";
 
 const OPTIONS: { key: OptionKey; label: string }[] = [
   { key: "area-of-difficulties", label: "Area of Difficulties" },

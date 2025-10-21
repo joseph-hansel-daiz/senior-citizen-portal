@@ -65,6 +65,11 @@ const OSCA_ROUTES: NavRoute[] = [
     label: "Options",
     iconClassName: "bi bi-sliders",
   },
+  {
+    route: ROUTES.SENIOR_VACCINES,
+    label: "Senior Vaccines",
+    iconClassName: "bi bi-prescription",
+  },
 ];
 
 const BARANGAY_ROUTES: NavRoute[] = [
