@@ -8,6 +8,14 @@ export interface HelpdeskRecord {
   createdAt: string;
   updatedAt: string;
   HelpDeskRecordCategory?: { id: number; name: string };
+  Senior?: {
+    id: number;
+    IdentifyingInformation?: {
+      firstname: string;
+      lastname: string;
+      middlename?: string;
+    };
+  };
 }
 
 export function useHelpdeskRecords() {

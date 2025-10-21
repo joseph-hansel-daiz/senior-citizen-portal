@@ -13,7 +13,7 @@ import {
 
 interface TableRow {
   id: number;
-  seniorId: number;
+  seniorName: string;
   category: string;
   details: string;
   createdAt: string;
@@ -30,19 +30,25 @@ export default function HelpdeskPage() {
 
   const rows: TableRow[] = useMemo(
     () =>
-      records.map((r) => ({
-        id: r.id,
-        seniorId: r.seniorId,
-        category: r.HelpDeskRecordCategory?.name || String(r.helpDeskRecordCategory),
-        details: r.details,
-        createdAt: new Date(r.createdAt).toLocaleString(),
-      })),
+      records.map((r) => {
+        const info = r.Senior?.IdentifyingInformation;
+        const seniorName = info
+          ? `${info.lastname}, ${info.firstname}${info.middlename ? ' ' + info.middlename : ''}`
+          : 'N/A';
+        
+        return {
+          id: r.id,
+          seniorName,
+          category: r.HelpDeskRecordCategory?.name || String(r.helpDeskRecordCategory),
+          details: r.details,
+          createdAt: new Date(r.createdAt).toLocaleString(),
+        };
+      }),
     [records]
   );
 
   const columns = [
-    { label: "ID", accessor: "id" },
-    { label: "Senior ID", accessor: "seniorId" },
+    { label: "Senior Name", accessor: "seniorName" },
     { label: "Category", accessor: "category" },
     { label: "Details", accessor: "details" },
     { label: "Created", accessor: "createdAt" },
