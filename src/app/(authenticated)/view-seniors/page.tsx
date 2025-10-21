@@ -106,16 +106,6 @@ export default function DashboardPage() {
     setSelectedSeniorId(null);
   };
 
-  // Get the selected senior from the existing data
-  const selectedSenior = seniors.find(
-    (senior) => senior.id === selectedSeniorId
-  );
-
-  // Pass the full senior data structure
-  const getInitialData = () => {
-    return selectedSenior || undefined;
-  };
-
   const renderActions = (item: SeniorCitizen) => (
     <div className="d-grid gap-2">
       <button
@@ -181,23 +171,23 @@ export default function DashboardPage() {
         renderActions={renderActions}
       />
 
-      {/* View Modal */}
+      {/* View Modal - Now loads full data by seniorId */}
       <SeniorFormModal
         show={showViewModal}
         onHide={handleCloseModal}
         title="View Senior Citizen"
         mode="view"
-        initialData={getInitialData()}
+        seniorId={selectedSeniorId}
         onSubmit={() => {}} // No-op for view mode
       />
 
-      {/* Edit Modal */}
+      {/* Edit Modal - Now loads full data by seniorId */}
       <SeniorFormModal
         show={showEditModal}
         onHide={handleCloseModal}
         title="Edit Senior Citizen"
         mode="update"
-        initialData={getInitialData()}
+        seniorId={selectedSeniorId}
         onSubmit={async (payload) => {
           if (!selectedSeniorId) return;
           try {

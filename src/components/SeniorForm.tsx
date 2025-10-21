@@ -18,6 +18,7 @@ import {
   useTechnicalSkills,
   useVisualConcerns,
 } from "@/hooks/options";
+import { useSenior } from "@/hooks/useSenior";
 import { JSX, useState, useEffect } from "react";
 
 export interface SeniorCitizen {
@@ -85,7 +86,8 @@ export type FormMode = 'create' | 'view' | 'update';
 
 export interface SeniorFormProps {
   mode: FormMode;
-  initialData?: any; // Full senior response structure from API
+  seniorId?: number | null; // Load senior data by ID (for view/update modes)
+  initialData?: any; // Full senior response structure from API (fallback or for create mode)
   onSubmit: (data: any) => void | Promise<void>;
   onCancel?: () => void;
   loading?: boolean;
@@ -156,6 +158,7 @@ const DEFAULT_MEMBER: Member = {
 
 export default function SeniorForm({
   mode,
+  seniorId,
   initialData,
   onSubmit,
   onCancel,
@@ -163,12 +166,18 @@ export default function SeniorForm({
   error,
   successMessage,
 }: SeniorFormProps) {
+  // Fetch senior data if seniorId is provided (for view/update modes)
+  const { data: fetchedSenior, loading: fetchLoading, error: fetchError } = useSenior(seniorId || null);
+  
+  // Use fetched data if available, otherwise fall back to initialData
+  const activeSeniorData = fetchedSenior || initialData;
+  
   // Transform initialData to form format if it's the full senior structure
   const getFormData = () => {
-    if (!initialData) return DEFAULT_SENIOR_CITIZEN;
+    if (!activeSeniorData) return DEFAULT_SENIOR_CITIZEN;
 
-    // If initialData has identifying information (support both cases), it's the full senior structure
-    const identifying = initialData.identifyingInformation || initialData.IdentifyingInformation;
+    // If activeSeniorData has identifying information (support both cases), it's the full senior structure
+    const identifying = activeSeniorData.identifyingInformation || activeSeniorData.IdentifyingInformation;
     if (identifying) {
       const info = identifying;
       return {
@@ -201,31 +210,31 @@ export default function SeniorForm({
         canTravel: info.capabilityToTravel ? "Yes" : "No",
         employment: info.employmentBusiness || "",
         // Health Profile fields
-        bloodType: (initialData.healthProfile || initialData.HealthProfile)?.bloodType || "",
-        physicalDisability: (initialData.healthProfile || initialData.HealthProfile)?.physicalDisability || "",
-        listMedicines: (initialData.healthProfile || initialData.HealthProfile)?.listMedicines || "",
-        checkUp: (initialData.healthProfile || initialData.HealthProfile)?.checkUp || false,
-        scheduleCheckUp: (initialData.healthProfile || initialData.HealthProfile)?.scheduleCheckUp || "",
+        bloodType: (activeSeniorData.healthProfile || activeSeniorData.HealthProfile)?.bloodType || "",
+        physicalDisability: (activeSeniorData.healthProfile || activeSeniorData.HealthProfile)?.physicalDisability || "",
+        listMedicines: (activeSeniorData.healthProfile || activeSeniorData.HealthProfile)?.listMedicines || "",
+        checkUp: (activeSeniorData.healthProfile || activeSeniorData.HealthProfile)?.checkUp || false,
+        scheduleCheckUp: (activeSeniorData.healthProfile || activeSeniorData.HealthProfile)?.scheduleCheckUp || "",
         // Family Composition fields
-        spouseLastName: (initialData.familyComposition || initialData.FamilyComposition)?.spouseLastname || "",
-        spouseFirstName: (initialData.familyComposition || initialData.FamilyComposition)?.spouseFirstname || "",
-        spouseMiddleName: (initialData.familyComposition || initialData.FamilyComposition)?.spouseMiddlename || "",
-        spouseExtName: (initialData.familyComposition || initialData.FamilyComposition)?.spouseExtension || "",
-        fatherLastName: (initialData.familyComposition || initialData.FamilyComposition)?.fatherLastname || "",
-        fatherFirstName: (initialData.familyComposition || initialData.FamilyComposition)?.fatherFirstname || "",
-        fatherMiddleName: (initialData.familyComposition || initialData.FamilyComposition)?.fatherMiddlename || "",
-        fatherExtName: (initialData.familyComposition || initialData.FamilyComposition)?.fatherExtension || "",
-        motherLastName: (initialData.familyComposition || initialData.FamilyComposition)?.motherLastname || "",
-        motherFirstName: (initialData.familyComposition || initialData.FamilyComposition)?.motherFirstname || "",
-        motherMiddleName: (initialData.familyComposition || initialData.FamilyComposition)?.motherMiddlename || "",
+        spouseLastName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.spouseLastname || "",
+        spouseFirstName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.spouseFirstname || "",
+        spouseMiddleName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.spouseMiddlename || "",
+        spouseExtName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.spouseExtension || "",
+        fatherLastName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.fatherLastname || "",
+        fatherFirstName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.fatherFirstname || "",
+        fatherMiddleName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.fatherMiddlename || "",
+        fatherExtName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.fatherExtension || "",
+        motherLastName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.motherLastname || "",
+        motherFirstName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.motherFirstname || "",
+        motherMiddleName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.motherMiddlename || "",
         motherExtName: "", // Not present in backend model
         // Education Profile fields
-        sharedSkills: (initialData.educationProfile || initialData.EducationProfile)?.sharedSkills || "",
+        sharedSkills: (activeSeniorData.educationProfile || activeSeniorData.EducationProfile)?.sharedSkills || "",
       };
     }
 
     // Otherwise, it's already in form format
-    return { ...DEFAULT_SENIOR_CITIZEN, ...initialData };
+    return { ...DEFAULT_SENIOR_CITIZEN, ...activeSeniorData };
   };
 
   const [formData, setFormData] = useState<SeniorCitizen>(getFormData());
@@ -295,19 +304,19 @@ export default function SeniorForm({
   const { data: technicalSkills } = useTechnicalSkills();
   const { data: visualConcerns } = useVisualConcerns();
 
-  // Update form data when initialData changes
+  // Update form data when activeSeniorData changes
   useEffect(() => {
-    if (initialData) {
+    if (activeSeniorData) {
       setFormData(getFormData());
     }
-  }, [initialData]);
+  }, [activeSeniorData]);
 
-  // Populate option selections, children, and dependents from initialData
+  // Populate option selections, children, and dependents from activeSeniorData
   useEffect(() => {
-    if (!initialData) return;
+    if (!activeSeniorData) return;
 
     // Dependency Profile selections (backend returns arrays of objects with id/name)
-    const dep = initialData.dependencyProfile || initialData.DependencyProfile || {};
+    const dep = activeSeniorData.dependencyProfile || activeSeniorData.DependencyProfile || {};
     const depCohabs = Array.isArray(dep.Cohabitants)
       ? dep.Cohabitants.map((c: any) => c.id)
       : Array.isArray(dep.cohabitants)
@@ -323,7 +332,7 @@ export default function SeniorForm({
     setSelectedLivingConditions(depLiving);
 
     // Education Profile selections
-    const edu = initialData.educationProfile || initialData.EducationProfile || {};
+    const edu = activeSeniorData.educationProfile || activeSeniorData.EducationProfile || {};
     const eduAttain = Array.isArray(edu.HighestEducationalAttainments)
       ? edu.HighestEducationalAttainments.map((e: any) => e.id)
       : Array.isArray(edu.highestEducationalAttainments)
@@ -346,7 +355,7 @@ export default function SeniorForm({
     setSelectedCommunityInvolvements(eduComm);
 
     // Economic Profile selections
-    const eco = initialData.economicProfile || initialData.EconomicProfile || {};
+    const eco = activeSeniorData.economicProfile || activeSeniorData.EconomicProfile || {};
     const ecoIncomeSrc = Array.isArray(eco.IncomeAssistanceSources)
       ? eco.IncomeAssistanceSources.map((x: any) => x.id)
       : Array.isArray(eco.incomeAssistanceSources)
@@ -383,7 +392,7 @@ export default function SeniorForm({
     setSelectedProblemsNeeds(ecoProblems);
 
     // Health Profile selections
-    const hp = initialData.healthProfile || initialData.HealthProfile || {};
+    const hp = activeSeniorData.healthProfile || activeSeniorData.HealthProfile || {};
     const hpProblems = Array.isArray(hp.HealthProblemAilments)
       ? hp.HealthProblemAilments.map((x: any) => x.id)
       : Array.isArray(hp.healthProblemAilments)
@@ -436,10 +445,10 @@ export default function SeniorForm({
       isWorking: c?.isWorking === "Yes",
     });
 
-    const childrenList = Array.isArray(initialData.Children)
-      ? initialData.Children
-      : Array.isArray(initialData.children)
-      ? initialData.children
+    const childrenList = Array.isArray(activeSeniorData.Children)
+      ? activeSeniorData.Children
+      : Array.isArray(activeSeniorData.children)
+      ? activeSeniorData.children
       : [];
     if (childrenList.length > 0) {
       setChildren(childrenList.map(mapChild));
@@ -457,17 +466,17 @@ export default function SeniorForm({
       isWorking: !!d?.isWorking,
     });
 
-    const dependentsList = Array.isArray(initialData.Dependents)
-      ? initialData.Dependents
-      : Array.isArray(initialData.dependents)
-      ? initialData.dependents
+    const dependentsList = Array.isArray(activeSeniorData.Dependents)
+      ? activeSeniorData.Dependents
+      : Array.isArray(activeSeniorData.dependents)
+      ? activeSeniorData.dependents
       : [];
     if (dependentsList.length > 0) {
       setDependents(dependentsList.map(mapDependent));
     } else {
       setDependents([DEFAULT_MEMBER]);
     }
-  }, [initialData]);
+  }, [activeSeniorData]);
 
   // Handle photo URL resolution and cleanup
   useEffect(() => {
@@ -478,12 +487,12 @@ export default function SeniorForm({
     };
   }, [photoUrl]);
 
-  // Resolve photo to URL when initialData changes
+  // Resolve photo to URL when activeSeniorData changes
   useEffect(() => {
     let active = true;
     (async () => {
       // Check both photo locations
-      const photoData = initialData?.photo || initialData?.identifyingInformation?.picture || initialData?.IdentifyingInformation?.picture;
+      const photoData = activeSeniorData?.photo || activeSeniorData?.identifyingInformation?.picture || activeSeniorData?.IdentifyingInformation?.picture;
       
       if (!photoData) {
         setPhotoUrl(null);
@@ -507,7 +516,7 @@ export default function SeniorForm({
     return () => {
       active = false;
     };
-  }, [initialData?.photo, initialData?.identifyingInformation?.picture, initialData?.IdentifyingInformation?.picture]);
+  }, [activeSeniorData?.photo, activeSeniorData?.identifyingInformation?.picture, activeSeniorData?.IdentifyingInformation?.picture]);
 
   const isReadOnly = mode === 'view';
   const isUpdate = mode === 'update';
@@ -2209,6 +2218,35 @@ export default function SeniorForm({
       </div>
     );
   };
+
+  // Show loading state when fetching senior data
+  if (fetchLoading) {
+    return (
+      <section className="pt-4">
+        <div className="container-fluid">
+          <div className="d-flex justify-content-center align-items-center" style={{ height: "400px" }}>
+            <div className="spinner-border" role="status">
+              <span className="visually-hidden">Loading senior data...</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Show error state if fetching failed
+  if (fetchError) {
+    return (
+      <section className="pt-4">
+        <div className="container-fluid">
+          <div className="alert alert-danger" role="alert">
+            <h4 className="alert-heading">Error!</h4>
+            <p>Failed to load senior data: {fetchError.message}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="pt-4">

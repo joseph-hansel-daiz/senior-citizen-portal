@@ -7,12 +7,14 @@ interface SeniorFormModalProps extends Omit<SeniorFormProps, 'onCancel'> {
   show: boolean;
   onHide: () => void;
   title: string;
+  seniorId?: number | null; // Load senior data by ID
 }
 
 export default function SeniorFormModal({
   show,
   onHide,
   title,
+  seniorId,
   ...formProps
 }: SeniorFormModalProps) {
   if (!show) return null;
@@ -33,6 +35,7 @@ export default function SeniorFormModal({
           <div className="modal-body p-0">
             <SeniorForm
               {...formProps}
+              seniorId={seniorId}
               onCancel={onHide}
             />
           </div>

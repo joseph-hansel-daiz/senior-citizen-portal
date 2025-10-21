@@ -27,7 +27,7 @@ type OptionKey =
   | "technical-skills"
   | "visual-concerns"
   | "help-desk-record-categories"
-  | "options";
+  | "vaccines";
 
 const OPTIONS: { key: OptionKey; label: string }[] = [
   { key: "area-of-difficulties", label: "Area of Difficulties" },
@@ -47,6 +47,7 @@ const OPTIONS: { key: OptionKey; label: string }[] = [
   { key: "technical-skills", label: "Specialization/Technical Skills" },
   { key: "visual-concerns", label: "Visual Concerns" },
   { key: "help-desk-record-categories", label: "Help Desk Record Categories" },
+  { key: "vaccines", label: "Vaccines" },
 ];
 
 interface Row { id: number; name: string }
