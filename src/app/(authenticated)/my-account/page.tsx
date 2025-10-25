@@ -10,7 +10,6 @@ type ProfileShape = {
   name?: string;
   role?: string;
   barangayId?: number | null;
-  logo?: { type: "Buffer"; data: number[] } | null;
 };
 
 export default function ProfilePage() {
@@ -18,7 +17,6 @@ export default function ProfilePage() {
   const { user, token, login, logout } = useAuth();
 
   const [profile, setProfile] = useState<ProfileShape | null>(null);
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const [nameInput, setNameInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,36 +24,7 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const resolveLogoToUrl = async (logo: any): Promise<string | null> => {
-    if (!logo) return null;
 
-    if (
-      logo &&
-      typeof logo === "object" &&
-      (logo.type === "Buffer" || Array.isArray(logo.data))
-    ) {
-      try {
-        const bytes: number[] = logo.type === "Buffer" ? logo.data : logo;
-        const uint8 = new Uint8Array(bytes);
-        const blob = new Blob([uint8.buffer], { type: "image/png" });
-        const url = URL.createObjectURL(blob);
-        return url;
-      } catch (err) {
-        console.warn("Failed to convert Buffer logo to blob URL", err);
-        return null;
-      }
-    }
-
-    return null;
-  };
-
-  useEffect(() => {
-    return () => {
-      if (logoUrl && logoUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(logoUrl);
-      }
-    };
-  }, [logoUrl]);
 
   useEffect(() => {
     if (user) {
@@ -65,32 +34,6 @@ export default function ProfilePage() {
     fetchProfile();
   }, []);
 
-  // whenever profile.logo changes, resolve it to a URL
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      if (!profile?.logo) {
-        setLogoUrl(null);
-        return;
-      }
-
-      // revoke previous if blob
-      if (logoUrl && logoUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(logoUrl);
-      }
-
-      const url = await resolveLogoToUrl(profile.logo);
-      if (!active) {
-        if (url && url.startsWith("blob:")) URL.revokeObjectURL(url);
-        return;
-      }
-      setLogoUrl(url);
-    })();
-
-    return () => {
-      active = false;
-    };
-  }, [profile?.logo]);
 
   const fetchProfile = async () => {
     setLoading(true);
@@ -123,7 +66,6 @@ export default function ProfilePage() {
           name: data.name,
           role: data.role,
           barangayId: data.barangayId === null ? null : Number(data.barangayId),
-          logo: data.logo
         };
         login(ctxUser, token);
       }
@@ -188,24 +130,6 @@ export default function ProfilePage() {
         ) : (
           <div className="card p-4">
             <div className="row g-3 align-items-center mb-3">
-              <div className="col-auto">
-                {logoUrl ? (
-                  <img
-                    src={logoUrl}
-                    alt="Logo"
-                    className="img-thumbnail"
-                    style={{ width: 150, height: 150, objectFit: "cover" }}
-                  />
-                ) : (
-                  <div
-                    className="d-flex align-items-center justify-content-center border rounded"
-                    style={{ width: 150, height: 150 }}
-                  >
-                    <span className="text-muted">No logo</span>
-                  </div>
-                )}
-              </div>
-
               <div className="col">
                 <form onSubmit={handleSubmit}>
                   <div className="mb-3">

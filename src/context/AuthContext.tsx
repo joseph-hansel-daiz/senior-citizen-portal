@@ -15,7 +15,6 @@ type User = {
   name: string;
   role: string;
   barangayId: number | null;
-  logo: { type: "Buffer"; data: number[] } | null;
 };
 
 type AuthContextType = {
