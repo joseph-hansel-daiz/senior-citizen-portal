@@ -235,6 +235,8 @@ export default function DashboardPage() {
           try {
             await updateSenior(selectedSeniorId, payload);
             handleCloseModal();
+            // Reload the page to refresh the data
+            window.location.reload();
           } catch (e) {
             // error is surfaced via updateError
           }
@@ -255,6 +257,8 @@ export default function DashboardPage() {
               deathCertificate,
             });
             handleCloseModal();
+            // Reload the page to refresh the data
+            window.location.reload();
           } catch {}
         }}
         loading={marking}
@@ -270,6 +274,8 @@ export default function DashboardPage() {
           try {
             await deleteSenior(selectedSeniorId);
             handleCloseModal();
+            // Reload the page to refresh the data
+            window.location.reload();
           } catch {}
         }}
         loading={deleting}

@@ -175,6 +175,8 @@ export default function DashboardPage() {
           try {
             await unmarkDeceased(selectedSeniorId);
             handleCloseModal();
+            // Reload the page to refresh the data
+            window.location.reload();
           } catch {}
         }}
         loading={unmarking}
