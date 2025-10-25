@@ -20,7 +20,11 @@ import {
   useVisualConcerns,
 } from "@/hooks/options";
 import { useSenior } from "@/hooks/useSenior";
-import { SeniorCitizen as SeniorCitizenType, SeniorCitizenCreateInput, SeniorCitizenUpdateInput } from "@/types/senior-citizen.types";
+import {
+  SeniorCitizen as SeniorCitizenType,
+  SeniorCitizenCreateInput,
+  SeniorCitizenUpdateInput,
+} from "@/types/senior-citizen.types";
 
 // Form-specific interface for the local form state
 export interface SeniorCitizenForm {
@@ -77,7 +81,6 @@ export interface SeniorCitizenForm {
 }
 import { JSX, useState, useEffect } from "react";
 
-
 export interface Member {
   name: string;
   occupation: string;
@@ -86,13 +89,15 @@ export interface Member {
   isWorking: boolean;
 }
 
-export type FormMode = 'create' | 'view' | 'update';
+export type FormMode = "create" | "view" | "update";
 
 export interface SeniorFormProps {
   mode: FormMode;
   seniorId?: number | null; // Load senior data by ID (for view/update modes)
   initialData?: SeniorCitizenType; // Full senior response structure from API (fallback or for create mode)
-  onSubmit: (data: SeniorCitizenCreateInput | SeniorCitizenUpdateInput) => void | Promise<void>;
+  onSubmit: (
+    data: SeniorCitizenCreateInput | SeniorCitizenUpdateInput
+  ) => void | Promise<void>;
   onCancel?: () => void;
   loading?: boolean;
   error?: Error | null;
@@ -105,9 +110,9 @@ const DEFAULT_SENIOR_CITIZEN: SeniorCitizenForm = {
   firstName: "",
   middleName: "",
   extName: "",
-  region: "",
-  province: "",
-  city: "",
+  region: "Region VIII",
+  province: "Leyte",
+  city: "Carigara",
   barangay: "",
   street: "",
   birthDate: "",
@@ -171,11 +176,15 @@ export default function SeniorForm({
   successMessage,
 }: SeniorFormProps) {
   // Fetch senior data if seniorId is provided (for view/update modes)
-  const { data: fetchedSenior, loading: fetchLoading, error: fetchError } = useSenior(seniorId || null);
-  
+  const {
+    data: fetchedSenior,
+    loading: fetchLoading,
+    error: fetchError,
+  } = useSenior(seniorId || null);
+
   // Use fetched data if available, otherwise fall back to initialData
   const activeSeniorData = fetchedSenior || initialData;
-  
+
   // Transform initialData to form format if it's the full senior structure
   const getFormData = () => {
     if (!activeSeniorData) return DEFAULT_SENIOR_CITIZEN;
@@ -185,19 +194,24 @@ export default function SeniorForm({
     if (identifying) {
       const info = identifying;
       // Extract barangay name from the Barangay object if available
-      const barangayName = activeSeniorData.barangay?.name || info.barangay || "";
+      const barangayName =
+        activeSeniorData.barangay?.name || info.barangay || "";
       return {
         picture: null, // Will be handled separately via photoUrl
         lastName: info.lastname || "",
         firstName: info.firstname || "",
         middleName: info.middlename || "",
         extName: info.extension || "",
-        region: info.region || "",
-        province: info.province || "",
-        city: info.city || "",
+        region: "Region VIII",
+        province: "Leyte",
+        city: "Carigara",
         barangay: barangayName,
         street: info.street || "",
-        birthDate: info.birthDate ? (typeof info.birthDate === 'string' ? info.birthDate : info.birthDate.toISOString().split('T')[0]) : "",
+        birthDate: info.birthDate
+          ? typeof info.birthDate === "string"
+            ? info.birthDate
+            : info.birthDate.toISOString().split("T")[0]
+          : "",
         birthPlace: info.birthPlace || "",
         maritalStatus: info.maritalStatus || "",
         religion: info.religion || "",
@@ -217,34 +231,49 @@ export default function SeniorForm({
         canTravel: info.capabilityToTravel ? "Yes" : "No",
         employment: info.employmentBusiness || "",
         // Health Profile fields
-        bloodType: (activeSeniorData.HealthProfile)?.bloodType || "",
-        physicalDisability: (activeSeniorData.HealthProfile)?.physicalDisability || "",
-        listMedicines: (activeSeniorData.HealthProfile)?.listMedicines || "",
-        checkUp: (activeSeniorData.HealthProfile)?.checkUp || false,
-        scheduleCheckUp: (activeSeniorData.HealthProfile)?.scheduleCheckUp || "",
+        bloodType: activeSeniorData.HealthProfile?.bloodType || "",
+        physicalDisability:
+          activeSeniorData.HealthProfile?.physicalDisability || "",
+        listMedicines: activeSeniorData.HealthProfile?.listMedicines || "",
+        checkUp: activeSeniorData.HealthProfile?.checkUp || false,
+        scheduleCheckUp: activeSeniorData.HealthProfile?.scheduleCheckUp || "",
         // Family Composition fields
-        spouseLastName: (activeSeniorData.FamilyComposition)?.spouseLastname || "",
-        spouseFirstName: (activeSeniorData.FamilyComposition)?.spouseFirstname || "",
-        spouseMiddleName: (activeSeniorData.FamilyComposition)?.spouseMiddlename || "",
-        spouseExtName: (activeSeniorData.FamilyComposition)?.spouseExtension || "",
-        fatherLastName: (activeSeniorData.FamilyComposition)?.fatherLastname || "",
-        fatherFirstName: (activeSeniorData.FamilyComposition)?.fatherFirstname || "",
-        fatherMiddleName: (activeSeniorData.FamilyComposition)?.fatherMiddlename || "",
-        fatherExtName: (activeSeniorData.FamilyComposition)?.fatherExtension || "",
-        motherLastName: (activeSeniorData.FamilyComposition)?.motherLastname || "",
-        motherFirstName: (activeSeniorData.FamilyComposition)?.motherFirstname || "",
-        motherMiddleName: (activeSeniorData.FamilyComposition)?.motherMiddlename || "",
+        spouseLastName:
+          activeSeniorData.FamilyComposition?.spouseLastname || "",
+        spouseFirstName:
+          activeSeniorData.FamilyComposition?.spouseFirstname || "",
+        spouseMiddleName:
+          activeSeniorData.FamilyComposition?.spouseMiddlename || "",
+        spouseExtName:
+          activeSeniorData.FamilyComposition?.spouseExtension || "",
+        fatherLastName:
+          activeSeniorData.FamilyComposition?.fatherLastname || "",
+        fatherFirstName:
+          activeSeniorData.FamilyComposition?.fatherFirstname || "",
+        fatherMiddleName:
+          activeSeniorData.FamilyComposition?.fatherMiddlename || "",
+        fatherExtName:
+          activeSeniorData.FamilyComposition?.fatherExtension || "",
+        motherLastName:
+          activeSeniorData.FamilyComposition?.motherLastname || "",
+        motherFirstName:
+          activeSeniorData.FamilyComposition?.motherFirstname || "",
+        motherMiddleName:
+          activeSeniorData.FamilyComposition?.motherMiddlename || "",
         motherExtName: "", // Not present in backend model
         // Education Profile fields
-        sharedSkills: (activeSeniorData.EducationProfile)?.sharedSkills || "",
+        sharedSkills: activeSeniorData.EducationProfile?.sharedSkills || "",
       };
     }
 
     // Otherwise, it's already in form format
-    return { 
-      ...DEFAULT_SENIOR_CITIZEN, 
+    return {
+      ...DEFAULT_SENIOR_CITIZEN,
       ...activeSeniorData,
-      barangay: typeof activeSeniorData.barangay === 'string' ? activeSeniorData.barangay : activeSeniorData.barangay?.name || ""
+      barangay:
+        typeof activeSeniorData.barangay === "string"
+          ? activeSeniorData.barangay
+          : activeSeniorData.barangay?.name || "",
     };
   };
 
@@ -337,10 +366,12 @@ export default function SeniorForm({
 
     // Education Profile selections
     const edu = activeSeniorData.EducationProfile;
-    const eduAttain = edu?.HighestEducationalAttainments?.map((e: any) => e.id) || [];
+    const eduAttain =
+      edu?.HighestEducationalAttainments?.map((e: any) => e.id) || [];
     setSelectedEducationalAttainments(eduAttain);
 
-    const eduSkills = edu?.SpecializationTechnicalSkills?.map((s: any) => s.id) || [];
+    const eduSkills =
+      edu?.SpecializationTechnicalSkills?.map((s: any) => s.id) || [];
     setSelectedTechnicalSkills(eduSkills);
 
     const eduComm = edu?.CommunityInvolvements?.map((ci: any) => ci.id) || [];
@@ -348,19 +379,22 @@ export default function SeniorForm({
 
     // Economic Profile selections
     const eco = activeSeniorData.EconomicProfile;
-    const ecoIncomeSrc = eco?.IncomeAssistanceSources?.map((x: any) => x.id) || [];
+    const ecoIncomeSrc =
+      eco?.IncomeAssistanceSources?.map((x: any) => x.id) || [];
     setSelectedIncomeSources(ecoIncomeSrc);
 
     const ecoReal = eco?.RealImmovableProperties?.map((x: any) => x.id) || [];
     setSelectedRealProperties(ecoReal);
 
-    const ecoPersonal = eco?.PersonalMovableProperties?.map((x: any) => x.id) || [];
+    const ecoPersonal =
+      eco?.PersonalMovableProperties?.map((x: any) => x.id) || [];
     setSelectedPersonalProperties(ecoPersonal);
 
     const ecoMonthly = eco?.MonthlyIncomes?.map((x: any) => x.id) || [];
     setSelectedMonthlyIncomes(ecoMonthly);
 
-    const ecoProblems = eco?.ProblemsNeedsCommonlyEncountereds?.map((x: any) => x.id) || [];
+    const ecoProblems =
+      eco?.ProblemsNeedsCommonlyEncountereds?.map((x: any) => x.id) || [];
     setSelectedProblemsNeeds(ecoProblems);
 
     // Health Profile selections
@@ -432,8 +466,10 @@ export default function SeniorForm({
     let active = true;
     (async () => {
       // Check both photo locations
-      const photoData = activeSeniorData?.photo || activeSeniorData?.IdentifyingInformation?.picture;
-      
+      const photoData =
+        activeSeniorData?.photo ||
+        activeSeniorData?.IdentifyingInformation?.picture;
+
       if (!photoData) {
         setPhotoUrl(null);
         return;
@@ -445,7 +481,7 @@ export default function SeniorForm({
       }
 
       const url = await resolvePhotoToUrl(photoData);
-      
+
       if (!active) {
         if (url && url.startsWith("blob:")) URL.revokeObjectURL(url);
         return;
@@ -456,11 +492,13 @@ export default function SeniorForm({
     return () => {
       active = false;
     };
-  }, [activeSeniorData?.photo, activeSeniorData?.IdentifyingInformation?.picture]);
+  }, [
+    activeSeniorData?.photo,
+    activeSeniorData?.IdentifyingInformation?.picture,
+  ]);
 
-  const isReadOnly = mode === 'view';
-  const isUpdate = mode === 'update';
-
+  const isReadOnly = mode === "view";
+  const isUpdate = mode === "update";
 
   // Helper function to convert Buffer photo to data URL (based on my-account page)
   const resolvePhotoToUrl = async (photo: any): Promise<string | null> => {
@@ -469,9 +507,9 @@ export default function SeniorForm({
     }
 
     // If it's already a string (URL or file path), return it
-    if (typeof photo === 'string') {
+    if (typeof photo === "string") {
       // If it's a file path, we might need to construct a full URL
-      if (photo.startsWith('http') || photo.startsWith('data:')) {
+      if (photo.startsWith("http") || photo.startsWith("data:")) {
         return photo;
       } else {
         // Assume it's a file path, construct URL
@@ -510,9 +548,7 @@ export default function SeniorForm({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleBooleanInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleBooleanInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isReadOnly) return;
     const { name, checked } = e.target;
     setFormData((prev) => ({ ...prev, [name]: checked }));
@@ -568,12 +604,14 @@ export default function SeniorForm({
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    
+
     if (isReadOnly) return;
 
     try {
       // Find the selected barangay ID from the barangay name
-      const selectedBarangay = barangays.find((b) => b.name === formData.barangay);
+      const selectedBarangay = barangays.find(
+        (b) => b.name === formData.barangay
+      );
       if (!selectedBarangay) {
         throw new Error("Please select a valid barangay");
       }
@@ -587,9 +625,9 @@ export default function SeniorForm({
           firstname: formData.firstName,
           middlename: formData.middleName,
           extension: formData.extName,
-          region: formData.region,
-          province: formData.province,
-          city: formData.city,
+          region: "Region VIII",
+          province: "Leyte",
+          city: "Carigara",
           barangay: formData.barangay,
           residence: formData.street, // Using street as residence
           street: formData.street,
@@ -710,7 +748,9 @@ export default function SeniorForm({
       setSelectedAreaOfDifficulties([]);
       // Reset photo state and revoke existing blob URL if any
       if (photoUrl && photoUrl.startsWith("blob:")) {
-        try { URL.revokeObjectURL(photoUrl); } catch {}
+        try {
+          URL.revokeObjectURL(photoUrl);
+        } catch {}
       }
       setPhotoUrl(null);
       setPhotoFile(null);
@@ -751,14 +791,19 @@ export default function SeniorForm({
                   src={photoUrl}
                   alt="Senior Citizen Photo"
                   className="img-thumbnail"
-                  style={{ maxWidth: "200px", maxHeight: "200px", objectFit: "cover" }}
+                  style={{
+                    maxWidth: "200px",
+                    maxHeight: "200px",
+                    objectFit: "cover",
+                  }}
                   onError={(e) => {
                     console.log("Image failed to load:", e);
                     const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
+                    target.style.display = "none";
                     const parent = target.parentElement;
                     if (parent) {
-                      parent.innerHTML = '<div class="text-muted">No photo available</div>';
+                      parent.innerHTML =
+                        '<div class="text-muted">No photo available</div>';
                     }
                   }}
                 />
@@ -776,10 +821,14 @@ export default function SeniorForm({
                 onChange={handlePhotoChange}
                 disabled={isReadOnly}
               />
-              <div className="form-text">Only JPG and PNG formats accepted.</div>
+              <div className="form-text">
+                Only JPG and PNG formats accepted.
+              </div>
               {photoFile && (
                 <div className="mt-2">
-                  <small className="text-muted">Selected: {photoFile.name}</small>
+                  <small className="text-muted">
+                    Selected: {photoFile.name}
+                  </small>
                 </div>
               )}
             </>
@@ -788,7 +837,7 @@ export default function SeniorForm({
 
         <div className="row">
           <div className="col-md-3">
-            <label className="form-label">Last Name</label>
+            <label className="form-label">Last Name <span className="text-danger">*</span></label>
             <input
               type="text"
               className="form-control"
@@ -800,7 +849,7 @@ export default function SeniorForm({
             />
           </div>
           <div className="col-md-3">
-            <label className="form-label">First Name</label>
+            <label className="form-label">First Name <span className="text-danger">*</span></label>
             <input
               type="text"
               className="form-control"
@@ -812,7 +861,7 @@ export default function SeniorForm({
             />
           </div>
           <div className="col-md-3">
-            <label className="form-label">Middle Name</label>
+            <label className="form-label">Middle Name <span className="text-danger">*</span></label>
             <input
               type="text"
               className="form-control"
@@ -844,28 +893,20 @@ export default function SeniorForm({
         <div className="row">
           <div className="col-md-3">
             <label className="form-label">Region</label>
-            <select
-              className="form-select"
-              name="region"
-              value={formData.region}
-              onChange={handleChange}
-              required={!isReadOnly}
-              disabled={isReadOnly}
-            >
-              <option value="">Select Region</option>
-              <option value="Region VIII">Region VIII</option>
-            </select>
+            <input
+              type="text"
+              className="form-control"
+              value="Region VIII"
+              readOnly={true}
+            />
           </div>
           <div className="col-md-3">
             <label className="form-label">Province</label>
             <input
               type="text"
               className="form-control"
-              name="province"
-              value={formData.province}
-              onChange={handleChange}
-              required={!isReadOnly}
-              readOnly={isReadOnly}
+              value="Leyte"
+              readOnly={true}
             />
           </div>
           <div className="col-md-3">
@@ -873,15 +914,12 @@ export default function SeniorForm({
             <input
               type="text"
               className="form-control"
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-              required={!isReadOnly}
-              readOnly={isReadOnly}
+              value="Carigara"
+              readOnly={true}
             />
           </div>
           <div className="col-md-3">
-            <label className="form-label">Barangay</label>
+            <label className="form-label">Barangay <span className="text-danger">*</span></label>
             <select
               className="form-select"
               name="barangay"
@@ -899,7 +937,7 @@ export default function SeniorForm({
             </select>
           </div>
           <div className="col-12 mt-2">
-            <label className="form-label">Street (Zone/Purok/Sitio)</label>
+            <label className="form-label">Street (Zone/Purok/Sitio) <span className="text-danger">*</span></label>
             <input
               type="text"
               className="form-control"
@@ -917,7 +955,7 @@ export default function SeniorForm({
         {/* Personal Info */}
         <div className="row mt-3">
           <div className="col-md-3">
-            <label className="form-label">Birth Date</label>
+            <label className="form-label">Birth Date <span className="text-danger">*</span></label>
             <input
               type="date"
               className="form-control"
@@ -929,7 +967,7 @@ export default function SeniorForm({
             />
           </div>
           <div className="col-md-3">
-            <label className="form-label">Birth Place</label>
+            <label className="form-label">Birth Place <span className="text-danger">*</span></label>
             <input
               type="text"
               className="form-control"
@@ -941,7 +979,7 @@ export default function SeniorForm({
             />
           </div>
           <div className="col-md-3">
-            <label className="form-label">Marital Status</label>
+            <label className="form-label">Marital Status <span className="text-danger">*</span></label>
             <select
               className="form-select"
               name="maritalStatus"
@@ -971,7 +1009,7 @@ export default function SeniorForm({
 
         <div className="row mt-3">
           <div className="col-md-3">
-            <label className="form-label">Sex at Birth</label>
+            <label className="form-label">Sex at Birth <span className="text-danger">*</span></label>
             <select
               className="form-select"
               name="sexAtBirth"
@@ -986,7 +1024,7 @@ export default function SeniorForm({
             </select>
           </div>
           <div className="col-md-3">
-            <label className="form-label">Contact Number</label>
+            <label className="form-label">Contact Number <span className="text-danger">*</span></label>
             <input
               type="text"
               className="form-control"
@@ -1052,8 +1090,14 @@ export default function SeniorForm({
               name="oscaId"
               value={formData.oscaId}
               onChange={handleChange}
-              readOnly={isReadOnly}
+              readOnly={true}
             />
+            <div className="form-text">
+              <small className="text-muted">
+                <i className="bi bi-info-circle me-1"></i>
+                OSCA ID is only assigned during the approval process
+              </small>
+            </div>
           </div>
           <div className="col-md-3">
             <label className="form-label">GSIS/SSS No.</label>
@@ -1222,7 +1266,14 @@ export default function SeniorForm({
               className="form-control"
               name="name"
               value={member.name}
-              onChange={(e) => handleMemberFieldChange(collectionName as any, index, "name", e.target.value)}
+              onChange={(e) =>
+                handleMemberFieldChange(
+                  collectionName as any,
+                  index,
+                  "name",
+                  e.target.value
+                )
+              }
               readOnly={isReadOnly}
             />
           </td>
@@ -1232,7 +1283,14 @@ export default function SeniorForm({
               className="form-control"
               name="occupation"
               value={member.occupation}
-              onChange={(e) => handleMemberFieldChange(collectionName as any, index, "occupation", e.target.value)}
+              onChange={(e) =>
+                handleMemberFieldChange(
+                  collectionName as any,
+                  index,
+                  "occupation",
+                  e.target.value
+                )
+              }
               readOnly={isReadOnly}
             />
           </td>
@@ -1243,7 +1301,14 @@ export default function SeniorForm({
               className="form-control"
               name="income"
               value={member.income}
-              onChange={(e) => handleMemberFieldChange(collectionName as any, index, "income", e.target.value)}
+              onChange={(e) =>
+                handleMemberFieldChange(
+                  collectionName as any,
+                  index,
+                  "income",
+                  e.target.value
+                )
+              }
               readOnly={isReadOnly}
             />
           </td>
@@ -1254,7 +1319,14 @@ export default function SeniorForm({
               className="form-control"
               name="age"
               value={member.age}
-              onChange={(e) => handleMemberFieldChange(collectionName as any, index, "age", e.target.value)}
+              onChange={(e) =>
+                handleMemberFieldChange(
+                  collectionName as any,
+                  index,
+                  "age",
+                  e.target.value
+                )
+              }
               readOnly={isReadOnly}
             />
           </td>
@@ -1263,7 +1335,14 @@ export default function SeniorForm({
               className="form-select"
               name="isWorking"
               value={member.isWorking ? "Yes" : "No"}
-              onChange={(e) => handleMemberFieldChange(collectionName as any, index, "isWorking", e.target.value === "Yes")}
+              onChange={(e) =>
+                handleMemberFieldChange(
+                  collectionName as any,
+                  index,
+                  "isWorking",
+                  e.target.value === "Yes"
+                )
+              }
               disabled={isReadOnly}
             >
               <option value="No">No</option>
@@ -1896,8 +1975,8 @@ export default function SeniorForm({
             <select
               className="form-select"
               name="bloodType"
-            value={formData.bloodType}
-            onChange={handleChange}
+              value={formData.bloodType}
+              onChange={handleChange}
               disabled={isReadOnly}
             >
               {bloodTypeOptions()}
@@ -1910,8 +1989,8 @@ export default function SeniorForm({
               type="text"
               className="form-control"
               name="physicalDisability"
-            value={formData.physicalDisability}
-            onChange={handleChange}
+              value={formData.physicalDisability}
+              onChange={handleChange}
               readOnly={isReadOnly}
             />
 
@@ -1920,13 +1999,11 @@ export default function SeniorForm({
                 className="form-check-input"
                 type="checkbox"
                 name="checkUp"
-              checked={formData.checkUp}
-              onChange={handleBooleanInputChange}
+                checked={formData.checkUp}
+                onChange={handleBooleanInputChange}
                 disabled={isReadOnly}
               />
-              <label className="form-check-label">
-                Regular Check-up
-              </label>
+              <label className="form-check-label">Regular Check-up</label>
             </div>
 
             <label className="form-label">
@@ -1935,8 +2012,8 @@ export default function SeniorForm({
             <select
               className="form-select"
               name="scheduleCheckUp"
-            value={formData.scheduleCheckUp}
-            onChange={handleChange}
+              value={formData.scheduleCheckUp}
+              onChange={handleChange}
               disabled={isReadOnly}
             >
               {scheduleCheckUpOptions()}
@@ -2157,7 +2234,10 @@ export default function SeniorForm({
     return (
       <section className="pt-4">
         <div className="container-fluid">
-          <div className="d-flex justify-content-center align-items-center" style={{ height: "400px" }}>
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ height: "400px" }}
+          >
             <div className="spinner-border" role="status">
               <span className="visually-hidden">Loading senior data...</span>
             </div>
@@ -2196,7 +2276,7 @@ export default function SeniorForm({
             {accordionItem(economicProfile, "V. Economic Profile")}
             {accordionItem(healthProfile, "VI. Health Profile")}
           </div>
-          
+
           {!isReadOnly && (
             <div className="mt-4 d-grid">
               <button
@@ -2211,10 +2291,12 @@ export default function SeniorForm({
                       role="status"
                       aria-hidden="true"
                     ></span>
-                    {isUpdate ? 'Updating...' : 'Creating...'}
+                    {isUpdate ? "Updating..." : "Creating..."}
                   </>
+                ) : isUpdate ? (
+                  "Update"
                 ) : (
-                  isUpdate ? 'Update' : 'Submit'
+                  "Submit"
                 )}
               </button>
               <button
@@ -2223,7 +2305,7 @@ export default function SeniorForm({
                 onClick={handleCancel}
                 disabled={loading}
               >
-                {isUpdate ? 'Cancel' : 'Reset'}
+                {isUpdate ? "Cancel" : "Reset"}
               </button>
             </div>
           )}
@@ -2231,7 +2313,10 @@ export default function SeniorForm({
           {error && (
             <div className="alert alert-danger mt-3" role="alert">
               <h4 className="alert-heading">Error!</h4>
-              <p>Failed to {isUpdate ? 'update' : 'create'} senior citizen: {error.message}</p>
+              <p>
+                Failed to {isUpdate ? "update" : "create"} senior citizen:{" "}
+                {error.message}
+              </p>
             </div>
           )}
 
