@@ -10,6 +10,7 @@ import {
   updateHelpdeskRecord,
   useHelpdeskRecords,
 } from "@/hooks/helpdesk/useHelpdesk";
+import { useAuth } from "@/context/AuthContext";
 
 interface TableRow {
   id: number;
@@ -20,6 +21,7 @@ interface TableRow {
 }
 
 export default function HelpdeskPage() {
+  const { token } = useAuth();
   const { data: records, loading, error, refetch } = useHelpdeskRecords();
 
   const [showCreate, setShowCreate] = useState(false);
@@ -70,7 +72,7 @@ export default function HelpdeskPage() {
         seniorId: payload.seniorId,
         helpDeskRecordCategory: payload.helpDeskRecordCategory,
         details: payload.details,
-      });
+      }, token || undefined);
       setShowCreate(false);
       await refetch();
     } catch (err: any) {
@@ -85,7 +87,7 @@ export default function HelpdeskPage() {
     setActionError("");
     try {
       if (!selected) return;
-      await updateHelpdeskRecord(selected.id, payload);
+      await updateHelpdeskRecord(selected.id, payload, token || undefined);
       setShowEdit(false);
       setSelected(null);
       await refetch();
@@ -97,7 +99,7 @@ export default function HelpdeskPage() {
   const handleDelete = async (id: number) => {
     setActionError("");
     try {
-      await deleteHelpdeskRecord(id);
+      await deleteHelpdeskRecord(id, token || undefined);
       await refetch();
     } catch (err: any) {
       setActionError(err.message || "Failed to delete");

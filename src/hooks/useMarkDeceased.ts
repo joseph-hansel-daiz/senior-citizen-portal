@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { SeniorCitizen } from "@/types/senior-citizen.types";
+import { useAuth } from "@/context/AuthContext";
 
 interface MarkDeceasedParams {
   dateOfDeath: string;
@@ -7,6 +8,7 @@ interface MarkDeceasedParams {
 }
 
 export function useMarkDeceased() {
+  const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -26,6 +28,9 @@ export function useMarkDeceased() {
 
       const response = await fetch(`http://localhost:8000/seniors/${id}/mark-deceased`, {
         method: "POST",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: form,
       });
 

@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { SeniorCitizen } from "@/types/senior-citizen.types";
+import { useAuth } from "@/context/AuthContext";
 
 export function useUnmarkDeceased() {
+  const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -12,6 +14,10 @@ export function useUnmarkDeceased() {
     try {
       const response = await fetch(`http://localhost:8000/seniors/${id}/unmark-deceased`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
       });
 
       if (!response.ok) {

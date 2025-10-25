@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface Option {
   id: number;
@@ -6,6 +7,7 @@ interface Option {
 }
 
 export function useOptions(endpoint: string) {
+  const { token } = useAuth();
   const [data, setData] = useState<Option[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -14,7 +16,12 @@ export function useOptions(endpoint: string) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`http://localhost:8000/options/${endpoint}`);
+      const res = await fetch(`http://localhost:8000/options/${endpoint}`, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
       if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
       const json: Option[] = await res.json();
       setData(json);
@@ -29,7 +36,12 @@ export function useOptions(endpoint: string) {
     let active = true;
     (async () => {
       try {
-        const res = await fetch(`http://localhost:8000/options/${endpoint}`);
+        const res = await fetch(`http://localhost:8000/options/${endpoint}`, {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
         if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
         const json: Option[] = await res.json();
         if (active) setData(json);
@@ -48,10 +60,13 @@ export function useOptions(endpoint: string) {
   return { data, loading, error, refetch: fetchAll };
 }
 
-export async function createOption(endpoint: string, name: string) {
+export async function createOption(endpoint: string, name: string, token?: string) {
   const res = await fetch(`http://localhost:8000/options/${endpoint}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify({ name }),
   });
   if (!res.ok) {
@@ -61,10 +76,13 @@ export async function createOption(endpoint: string, name: string) {
   return res.json();
 }
 
-export async function updateOption(endpoint: string, id: number, name: string) {
+export async function updateOption(endpoint: string, id: number, name: string, token?: string) {
   const res = await fetch(`http://localhost:8000/options/${endpoint}/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify({ name }),
   });
   if (!res.ok) {
@@ -74,9 +92,13 @@ export async function updateOption(endpoint: string, id: number, name: string) {
   return res.json();
 }
 
-export async function deleteOption(endpoint: string, id: number) {
+export async function deleteOption(endpoint: string, id: number, token?: string) {
   const res = await fetch(`http://localhost:8000/options/${endpoint}/${id}`, {
     method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
   });
   if (!res.ok && res.status !== 204) {
     const data = await res.json().catch(() => ({}));

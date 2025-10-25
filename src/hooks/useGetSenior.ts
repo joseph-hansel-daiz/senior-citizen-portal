@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { SeniorCitizen } from "@/types/senior-citizen.types";
+import { useAuth } from "@/context/AuthContext";
 
 export function useGetSenior(id: number | null) {
+  const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [data, setData] = useState<SeniorCitizen | null>(null);
@@ -16,6 +18,7 @@ export function useGetSenior(id: number | null) {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
 

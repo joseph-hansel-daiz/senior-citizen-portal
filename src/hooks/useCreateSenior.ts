@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { SeniorCitizen, SeniorCitizenCreateInput } from "@/types/senior-citizen.types";
+import { useAuth } from "@/context/AuthContext";
 
 export function useCreateSenior() {
+  const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [data, setData] = useState<SeniorCitizen | null>(null);
@@ -29,6 +31,9 @@ export function useCreateSenior() {
         
         response = await fetch("http://localhost:8000/seniors", {
           method: "POST",
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
           body: formData, // Don't set Content-Type header, let browser set it with boundary
         });
       } else {
@@ -37,6 +42,7 @@ export function useCreateSenior() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           body: JSON.stringify(payload),
         });

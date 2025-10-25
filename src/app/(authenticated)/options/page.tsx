@@ -8,6 +8,7 @@ import {
   updateOption,
   useOptions,
 } from "@/hooks/options/useOptions";
+import { useAuth } from "@/context/AuthContext";
 
 type OptionKey =
   | "area-of-difficulties"
@@ -55,6 +56,7 @@ const OPTIONS: { key: OptionKey; label: string }[] = [
 interface Row { id: number; name: string }
 
 export default function OptionsPage() {
+  const { token } = useAuth();
   const [selectedKey, setSelectedKey] = useState<OptionKey>("cohabitants");
   const { data, loading, error, refetch } = useOptions(selectedKey);
 
@@ -73,7 +75,7 @@ export default function OptionsPage() {
     setActionError("");
     try {
       if (!newValue.trim()) throw new Error("Name is required");
-      await createOption(selectedKey, newValue.trim());
+      await createOption(selectedKey, newValue.trim(), token || undefined);
       setNewValue("");
       await refetch();
     } catch (err: any) {
@@ -91,7 +93,7 @@ export default function OptionsPage() {
     setActionError("");
     try {
       if (!editValue.trim()) throw new Error("Name is required");
-      await updateOption(selectedKey, editId, editValue.trim());
+      await updateOption(selectedKey, editId, editValue.trim(), token || undefined);
       setEditId(null);
       setEditValue("");
       await refetch();
@@ -103,7 +105,7 @@ export default function OptionsPage() {
   const onDelete = async (id: number) => {
     setActionError("");
     try {
-      await deleteOption(selectedKey, id);
+      await deleteOption(selectedKey, id, token || undefined);
       await refetch();
     } catch (err: any) {
       setActionError(err.message || "Failed to delete");

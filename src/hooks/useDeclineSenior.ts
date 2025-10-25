@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { SeniorCitizen } from "@/types/senior-citizen.types";
+import { useAuth } from "@/context/AuthContext";
 
 interface DeclineSeniorParams {
   note?: string;
 }
 
 export function useDeclineSenior() {
+  const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -21,6 +23,7 @@ export function useDeclineSenior() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(params),
       });

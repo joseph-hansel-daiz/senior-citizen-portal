@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export function useDeleteSenior() {
+  const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -11,6 +13,10 @@ export function useDeleteSenior() {
     try {
       const response = await fetch(`http://localhost:8000/seniors/${id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
       });
 
       if (!response.ok) {

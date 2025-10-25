@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext"; // update import if needed
+import { useAuth } from "@/context/AuthContext";
+import { useProfileOperations } from "@/hooks/useProfileOperations";
 
 type ProfileShape = {
   id?: number;
@@ -15,67 +16,27 @@ type ProfileShape = {
 export default function ProfilePage() {
   const router = useRouter();
   const { user, token, login, logout } = useAuth();
-
-  const [profile, setProfile] = useState<ProfileShape | null>(null);
+  const {
+    profile,
+    loading,
+    saving,
+    error,
+    success,
+    updateProfile,
+    setError,
+    setSuccess,
+  } = useProfileOperations();
 
   const [nameInput, setNameInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
 
 
-  useEffect(() => {
-    if (user) {
-      setProfile(user);
-      setNameInput(user.name || "");
+  // Initialize name input when profile is loaded
+  React.useEffect(() => {
+    if (profile) {
+      setNameInput(profile.name || "");
     }
-    fetchProfile();
-  }, []);
-
-
-  const fetchProfile = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch("http://localhost:8000/users/me", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      });
-
-      if (!res.ok) {
-        const payload = await res.json().catch(() => ({}));
-        throw new Error(
-          (payload && (payload.message || payload.error)) ||
-            `GET /users/me failed (${res.status})`
-        );
-      }
-
-      const data = await res.json();
-      setProfile(data);
-      setNameInput(data.name || "");
-
-      if (token) {
-        const ctxUser = {
-          id: Number(data.id),
-          username: data.username,
-          name: data.name,
-          role: data.role,
-          barangayId: data.barangayId === null ? null : Number(data.barangayId),
-        };
-        login(ctxUser, token);
-      }
-    } catch (err: any) {
-      console.error("fetchProfile error", err);
-      setError(err.message || "Failed to fetch profile");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [profile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,34 +48,10 @@ export default function ProfilePage() {
       return;
     }
 
-    setSaving(true);
-    try {
-      const res = await fetch("http://localhost:8000/users/me", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ name: nameInput.trim() }),
-      });
-
-      const payload = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        const msg =
-          (payload && (payload.message || payload.error)) ||
-          `Update failed (${res.status})`;
-        setError(msg);
-        return;
-      }
-
-      fetchProfile();
-      setSuccess("Profile updated successfully.");
-    } catch (err: any) {
-      console.error("updateProfile error", err);
-      setError(err.message || "Network error while updating profile");
-    } finally {
-      setSaving(false);
+    const result = await updateProfile(nameInput);
+    
+    if (!result.success) {
+      setError(result.error || "Failed to update profile");
     }
   };
 

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { SeniorCitizen } from "@/types/senior-citizen.types";
+import { useAuth } from "@/context/AuthContext";
 
 export function useSenior(seniorId: number | null) {
+  const { token } = useAuth();
   const [data, setData] = useState<SeniorCitizen | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -19,7 +21,12 @@ export function useSenior(seniorId: number | null) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://localhost:8000/seniors/${seniorId}`);
+        const res = await fetch(`http://localhost:8000/seniors/${seniorId}`, {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
         if (!res.ok) throw new Error(`Failed to fetch senior`);
         const json = await res.json();
         if (active) setData(json);
@@ -40,7 +47,12 @@ export function useSenior(seniorId: number | null) {
     if (seniorId) {
       setLoading(true);
       setError(null);
-      fetch(`http://localhost:8000/seniors/${seniorId}`)
+      fetch(`http://localhost:8000/seniors/${seniorId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      })
         .then(res => {
           if (!res.ok) throw new Error(`Failed to fetch senior`);
           return res.json();

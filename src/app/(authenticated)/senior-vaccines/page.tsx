@@ -3,8 +3,10 @@ import { useMemo, useState } from "react";
 import { useSeniors } from "@/hooks/useSeniors";
 import { useOptions } from "@/hooks/options/useOptions";
 import { deleteSeniorVaccine, upsertSeniorVaccine, useSeniorVaccines } from "@/hooks/seniorVaccines/useSeniorVaccines";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SeniorVaccinesPage() {
+  const { token } = useAuth();
   const { data: seniors } = useSeniors();
   const [selectedSeniorId, setSelectedSeniorId] = useState<number | null>(null);
 
@@ -60,7 +62,7 @@ export default function SeniorVaccinesPage() {
     if (!selectedSeniorId || modalVaccineId == null) return;
     setActionError("");
     try {
-      await upsertSeniorVaccine({ seniorId: selectedSeniorId, vaccineId: modalVaccineId, lastVaccineDate: modalDate || null });
+      await upsertSeniorVaccine({ seniorId: selectedSeniorId, vaccineId: modalVaccineId, lastVaccineDate: modalDate || null }, token || undefined);
       setShowModal(false);
       await refetch();
     } catch (err: any) {
@@ -72,7 +74,7 @@ export default function SeniorVaccinesPage() {
     if (!selectedSeniorId) return;
     setActionError("");
     try {
-      await deleteSeniorVaccine(selectedSeniorId, vaccineId);
+      await deleteSeniorVaccine(selectedSeniorId, vaccineId, token || undefined);
       await refetch();
     } catch (err: any) {
       setActionError(err.message || "Failed to delete");

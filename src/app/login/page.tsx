@@ -1,12 +1,14 @@
 "use client";
 
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { useAuthOperations } from "@/hooks/useAuthOperations";
 import { ROUTES } from "@/lib/constants";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Page() {
-  const { login, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const { login } = useAuthOperations();
   const router = useRouter();
 
   const [username, setUsername] = useState("");
@@ -39,41 +41,12 @@ export default function Page() {
       return;
     }
 
-    try {
-      const res = await fetch("http://localhost:8000/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      // parse JSON even on non-2xx to show backend message
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        const errorMessage = (data && data.message) || "Login failed";
-        setFormError(errorMessage);
-        return;
-      }
-
-      const { token, user } = data;
-
-      const userPayload = {
-        id: Number(user.id),
-        username: user.username,
-        name: user.name,
-        role: user.role,
-        barangayId: user.barangayId === null ? null : Number(user.barangayId),
-      };
-
-      login(userPayload, token);
-
+    const result = await login({ username, password });
+    
+    if (result.success) {
       router.push(ROUTES.DASHBOARD);
-    } catch (err) {
-      setFormError(
-        "Network error. Please check your connection and try again."
-      );
+    } else {
+      setFormError(result.error || "Login failed");
     }
   };
 

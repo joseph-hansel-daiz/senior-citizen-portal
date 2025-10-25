@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export interface HelpdeskRecord {
   id: number;
@@ -117,6 +118,7 @@ export interface HelpdeskRecord {
 }
 
 export function useHelpdeskRecords() {
+  const { token } = useAuth();
   const [data, setData] = useState<HelpdeskRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -125,7 +127,12 @@ export function useHelpdeskRecords() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("http://localhost:8000/helpdesk");
+      const res = await fetch("http://localhost:8000/helpdesk", {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
       if (!res.ok) throw new Error("Failed to fetch helpdesk records");
       const json: HelpdeskRecord[] = await res.json();
       setData(json);
@@ -147,10 +154,13 @@ export async function createHelpdeskRecord(payload: {
   seniorId: number;
   helpDeskRecordCategory: number;
   details: string;
-}) {
+}, token?: string) {
   const res = await fetch("http://localhost:8000/helpdesk", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(payload),
   });
   if (!res.ok) {
@@ -162,10 +172,13 @@ export async function createHelpdeskRecord(payload: {
 export async function updateHelpdeskRecord(id: number, payload: {
   helpDeskRecordCategory?: number;
   details?: string;
-}) {
+}, token?: string) {
   const res = await fetch(`http://localhost:8000/helpdesk/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(payload),
   });
   if (!res.ok) {
@@ -174,9 +187,13 @@ export async function updateHelpdeskRecord(id: number, payload: {
   }
 }
 
-export async function deleteHelpdeskRecord(id: number) {
+export async function deleteHelpdeskRecord(id: number, token?: string) {
   const res = await fetch(`http://localhost:8000/helpdesk/${id}`, {
     method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
   });
   if (!res.ok && res.status !== 204) {
     const data = await res.json().catch(() => ({}));
