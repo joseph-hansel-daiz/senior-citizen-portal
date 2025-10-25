@@ -33,13 +33,17 @@ export default function HelpdeskPage() {
       records.map((r) => {
         const info = r.Senior?.IdentifyingInformation;
         const seniorName = info
-          ? `${info.lastname}, ${info.firstname}${info.middlename ? ' ' + info.middlename : ''}`
-          : 'N/A';
-        
+          ? `${info.lastname}, ${info.firstname}${
+              info.middlename ? " " + info.middlename : ""
+            }`
+          : "N/A";
+
         return {
           id: r.id,
           seniorName,
-          category: r.HelpDeskRecordCategory?.name || String(r.helpDeskRecordCategory),
+          category:
+            r.HelpDeskRecordCategory?.name ||
+            String(r.helpDeskRecordCategory),
           details: r.details,
           createdAt: new Date(r.createdAt).toLocaleString(),
         };
@@ -54,7 +58,11 @@ export default function HelpdeskPage() {
     { label: "Created", accessor: "createdAt" },
   ];
 
-  const handleCreate = async (payload: { seniorId?: number; helpDeskRecordCategory: number; details: string }) => {
+  const handleCreate = async (payload: {
+    seniorId?: number;
+    helpDeskRecordCategory: number;
+    details: string;
+  }) => {
     setActionError("");
     try {
       if (!payload.seniorId) throw new Error("Senior is required");
@@ -70,7 +78,10 @@ export default function HelpdeskPage() {
     }
   };
 
-  const handleUpdate = async (payload: { helpDeskRecordCategory: number; details: string }) => {
+  const handleUpdate = async (payload: {
+    helpDeskRecordCategory: number;
+    details: string;
+  }) => {
     setActionError("");
     try {
       if (!selected) return;
@@ -115,7 +126,10 @@ export default function HelpdeskPage() {
       >
         Edit
       </button>
-      <button className="btn btn-danger btn-sm w-100" onClick={() => handleDelete(row.id)}>
+      <button
+        className="btn btn-danger btn-sm w-100"
+        onClick={() => handleDelete(row.id)}
+      >
         Delete
       </button>
     </div>
@@ -123,7 +137,10 @@ export default function HelpdeskPage() {
 
   if (loading) {
     return (
-      <section className="d-flex justify-content-center align-items-center" style={{ height: "300px" }}>
+      <section
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "300px" }}
+      >
         <div className="spinner-border" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -151,7 +168,9 @@ export default function HelpdeskPage() {
       </div>
 
       {actionError && (
-        <div className="alert alert-danger" role="alert">{actionError}</div>
+        <div className="alert alert-danger" role="alert">
+          {actionError}
+        </div>
       )}
 
       <DataTable<TableRow>
@@ -192,5 +211,3 @@ export default function HelpdeskPage() {
     </section>
   );
 }
-
-

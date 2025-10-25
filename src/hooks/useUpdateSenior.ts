@@ -1,115 +1,46 @@
 import { useState } from "react";
-
-interface UpdateSeniorPayload {
-  barangayId: number;
-  identifyingInformation: {
-    lastname: string;
-    firstname: string;
-    middlename: string;
-    extension: string;
-    region: string;
-    province: string;
-    city: string;
-    barangay: string;
-    residence: string;
-    street: string;
-    birthDate: string;
-    birthPlace: string;
-    maritalStatus: string;
-    religion: string;
-    sexAtBirth: string;
-    contactNumber: string;
-    emailAddress: string;
-    fbMessengerName: string;
-    ethnicOrigin: string;
-    languageSpoken: string;
-    oscaIdNo: string;
-    gsisSssNo: string;
-    tin: string;
-    philhealthNo: string;
-    scAssociationIdNo: string;
-    otherGovIdNo: string;
-    employmentBusiness: string;
-    hasPension: boolean;
-    pensionList: string;
-    capabilityToTravel: boolean;
-  };
-  familyComposition: {
-    spouseLastname: string | null;
-    spouseFirstname: string | null;
-    spouseMiddlename: string | null;
-    spouseExtension: string | null;
-    fatherLastname: string | null;
-    fatherFirstname: string | null;
-    fatherMiddlename: string | null;
-    fatherExtension: string | null;
-    motherLastname: string | null;
-    motherFirstname: string | null;
-    motherMiddlename: string | null;
-  };
-  dependencyProfile: {
-    cohabitants: number[];
-    livingConditions: number[];
-  };
-  educationProfile: {
-    sharedSkills: string | null;
-    highestEducationalAttainments: number[];
-    specializationTechnicalSkills: number[];
-    communityInvolvements: number[];
-  };
-  economicProfile: {
-    incomeAssistanceSources: number[];
-    realImmovableProperties: number[];
-    personalMovableProperties: number[];
-    monthlyIncomes: number[];
-    problemsNeedsCommonlyEncountereds: number[];
-  };
-  healthProfile: {
-    bloodType: string | null;
-    physicalDisability: string | null;
-    listMedicines: string | null;
-    checkUp: boolean;
-    scheduleCheckUp: string | null;
-    healthProblemAilments: number[];
-    dentalConcerns: number[];
-    visualConcerns: number[];
-    auralConcerns: number[];
-    socialEmotionalConcerns: number[];
-    areaOfDifficulties: number[];
-  };
-}
-
-interface UpdateSeniorResponse {
-  id: number;
-  barangayId: number;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
-  createdBy: number | null;
-  updatedBy: number | null;
-  deletedBy: number | null;
-  // ... other fields from the response
-}
+import { SeniorCitizen, SeniorCitizenUpdateInput } from "@/types/senior-citizen.types";
 
 export function useUpdateSenior() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [data, setData] = useState<UpdateSeniorResponse | null>(null);
+  const [data, setData] = useState<SeniorCitizen | null>(null);
 
-  const updateSenior = async (id: number, payload: UpdateSeniorPayload) => {
+  const updateSenior = async (id: number, payload: SeniorCitizenUpdateInput) => {
     setLoading(true);
     setError(null);
     setData(null);
 
     try {
-      const response = await fetch(`http://localhost:8000/seniors/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      // Check if there's a photo to upload
+      const hasPhoto = payload.photo && payload.photo instanceof Blob;
+      
+      let response;
+      if (hasPhoto) {
+        // Use FormData for multipart upload
+        const formData = new FormData();
+        
+        // Add photo file
+        formData.append('photo', payload.photo as Blob, 'photo.jpg');
+        
+        // Add other data as JSON string
+        const { photo, ...otherData } = payload;
+        formData.append('data', JSON.stringify(otherData));
+        
+        response = await fetch(`http://localhost:8000/seniors/${id}`, {
+          method: "PUT",
+          body: formData, // Don't set Content-Type header, let browser set it with boundary
+        });
+      } else {
+        // Use JSON for regular data
+        response = await fetch(`http://localhost:8000/seniors/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+      }
 
       if (!response.ok) {
         const errorData = await response.json();

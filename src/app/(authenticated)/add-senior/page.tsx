@@ -2,13 +2,14 @@
 
 import { useCreateSenior } from "@/hooks/useCreateSenior";
 import SeniorForm from "@/components/SeniorForm";
+import { SeniorCitizenCreateInput, SeniorCitizenUpdateInput } from "@/types/senior-citizen.types";
 
 export default function AddSeniorPage() {
   const { createSenior, loading, error, data } = useCreateSenior();
 
-  const handleSubmit = async (payload: any) => {
+  const handleSubmit = async (payload: SeniorCitizenCreateInput | SeniorCitizenUpdateInput) => {
     try {
-      await createSenior(payload);
+      await createSenior(payload as SeniorCitizenCreateInput);
       alert("Senior citizen created successfully!");
     } catch (err) {
       console.error("Error creating senior:", err);

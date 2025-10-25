@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { SeniorCitizen } from "@/types/senior-citizen.types";
 
 export function useSenior(seniorId: number | null) {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<SeniorCitizen | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 

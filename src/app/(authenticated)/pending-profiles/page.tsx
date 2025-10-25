@@ -1,15 +1,15 @@
 "use client";
 
-import DataTable, { Column } from "@/components/DataTable";
-import { useSeniors } from "@/hooks/useSeniors";
-import SeniorFormModal from "@/components/SeniorFormModal";
 import ApproveModal from "@/components/ApproveModal";
+import DataTable, { Column } from "@/components/DataTable";
 import DeclineModal from "@/components/DeclineModal";
+import SeniorFormModal from "@/components/SeniorFormModal";
 import { useApproveSenior } from "@/hooks/useApproveSenior";
 import { useDeclineSenior } from "@/hooks/useDeclineSenior";
+import { useSeniors } from "@/hooks/useSeniors";
 import { useState } from "react";
 
-interface SeniorCitizen {
+interface SeniorCitizenTableRow {
   id: number;
   fullName: string;
   age: number;
@@ -26,8 +26,16 @@ export default function DashboardPage() {
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showDeclineModal, setShowDeclineModal] = useState(false);
   const [selectedSeniorId, setSelectedSeniorId] = useState<number | null>(null);
-  const { approveSenior, loading: approveLoading, error: approveError } = useApproveSenior();
-  const { declineSenior, loading: declineLoading, error: declineError } = useDeclineSenior();
+  const {
+    approveSenior,
+    loading: approveLoading,
+    error: approveError,
+  } = useApproveSenior();
+  const {
+    declineSenior,
+    loading: declineLoading,
+    error: declineError,
+  } = useDeclineSenior();
 
   // Filter to only show seniors with exactly 1 status that is 'Pending'
   const pendingSeniors = seniors.filter((senior) => {
@@ -37,15 +45,18 @@ export default function DashboardPage() {
     }
 
     // Only show seniors with exactly 1 status history entry that is 'Pending'
-    if (senior.SeniorStatusHistories && senior.SeniorStatusHistories.length === 1) {
-      return senior.SeniorStatusHistories[0].status === 'Pending';
+    if (
+      senior.SeniorStatusHistories &&
+      senior.SeniorStatusHistories.length === 1
+    ) {
+      return senior.SeniorStatusHistories[0].status === "Pending";
     }
 
     return false;
   });
 
   // Transform backend data to match table structure
-  const data: SeniorCitizen[] = pendingSeniors.map((senior) => {
+  const data: SeniorCitizenTableRow[] = pendingSeniors.map((senior) => {
     const identifyingInfo = senior.IdentifyingInformation;
     const fullName = identifyingInfo
       ? `${identifyingInfo.firstname} ${identifyingInfo.middlename} ${identifyingInfo.lastname}`.trim()
@@ -72,7 +83,7 @@ export default function DashboardPage() {
     const barangay = identifyingInfo?.barangay || "N/A";
 
     return {
-      id: senior.id,
+      id: senior.id!,
       fullName,
       age,
       address,
@@ -83,7 +94,7 @@ export default function DashboardPage() {
     };
   });
 
-  const columns: Column<SeniorCitizen>[] = [
+  const columns: Column<SeniorCitizenTableRow>[] = [
     { label: "Barangay", accessor: "barangay" },
     { label: "Full Name", accessor: "fullName" },
     { label: "Age", accessor: "age" },
@@ -113,9 +124,12 @@ export default function DashboardPage() {
     setShowDeclineModal(true);
   };
 
-  const handleApproveSubmit = async (payload: { oscaId: string; note?: string }) => {
+  const handleApproveSubmit = async (payload: {
+    oscaId: string;
+    note?: string;
+  }) => {
     if (selectedSeniorId === null) return;
-    
+
     try {
       await approveSenior(selectedSeniorId, payload);
       setShowApproveModal(false);
@@ -130,7 +144,7 @@ export default function DashboardPage() {
 
   const handleDeclineSubmit = async (payload: { note?: string }) => {
     if (selectedSeniorId === null) return;
-    
+
     try {
       await declineSenior(selectedSeniorId, payload);
       setShowDeclineModal(false);
@@ -153,7 +167,7 @@ export default function DashboardPage() {
     setSelectedSeniorId(null);
   };
 
-  const renderActions = (item: SeniorCitizen) => (
+  const renderActions = (item: SeniorCitizenTableRow) => (
     <div className="d-grid gap-2">
       <button
         className="btn btn-primary btn-sm w-100"
@@ -161,13 +175,13 @@ export default function DashboardPage() {
       >
         View
       </button>
-      <button 
+      <button
         className="btn btn-success btn-sm w-100"
         onClick={() => handleApproveSenior(item.id)}
       >
         Approve
       </button>
-      <button 
+      <button
         className="btn btn-danger btn-sm w-100"
         onClick={() => handleDeclineSenior(item.id)}
       >

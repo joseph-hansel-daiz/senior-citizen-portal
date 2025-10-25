@@ -4,7 +4,7 @@ export function useDeleteSenior() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const deleteSenior = async (id: number) => {
+  const deleteSenior = async (id: number): Promise<boolean> => {
     setLoading(true);
     setError(null);
 

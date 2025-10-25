@@ -1,4 +1,10 @@
 import { useState } from "react";
+import { SeniorCitizen } from "@/types/senior-citizen.types";
+
+interface ApproveSeniorParams {
+  oscaId: string;
+  note?: string;
+}
 
 export function useApproveSenior() {
   const [loading, setLoading] = useState(false);
@@ -6,8 +12,8 @@ export function useApproveSenior() {
 
   const approveSenior = async (
     id: number,
-    params: { oscaId: string; note?: string }
-  ) => {
+    params: ApproveSeniorParams
+  ): Promise<SeniorCitizen> => {
     setLoading(true);
     setError(null);
 

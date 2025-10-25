@@ -1,4 +1,10 @@
 import { useState } from "react";
+import { SeniorCitizen } from "@/types/senior-citizen.types";
+
+interface MarkDeceasedParams {
+  dateOfDeath: string;
+  deathCertificate?: File | null;
+}
 
 export function useMarkDeceased() {
   const [loading, setLoading] = useState(false);
@@ -6,8 +12,8 @@ export function useMarkDeceased() {
 
   const markDeceased = async (
     id: number,
-    params: { dateOfDeath: string; deathCertificate?: File | null }
-  ) => {
+    params: MarkDeceasedParams
+  ): Promise<SeniorCitizen> => {
     setLoading(true);
     setError(null);
 

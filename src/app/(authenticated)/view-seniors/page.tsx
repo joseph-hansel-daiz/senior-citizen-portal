@@ -1,16 +1,16 @@
 "use client";
 
 import DataTable, { Column } from "@/components/DataTable";
-import { useSeniors } from "@/hooks/useSeniors";
-import SeniorFormModal from "@/components/SeniorFormModal";
-import { useState } from "react";
-import { useUpdateSenior } from "@/hooks/useUpdateSenior";
-import MarkDeceasedModal from "@/components/MarkDeceasedModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
-import { useMarkDeceased } from "@/hooks/useMarkDeceased";
+import MarkDeceasedModal from "@/components/MarkDeceasedModal";
+import SeniorFormModal from "@/components/SeniorFormModal";
 import { useDeleteSenior } from "@/hooks/useDeleteSenior";
+import { useMarkDeceased } from "@/hooks/useMarkDeceased";
+import { useSeniors } from "@/hooks/useSeniors";
+import { useUpdateSenior } from "@/hooks/useUpdateSenior";
+import { useState } from "react";
 
-interface SeniorCitizen {
+interface SeniorCitizenTableRow {
   id: number;
   fullName: string;
   age: number;
@@ -26,9 +26,21 @@ export default function DashboardPage() {
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedSeniorId, setSelectedSeniorId] = useState<number | null>(null);
-  const { updateSenior, loading: updating, error: updateError } = useUpdateSenior();
-  const { markDeceased, loading: marking, error: markError } = useMarkDeceased();
-  const { deleteSenior, loading: deleting, error: deleteError } = useDeleteSenior();
+  const {
+    updateSenior,
+    loading: updating,
+    error: updateError,
+  } = useUpdateSenior();
+  const {
+    markDeceased,
+    loading: marking,
+    error: markError,
+  } = useMarkDeceased();
+  const {
+    deleteSenior,
+    loading: deleting,
+    error: deleteError,
+  } = useDeleteSenior();
   const [showMarkDeceased, setShowMarkDeceased] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -40,10 +52,13 @@ export default function DashboardPage() {
     }
 
     // Filter out seniors without Active status
-    if (senior.SeniorStatusHistories && senior.SeniorStatusHistories.length > 0) {
+    if (
+      senior.SeniorStatusHistories &&
+      senior.SeniorStatusHistories.length > 0
+    ) {
       // Check if any status history entry is 'Active'
       const hasActiveStatus = senior.SeniorStatusHistories.some(
-        (history) => history.status === 'Active'
+        (history) => history.status === "Active"
       );
       if (!hasActiveStatus) {
         return false;
@@ -57,7 +72,7 @@ export default function DashboardPage() {
   });
 
   // Transform backend data to match table structure
-  const data: SeniorCitizen[] = activeSeniors.map((senior) => {
+  const data: SeniorCitizenTableRow[] = activeSeniors.map((senior) => {
     const identifyingInfo = senior.IdentifyingInformation;
     const fullName = identifyingInfo
       ? `${identifyingInfo.firstname} ${identifyingInfo.middlename} ${identifyingInfo.lastname}`.trim()
@@ -84,7 +99,7 @@ export default function DashboardPage() {
     const barangay = identifyingInfo?.barangay || "N/A";
 
     return {
-      id: senior.id,
+      id: senior.id!,
       fullName,
       age,
       address,
@@ -95,7 +110,7 @@ export default function DashboardPage() {
     };
   });
 
-  const columns: Column<SeniorCitizen>[] = [
+  const columns: Column<SeniorCitizenTableRow>[] = [
     { label: "Barangay", accessor: "barangay" },
     { label: "Full Name", accessor: "fullName" },
     { label: "Age", accessor: "age" },
@@ -133,7 +148,7 @@ export default function DashboardPage() {
     setSelectedSeniorId(null);
   };
 
-  const renderActions = (item: SeniorCitizen) => (
+  const renderActions = (item: SeniorCitizenTableRow) => (
     <div className="d-grid gap-2">
       <button
         className="btn btn-primary btn-sm w-100"

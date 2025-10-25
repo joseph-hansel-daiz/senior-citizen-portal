@@ -20,9 +20,10 @@ import {
   useVisualConcerns,
 } from "@/hooks/options";
 import { useSenior } from "@/hooks/useSenior";
-import { JSX, useState, useEffect } from "react";
+import { SeniorCitizen as SeniorCitizenType, SeniorCitizenCreateInput, SeniorCitizenUpdateInput } from "@/types/senior-citizen.types";
 
-export interface SeniorCitizen {
+// Form-specific interface for the local form state
+export interface SeniorCitizenForm {
   picture: Blob | null;
   lastName: string;
   firstName: string;
@@ -74,6 +75,8 @@ export interface SeniorCitizen {
   // Education Profile fields
   sharedSkills: string;
 }
+import { JSX, useState, useEffect } from "react";
+
 
 export interface Member {
   name: string;
@@ -88,15 +91,15 @@ export type FormMode = 'create' | 'view' | 'update';
 export interface SeniorFormProps {
   mode: FormMode;
   seniorId?: number | null; // Load senior data by ID (for view/update modes)
-  initialData?: any; // Full senior response structure from API (fallback or for create mode)
-  onSubmit: (data: any) => void | Promise<void>;
+  initialData?: SeniorCitizenType; // Full senior response structure from API (fallback or for create mode)
+  onSubmit: (data: SeniorCitizenCreateInput | SeniorCitizenUpdateInput) => void | Promise<void>;
   onCancel?: () => void;
   loading?: boolean;
   error?: Error | null;
   successMessage?: string;
 }
 
-const DEFAULT_SENIOR_CITIZEN: SeniorCitizen = {
+const DEFAULT_SENIOR_CITIZEN: SeniorCitizenForm = {
   picture: null,
   lastName: "",
   firstName: "",
@@ -178,12 +181,13 @@ export default function SeniorForm({
     if (!activeSeniorData) return DEFAULT_SENIOR_CITIZEN;
 
     // If activeSeniorData has identifying information (support both cases), it's the full senior structure
-    const identifying = activeSeniorData.identifyingInformation || activeSeniorData.IdentifyingInformation;
+    const identifying = activeSeniorData.IdentifyingInformation;
     if (identifying) {
       const info = identifying;
       // Extract barangay name from the Barangay object if available
-      const barangayName = activeSeniorData.Barangay?.name || activeSeniorData.barangay?.name || info.barangay || "";
+      const barangayName = activeSeniorData.barangay?.name || info.barangay || "";
       return {
+        picture: null, // Will be handled separately via photoUrl
         lastName: info.lastname || "",
         firstName: info.firstname || "",
         middleName: info.middlename || "",
@@ -193,7 +197,7 @@ export default function SeniorForm({
         city: info.city || "",
         barangay: barangayName,
         street: info.street || "",
-        birthDate: info.birthDate || "",
+        birthDate: info.birthDate ? (typeof info.birthDate === 'string' ? info.birthDate : info.birthDate.toISOString().split('T')[0]) : "",
         birthPlace: info.birthPlace || "",
         maritalStatus: info.maritalStatus || "",
         religion: info.religion || "",
@@ -213,34 +217,38 @@ export default function SeniorForm({
         canTravel: info.capabilityToTravel ? "Yes" : "No",
         employment: info.employmentBusiness || "",
         // Health Profile fields
-        bloodType: (activeSeniorData.healthProfile || activeSeniorData.HealthProfile)?.bloodType || "",
-        physicalDisability: (activeSeniorData.healthProfile || activeSeniorData.HealthProfile)?.physicalDisability || "",
-        listMedicines: (activeSeniorData.healthProfile || activeSeniorData.HealthProfile)?.listMedicines || "",
-        checkUp: (activeSeniorData.healthProfile || activeSeniorData.HealthProfile)?.checkUp || false,
-        scheduleCheckUp: (activeSeniorData.healthProfile || activeSeniorData.HealthProfile)?.scheduleCheckUp || "",
+        bloodType: (activeSeniorData.HealthProfile)?.bloodType || "",
+        physicalDisability: (activeSeniorData.HealthProfile)?.physicalDisability || "",
+        listMedicines: (activeSeniorData.HealthProfile)?.listMedicines || "",
+        checkUp: (activeSeniorData.HealthProfile)?.checkUp || false,
+        scheduleCheckUp: (activeSeniorData.HealthProfile)?.scheduleCheckUp || "",
         // Family Composition fields
-        spouseLastName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.spouseLastname || "",
-        spouseFirstName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.spouseFirstname || "",
-        spouseMiddleName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.spouseMiddlename || "",
-        spouseExtName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.spouseExtension || "",
-        fatherLastName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.fatherLastname || "",
-        fatherFirstName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.fatherFirstname || "",
-        fatherMiddleName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.fatherMiddlename || "",
-        fatherExtName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.fatherExtension || "",
-        motherLastName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.motherLastname || "",
-        motherFirstName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.motherFirstname || "",
-        motherMiddleName: (activeSeniorData.familyComposition || activeSeniorData.FamilyComposition)?.motherMiddlename || "",
+        spouseLastName: (activeSeniorData.FamilyComposition)?.spouseLastname || "",
+        spouseFirstName: (activeSeniorData.FamilyComposition)?.spouseFirstname || "",
+        spouseMiddleName: (activeSeniorData.FamilyComposition)?.spouseMiddlename || "",
+        spouseExtName: (activeSeniorData.FamilyComposition)?.spouseExtension || "",
+        fatherLastName: (activeSeniorData.FamilyComposition)?.fatherLastname || "",
+        fatherFirstName: (activeSeniorData.FamilyComposition)?.fatherFirstname || "",
+        fatherMiddleName: (activeSeniorData.FamilyComposition)?.fatherMiddlename || "",
+        fatherExtName: (activeSeniorData.FamilyComposition)?.fatherExtension || "",
+        motherLastName: (activeSeniorData.FamilyComposition)?.motherLastname || "",
+        motherFirstName: (activeSeniorData.FamilyComposition)?.motherFirstname || "",
+        motherMiddleName: (activeSeniorData.FamilyComposition)?.motherMiddlename || "",
         motherExtName: "", // Not present in backend model
         // Education Profile fields
-        sharedSkills: (activeSeniorData.educationProfile || activeSeniorData.EducationProfile)?.sharedSkills || "",
+        sharedSkills: (activeSeniorData.EducationProfile)?.sharedSkills || "",
       };
     }
 
     // Otherwise, it's already in form format
-    return { ...DEFAULT_SENIOR_CITIZEN, ...activeSeniorData };
+    return { 
+      ...DEFAULT_SENIOR_CITIZEN, 
+      ...activeSeniorData,
+      barangay: typeof activeSeniorData.barangay === 'string' ? activeSeniorData.barangay : activeSeniorData.barangay?.name || ""
+    };
   };
 
-  const [formData, setFormData] = useState<SeniorCitizen>(getFormData());
+  const [formData, setFormData] = useState<SeniorCitizenForm>(getFormData());
   const [children, setChildren] = useState<Member[]>([DEFAULT_MEMBER]);
   const [dependents, setDependents] = useState<Member[]>([DEFAULT_MEMBER]);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -320,123 +328,59 @@ export default function SeniorForm({
     if (!activeSeniorData) return;
 
     // Dependency Profile selections (backend returns arrays of objects with id/name)
-    const dep = activeSeniorData.dependencyProfile || activeSeniorData.DependencyProfile || {};
-    const depCohabs = Array.isArray(dep.Cohabitants)
-      ? dep.Cohabitants.map((c: any) => c.id)
-      : Array.isArray(dep.cohabitants)
-      ? dep.cohabitants
-      : [];
+    const dep = activeSeniorData.DependencyProfile;
+    const depCohabs = dep?.Cohabitants?.map((c: any) => c.id) || [];
     setSelectedCohabitants(depCohabs);
 
-    const depLiving = Array.isArray(dep.LivingConditions)
-      ? dep.LivingConditions.map((lc: any) => lc.id)
-      : Array.isArray(dep.livingConditions)
-      ? dep.livingConditions
-      : [];
+    const depLiving = dep?.LivingConditions?.map((lc: any) => lc.id) || [];
     setSelectedLivingConditions(depLiving);
 
     // Education Profile selections
-    const edu = activeSeniorData.educationProfile || activeSeniorData.EducationProfile || {};
-    const eduAttain = Array.isArray(edu.HighestEducationalAttainments)
-      ? edu.HighestEducationalAttainments.map((e: any) => e.id)
-      : Array.isArray(edu.highestEducationalAttainments)
-      ? edu.highestEducationalAttainments
-      : [];
+    const edu = activeSeniorData.EducationProfile;
+    const eduAttain = edu?.HighestEducationalAttainments?.map((e: any) => e.id) || [];
     setSelectedEducationalAttainments(eduAttain);
 
-    const eduSkills = Array.isArray(edu.SpecializationTechnicalSkills)
-      ? edu.SpecializationTechnicalSkills.map((s: any) => s.id)
-      : Array.isArray(edu.specializationTechnicalSkills)
-      ? edu.specializationTechnicalSkills
-      : [];
+    const eduSkills = edu?.SpecializationTechnicalSkills?.map((s: any) => s.id) || [];
     setSelectedTechnicalSkills(eduSkills);
 
-    const eduComm = Array.isArray(edu.CommunityInvolvements)
-      ? edu.CommunityInvolvements.map((ci: any) => ci.id)
-      : Array.isArray(edu.communityInvolvements)
-      ? edu.communityInvolvements
-      : [];
+    const eduComm = edu?.CommunityInvolvements?.map((ci: any) => ci.id) || [];
     setSelectedCommunityInvolvements(eduComm);
 
     // Economic Profile selections
-    const eco = activeSeniorData.economicProfile || activeSeniorData.EconomicProfile || {};
-    const ecoIncomeSrc = Array.isArray(eco.IncomeAssistanceSources)
-      ? eco.IncomeAssistanceSources.map((x: any) => x.id)
-      : Array.isArray(eco.incomeAssistanceSources)
-      ? eco.incomeAssistanceSources
-      : [];
+    const eco = activeSeniorData.EconomicProfile;
+    const ecoIncomeSrc = eco?.IncomeAssistanceSources?.map((x: any) => x.id) || [];
     setSelectedIncomeSources(ecoIncomeSrc);
 
-    const ecoReal = Array.isArray(eco.RealImmovableProperties)
-      ? eco.RealImmovableProperties.map((x: any) => x.id)
-      : Array.isArray(eco.realImmovableProperties)
-      ? eco.realImmovableProperties
-      : [];
+    const ecoReal = eco?.RealImmovableProperties?.map((x: any) => x.id) || [];
     setSelectedRealProperties(ecoReal);
 
-    const ecoPersonal = Array.isArray(eco.PersonalMovableProperties)
-      ? eco.PersonalMovableProperties.map((x: any) => x.id)
-      : Array.isArray(eco.personalMovableProperties)
-      ? eco.personalMovableProperties
-      : [];
+    const ecoPersonal = eco?.PersonalMovableProperties?.map((x: any) => x.id) || [];
     setSelectedPersonalProperties(ecoPersonal);
 
-    const ecoMonthly = Array.isArray(eco.MonthlyIncomes)
-      ? eco.MonthlyIncomes.map((x: any) => x.id)
-      : Array.isArray(eco.monthlyIncomes)
-      ? eco.monthlyIncomes
-      : [];
+    const ecoMonthly = eco?.MonthlyIncomes?.map((x: any) => x.id) || [];
     setSelectedMonthlyIncomes(ecoMonthly);
 
-    const ecoProblems = Array.isArray(eco.ProblemsNeedsCommonlyEncountereds)
-      ? eco.ProblemsNeedsCommonlyEncountereds.map((x: any) => x.id)
-      : Array.isArray(eco.problemsNeedsCommonlyEncountereds)
-      ? eco.problemsNeedsCommonlyEncountereds
-      : [];
+    const ecoProblems = eco?.ProblemsNeedsCommonlyEncountereds?.map((x: any) => x.id) || [];
     setSelectedProblemsNeeds(ecoProblems);
 
     // Health Profile selections
-    const hp = activeSeniorData.healthProfile || activeSeniorData.HealthProfile || {};
-    const hpProblems = Array.isArray(hp.HealthProblemAilments)
-      ? hp.HealthProblemAilments.map((x: any) => x.id)
-      : Array.isArray(hp.healthProblemAilments)
-      ? hp.healthProblemAilments
-      : [];
+    const hp = activeSeniorData.HealthProfile;
+    const hpProblems = hp?.HealthProblemAilments?.map((x: any) => x.id) || [];
     setSelectedHealthProblems(hpProblems);
 
-    const hpDental = Array.isArray(hp.DentalConcerns)
-      ? hp.DentalConcerns.map((x: any) => x.id)
-      : Array.isArray(hp.dentalConcerns)
-      ? hp.dentalConcerns
-      : [];
+    const hpDental = hp?.DentalConcerns?.map((x: any) => x.id) || [];
     setSelectedDentalConcerns(hpDental);
 
-    const hpVisual = Array.isArray(hp.VisualConcerns)
-      ? hp.VisualConcerns.map((x: any) => x.id)
-      : Array.isArray(hp.visualConcerns)
-      ? hp.visualConcerns
-      : [];
+    const hpVisual = hp?.VisualConcerns?.map((x: any) => x.id) || [];
     setSelectedVisualConcerns(hpVisual);
 
-    const hpAural = Array.isArray(hp.AuralConcerns)
-      ? hp.AuralConcerns.map((x: any) => x.id)
-      : Array.isArray(hp.auralConcerns)
-      ? hp.auralConcerns
-      : [];
+    const hpAural = hp?.AuralConcerns?.map((x: any) => x.id) || [];
     setSelectedAuralConcerns(hpAural);
 
-    const hpSocial = Array.isArray(hp.SocialEmotionalConcerns)
-      ? hp.SocialEmotionalConcerns.map((x: any) => x.id)
-      : Array.isArray(hp.socialEmotionalConcerns)
-      ? hp.socialEmotionalConcerns
-      : [];
+    const hpSocial = hp?.SocialEmotionalConcerns?.map((x: any) => x.id) || [];
     setSelectedSocialEmotionalConcerns(hpSocial);
 
-    const hpAreas = Array.isArray(hp.AreaOfDifficulties)
-      ? hp.AreaOfDifficulties.map((x: any) => x.id)
-      : Array.isArray(hp.areaOfDifficulties)
-      ? hp.areaOfDifficulties
-      : [];
+    const hpAreas = hp?.AreaOfDifficulties?.map((x: any) => x.id) || [];
     setSelectedAreaOfDifficulties(hpAreas);
 
     // Children
@@ -445,15 +389,11 @@ export default function SeniorForm({
       occupation: c?.occupation || "",
       income: c?.income != null ? String(c.income) : "",
       age: c?.age != null ? String(c.age) : "",
-      // Backend stores children.isWorking as 'Yes' | 'No'
-      isWorking: c?.isWorking === "Yes",
+      // Backend stores children.isWorking as boolean
+      isWorking: !!c?.isWorking,
     });
 
-    const childrenList = Array.isArray(activeSeniorData.Children)
-      ? activeSeniorData.Children
-      : Array.isArray(activeSeniorData.children)
-      ? activeSeniorData.children
-      : [];
+    const childrenList = activeSeniorData.Children || [];
     if (childrenList.length > 0) {
       setChildren(childrenList.map(mapChild));
     } else {
@@ -470,11 +410,7 @@ export default function SeniorForm({
       isWorking: !!d?.isWorking,
     });
 
-    const dependentsList = Array.isArray(activeSeniorData.Dependents)
-      ? activeSeniorData.Dependents
-      : Array.isArray(activeSeniorData.dependents)
-      ? activeSeniorData.dependents
-      : [];
+    const dependentsList = activeSeniorData.Dependents || [];
     if (dependentsList.length > 0) {
       setDependents(dependentsList.map(mapDependent));
     } else {
@@ -496,7 +432,7 @@ export default function SeniorForm({
     let active = true;
     (async () => {
       // Check both photo locations
-      const photoData = activeSeniorData?.photo || activeSeniorData?.identifyingInformation?.picture || activeSeniorData?.IdentifyingInformation?.picture;
+      const photoData = activeSeniorData?.photo || activeSeniorData?.IdentifyingInformation?.picture;
       
       if (!photoData) {
         setPhotoUrl(null);
@@ -520,7 +456,7 @@ export default function SeniorForm({
     return () => {
       active = false;
     };
-  }, [activeSeniorData?.photo, activeSeniorData?.identifyingInformation?.picture, activeSeniorData?.IdentifyingInformation?.picture]);
+  }, [activeSeniorData?.photo, activeSeniorData?.IdentifyingInformation?.picture]);
 
   const isReadOnly = mode === 'view';
   const isUpdate = mode === 'update';
@@ -636,23 +572,6 @@ export default function SeniorForm({
     if (isReadOnly) return;
 
     try {
-      // Convert photo file to base64 if present
-      let photoBase64: string | null = null;
-      if (photoFile) {
-        photoBase64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            if (typeof reader.result === 'string') {
-              resolve(reader.result);
-            } else {
-              reject(new Error('Failed to convert file to base64'));
-            }
-          };
-          reader.onerror = () => reject(new Error('Failed to read file'));
-          reader.readAsDataURL(photoFile);
-        });
-      }
-
       // Find the selected barangay ID from the barangay name
       const selectedBarangay = barangays.find((b) => b.name === formData.barangay);
       if (!selectedBarangay) {
@@ -662,7 +581,7 @@ export default function SeniorForm({
       // Transform form data to match backend API structure
       const payload = {
         barangayId: selectedBarangay.id,
-        photo: photoBase64,
+        photo: photoFile || undefined, // Send the File object directly, not base64
         identifyingInformation: {
           lastname: formData.lastName,
           firstname: formData.firstName,
@@ -743,18 +662,18 @@ export default function SeniorForm({
           .map((c) => ({
             name: c.name,
             occupation: c.occupation || null,
-            income: c.income ? Number(c.income) : null,
+            income: c.income || "0.00",
             age: c.age ? Number(c.age) : 0,
-            isWorking: c.isWorking ? "Yes" : "No",
+            isWorking: c.isWorking,
           })),
         dependents: dependents
           .filter((d) => d.name || d.age || d.income || d.occupation)
           .map((d) => ({
             name: d.name,
             occupation: d.occupation || null,
-            income: d.income ? Number(d.income) : null,
+            income: d.income || "0.00",
             age: d.age ? Number(d.age) : 0,
-            isWorking: !!d.isWorking,
+            isWorking: d.isWorking,
           })),
       };
 

@@ -1,13 +1,13 @@
 "use client";
 
 import DataTable, { Column } from "@/components/DataTable";
-import SeniorFormModal from "@/components/SeniorFormModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
+import SeniorFormModal from "@/components/SeniorFormModal";
 import { useSeniors } from "@/hooks/useSeniors";
 import { useUnmarkDeceased } from "@/hooks/useUnmarkDeceased";
 import { useState } from "react";
 
-interface SeniorCitizen {
+interface SeniorCitizenTableRow {
   id: number;
   fullName: string;
   age: number;
@@ -24,55 +24,59 @@ export default function DashboardPage() {
   const [selectedSeniorId, setSelectedSeniorId] = useState<number | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showUnmarkConfirm, setShowUnmarkConfirm] = useState(false);
-  const { unmarkDeceased, loading: unmarking, error: unmarkError } = useUnmarkDeceased();
+  const {
+    unmarkDeceased,
+    loading: unmarking,
+    error: unmarkError,
+  } = useUnmarkDeceased();
 
   // Transform backend data to match table structure
   // Filter to only show seniors with DeathInfo
-  const data: SeniorCitizen[] = seniors
+  const data: SeniorCitizenTableRow[] = seniors
     .filter((senior) => senior.DeathInfo)
     .map((senior) => {
-    const identifyingInfo = senior.IdentifyingInformation;
-    const fullName = identifyingInfo
-      ? `${identifyingInfo.firstname} ${identifyingInfo.middlename} ${identifyingInfo.lastname}`.trim()
-      : "N/A";
+      const identifyingInfo = senior.IdentifyingInformation;
+      const fullName = identifyingInfo
+        ? `${identifyingInfo.firstname} ${identifyingInfo.middlename} ${identifyingInfo.lastname}`.trim()
+        : "N/A";
 
-    const birthDate = identifyingInfo?.birthDate
-      ? new Date(identifyingInfo.birthDate)
-      : null;
-    const age = birthDate
-      ? new Date().getFullYear() - birthDate.getFullYear()
-      : 0;
+      const birthDate = identifyingInfo?.birthDate
+        ? new Date(identifyingInfo.birthDate)
+        : null;
+      const age = birthDate
+        ? new Date().getFullYear() - birthDate.getFullYear()
+        : 0;
 
-    const address = identifyingInfo
-      ? `${identifyingInfo.street}, ${identifyingInfo.barangay}, ${identifyingInfo.city}`
-      : "N/A";
+      const address = identifyingInfo
+        ? `${identifyingInfo.street}, ${identifyingInfo.barangay}, ${identifyingInfo.city}`
+        : "N/A";
 
-    const contact = identifyingInfo?.contactNumber || "N/A";
-    const livingStatus =
-      senior.DependencyProfile?.LivingConditions &&
-      senior.DependencyProfile.LivingConditions.length > 0
-        ? "With Family"
-        : "Alone";
-    const hasPension = identifyingInfo?.hasPension ? "Yes" : "No";
-    const barangay = identifyingInfo?.barangay || "N/A";
-    const dateOfDeath = senior.DeathInfo?.dateOfDeath
-      ? new Date(senior.DeathInfo.dateOfDeath).toLocaleDateString()
-      : "N/A";
+      const contact = identifyingInfo?.contactNumber || "N/A";
+      const livingStatus =
+        senior.DependencyProfile?.LivingConditions &&
+        senior.DependencyProfile.LivingConditions.length > 0
+          ? "With Family"
+          : "Alone";
+      const hasPension = identifyingInfo?.hasPension ? "Yes" : "No";
+      const barangay = identifyingInfo?.barangay || "N/A";
+      const dateOfDeath = senior.DeathInfo?.dateOfDeath
+        ? new Date(senior.DeathInfo.dateOfDeath).toLocaleDateString()
+        : "N/A";
 
-    return {
-      id: senior.id,
-      fullName,
-      age,
-      address,
-      contact,
-      livingStatus,
-      hasPension,
-      barangay,
-      dateOfDeath,
-    };
-  });
+      return {
+        id: senior.id!,
+        fullName,
+        age,
+        address,
+        contact,
+        livingStatus,
+        hasPension,
+        barangay,
+        dateOfDeath,
+      };
+    });
 
-  const columns: Column<SeniorCitizen>[] = [
+  const columns: Column<SeniorCitizenTableRow>[] = [
     { label: "Barangay", accessor: "barangay" },
     { label: "Full Name", accessor: "fullName" },
     { label: "Age", accessor: "age" },
@@ -99,7 +103,7 @@ export default function DashboardPage() {
     setShowUnmarkConfirm(true);
   };
 
-  const renderActions = (item: SeniorCitizen) => (
+  const renderActions = (item: SeniorCitizenTableRow) => (
     <div className="d-grid gap-2">
       <button
         className="btn btn-primary btn-sm w-100"

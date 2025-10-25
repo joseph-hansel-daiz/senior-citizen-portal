@@ -18,8 +18,40 @@ export default function HelpdeskRecordModal({ show, mode, onHide, initialData, o
   const isView = mode === "view";
   const isCreate = mode === "create";
 
-  const { data: seniors } = useSeniors();
+  const { data: allSeniors } = useSeniors();
   const { data: categories } = useHelpDeskRecordCategories();
+
+  // Filter seniors for create mode - only show active, non-deceased seniors
+  const seniors = useMemo(() => {
+    if (isCreate) {
+      return allSeniors.filter((senior) => {
+        // Filter out deceased seniors
+        if (senior.DeathInfo) {
+          return false;
+        }
+
+        // Filter out seniors without Active status
+        if (
+          senior.SeniorStatusHistories &&
+          senior.SeniorStatusHistories.length > 0
+        ) {
+          // Check if any status history entry is 'Active'
+          const hasActiveStatus = senior.SeniorStatusHistories.some(
+            (history) => history.status === "Active"
+          );
+          if (!hasActiveStatus) {
+            return false;
+          }
+        } else {
+          // If no status history, exclude the senior
+          return false;
+        }
+
+        return true;
+      });
+    }
+    return allSeniors;
+  }, [allSeniors, isCreate]);
 
   const [form, setForm] = useState<{ seniorId: string; categoryId: string; details: string }>(
     { seniorId: "", categoryId: "", details: "" }

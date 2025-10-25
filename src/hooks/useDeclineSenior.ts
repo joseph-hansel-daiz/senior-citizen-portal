@@ -1,4 +1,9 @@
 import { useState } from "react";
+import { SeniorCitizen } from "@/types/senior-citizen.types";
+
+interface DeclineSeniorParams {
+  note?: string;
+}
 
 export function useDeclineSenior() {
   const [loading, setLoading] = useState(false);
@@ -6,8 +11,8 @@ export function useDeclineSenior() {
 
   const declineSenior = async (
     id: number,
-    params: { note?: string }
-  ) => {
+    params: DeclineSeniorParams
+  ): Promise<SeniorCitizen> => {
     setLoading(true);
     setError(null);
 

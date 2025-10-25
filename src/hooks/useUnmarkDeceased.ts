@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { SeniorCitizen } from "@/types/senior-citizen.types";
 
 export function useUnmarkDeceased() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const unmarkDeceased = async (id: number) => {
+  const unmarkDeceased = async (id: number): Promise<SeniorCitizen> => {
     setLoading(true);
     setError(null);
 
