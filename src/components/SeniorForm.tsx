@@ -80,6 +80,7 @@ export interface SeniorCitizenForm {
   sharedSkills: string;
 }
 import { JSX, useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export interface Member {
   name: string;
@@ -181,6 +182,8 @@ export default function SeniorForm({
     loading: fetchLoading,
     error: fetchError,
   } = useSenior(seniorId || null);
+
+  const { user } = useAuth();
 
   // Use fetched data if available, otherwise fall back to initialData
   const activeSeniorData = fetchedSenior || initialData;
@@ -451,6 +454,18 @@ export default function SeniorForm({
       setDependents([DEFAULT_MEMBER]);
     }
   }, [activeSeniorData]);
+
+  // If creating and user has a barangayId, auto-set barangay and lock field
+  useEffect(() => {
+    if (mode !== "create") return;
+    if (!user?.barangayId) return;
+    if (!barangays || barangays.length === 0) return;
+
+    const userBarangay = barangays.find((b) => b.id === user.barangayId);
+    if (userBarangay && formData.barangay !== userBarangay.name) {
+      setFormData((prev) => ({ ...prev, barangay: userBarangay.name }));
+    }
+  }, [mode, user?.barangayId, barangays, formData.barangay]);
 
   // Handle photo URL resolution and cleanup
   useEffect(() => {
@@ -926,7 +941,9 @@ export default function SeniorForm({
               value={formData.barangay}
               onChange={handleChange}
               required={!isReadOnly}
-              disabled={isReadOnly}
+              disabled={
+                isReadOnly || (mode === "create" && !!user?.barangayId)
+              }
             >
               <option value="">Select Barangay</option>
               {barangays.map((barangay) => (
