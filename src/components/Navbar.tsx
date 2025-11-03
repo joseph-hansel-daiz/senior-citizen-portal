@@ -27,6 +27,11 @@ const ADMIN_ROUTES: NavRoute[] = [
     label: "Options",
     iconClassName: "bi bi-sliders",
   },
+  {
+    route: ROUTES.USERS,
+    label: "Users",
+    iconClassName: "bi bi-people",
+  },
 ];
 
 const OSCA_ROUTES: NavRoute[] = [
