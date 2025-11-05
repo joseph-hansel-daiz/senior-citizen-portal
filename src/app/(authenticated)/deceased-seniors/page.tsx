@@ -6,6 +6,7 @@ import SeniorFormModal from "@/components/SeniorFormModal";
 import { useSeniors } from "@/hooks/useSeniors";
 import { useUnmarkDeceased } from "@/hooks/useUnmarkDeceased";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface SeniorCitizenTableRow {
   id: number;
@@ -29,6 +30,7 @@ export default function DashboardPage() {
     loading: unmarking,
     error: unmarkError,
   } = useUnmarkDeceased();
+  const { user } = useAuth();
 
   // Transform backend data to match table structure
   // Filter to only show seniors with DeathInfo
@@ -103,22 +105,37 @@ export default function DashboardPage() {
     setShowUnmarkConfirm(true);
   };
 
-  const renderActions = (item: SeniorCitizenTableRow) => (
-    <div className="d-grid gap-2">
-      <button
-        className="btn btn-primary btn-sm w-100"
-        onClick={() => handleViewSenior(item.id)}
-      >
-        View
-      </button>
-      <button
-        className="btn btn-secondary btn-sm w-100"
-        onClick={() => handleUnmarkDeceased(item.id)}
-      >
-        Unmark as Deceased
-      </button>
-    </div>
-  );
+  const renderActions = (item: SeniorCitizenTableRow) => {
+    if (user?.role === "viewOnly") {
+      return (
+        <div className="d-grid gap-2">
+          <button
+            className="btn btn-primary btn-sm w-100"
+            onClick={() => handleViewSenior(item.id)}
+          >
+            View
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="d-grid gap-2">
+        <button
+          className="btn btn-primary btn-sm w-100"
+          onClick={() => handleViewSenior(item.id)}
+        >
+          View
+        </button>
+        <button
+          className="btn btn-secondary btn-sm w-100"
+          onClick={() => handleUnmarkDeceased(item.id)}
+        >
+          Unmark as Deceased
+        </button>
+      </div>
+    );
+  };
 
   if (loading) {
     return (

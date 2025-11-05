@@ -6,7 +6,7 @@ import { deleteSeniorVaccine, upsertSeniorVaccine, useSeniorVaccines } from "@/h
 import { useAuth } from "@/context/AuthContext";
 
 export default function SeniorVaccinesPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { data: seniors } = useSeniors();
   const [selectedSeniorId, setSelectedSeniorId] = useState<number | null>(null);
 
@@ -107,7 +107,9 @@ export default function SeniorVaccinesPage() {
             </select>
           </div>
           <div className="col-md-6 text-end">
-            <button className="btn btn-primary" disabled={!selectedSenior} onClick={openCreate}>Add Vaccine to Senior</button>
+            {user?.role !== "viewOnly" && (
+              <button className="btn btn-primary" disabled={!selectedSenior} onClick={openCreate}>Add Vaccine to Senior</button>
+            )}
           </div>
         </div>
 
@@ -137,8 +139,14 @@ export default function SeniorVaccinesPage() {
                       <td>{row.Vaccine?.name || row.VaccineId}</td>
                       <td>{row.lastVaccineDate || "-"}</td>
                       <td className="text-end">
-                        <button className="btn btn-sm btn-secondary me-2" onClick={() => openEdit(row)}>Edit</button>
-                        <button className="btn btn-sm btn-danger" onClick={() => onDelete(row.VaccineId)}>Delete</button>
+                        {user?.role !== "viewOnly" ? (
+                          <>
+                            <button className="btn btn-sm btn-secondary me-2" onClick={() => openEdit(row)}>Edit</button>
+                            <button className="btn btn-sm btn-danger" onClick={() => onDelete(row.VaccineId)}>Delete</button>
+                          </>
+                        ) : (
+                          <span className="text-muted">View only</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -153,7 +161,7 @@ export default function SeniorVaccinesPage() {
           </div>
         )}
 
-        {showModal && (
+        {showModal && user?.role !== "viewOnly" && (
           <div className="modal d-block" tabIndex={-1} role="dialog">
             <div className="modal-dialog" role="document">
               <div className="modal-content">

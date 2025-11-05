@@ -21,7 +21,7 @@ interface TableRow {
 }
 
 export default function HelpdeskPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { data: records, loading, error, refetch } = useHelpdeskRecords();
 
   const [showCreate, setShowCreate] = useState(false);
@@ -106,36 +106,55 @@ export default function HelpdeskPage() {
     }
   };
 
-  const renderActions = (row: TableRow) => (
-    <div className="d-grid gap-2">
-      <button
-        className="btn btn-primary btn-sm w-100"
-        onClick={() => {
-          const rec = records.find((r) => r.id === row.id) || null;
-          setSelected(rec);
-          setShowView(true);
-        }}
-      >
-        View
-      </button>
-      <button
-        className="btn btn-secondary btn-sm w-100"
-        onClick={() => {
-          const rec = records.find((r) => r.id === row.id) || null;
-          setSelected(rec);
-          setShowEdit(true);
-        }}
-      >
-        Edit
-      </button>
-      <button
-        className="btn btn-danger btn-sm w-100"
-        onClick={() => handleDelete(row.id)}
-      >
-        Delete
-      </button>
-    </div>
-  );
+  const renderActions = (row: TableRow) => {
+    if (user?.role === "viewOnly") {
+      return (
+        <div className="d-grid gap-2">
+          <button
+            className="btn btn-primary btn-sm w-100"
+            onClick={() => {
+              const rec = records.find((r) => r.id === row.id) || null;
+              setSelected(rec);
+              setShowView(true);
+            }}
+          >
+            View
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="d-grid gap-2">
+        <button
+          className="btn btn-primary btn-sm w-100"
+          onClick={() => {
+            const rec = records.find((r) => r.id === row.id) || null;
+            setSelected(rec);
+            setShowView(true);
+          }}
+        >
+          View
+        </button>
+        <button
+          className="btn btn-secondary btn-sm w-100"
+          onClick={() => {
+            const rec = records.find((r) => r.id === row.id) || null;
+            setSelected(rec);
+            setShowEdit(true);
+          }}
+        >
+          Edit
+        </button>
+        <button
+          className="btn btn-danger btn-sm w-100"
+          onClick={() => handleDelete(row.id)}
+        >
+          Delete
+        </button>
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -164,9 +183,11 @@ export default function HelpdeskPage() {
     <section>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2 className="m-0">Help Desk</h2>
-        <button className="btn btn-primary" onClick={() => setShowCreate(true)}>
-          New Record
-        </button>
+        {user?.role !== "viewOnly" && (
+          <button className="btn btn-primary" onClick={() => setShowCreate(true)}>
+            New Record
+          </button>
+        )}
       </div>
 
       {actionError && (

@@ -9,6 +9,7 @@ import { useMarkDeceased } from "@/hooks/useMarkDeceased";
 import { useSeniors } from "@/hooks/useSeniors";
 import { useUpdateSenior } from "@/hooks/useUpdateSenior";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface SeniorCitizenTableRow {
   id: number;
@@ -23,6 +24,7 @@ interface SeniorCitizenTableRow {
 
 export default function DashboardPage() {
   const { data: seniors, loading, error } = useSeniors();
+  const { user } = useAuth();
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedSeniorId, setSelectedSeniorId] = useState<number | null>(null);
@@ -148,34 +150,49 @@ export default function DashboardPage() {
     setSelectedSeniorId(null);
   };
 
-  const renderActions = (item: SeniorCitizenTableRow) => (
-    <div className="d-grid gap-2">
-      <button
-        className="btn btn-primary btn-sm w-100"
-        onClick={() => handleViewSenior(item.id)}
-      >
-        View
-      </button>
-      <button
-        className="btn btn-secondary btn-sm w-100"
-        onClick={() => handleEditSenior(item.id)}
-      >
-        Edit
-      </button>
-      <button
-        className="btn btn-warning btn-sm w-100"
-        onClick={() => handleMarkDeceased(item.id)}
-      >
-        Mark as Deceased
-      </button>
-      <button
-        className="btn btn-danger btn-sm w-100"
-        onClick={() => handleDelete(item.id)}
-      >
-        Delete
-      </button>
-    </div>
-  );
+  const renderActions = (item: SeniorCitizenTableRow) => {
+    if (user?.role === "viewOnly") {
+      return (
+        <div className="d-grid gap-2">
+          <button
+            className="btn btn-primary btn-sm w-100"
+            onClick={() => handleViewSenior(item.id)}
+          >
+            View
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="d-grid gap-2">
+        <button
+          className="btn btn-primary btn-sm w-100"
+          onClick={() => handleViewSenior(item.id)}
+        >
+          View
+        </button>
+        <button
+          className="btn btn-secondary btn-sm w-100"
+          onClick={() => handleEditSenior(item.id)}
+        >
+          Edit
+        </button>
+        <button
+          className="btn btn-warning btn-sm w-100"
+          onClick={() => handleMarkDeceased(item.id)}
+        >
+          Mark as Deceased
+        </button>
+        <button
+          className="btn btn-danger btn-sm w-100"
+          onClick={() => handleDelete(item.id)}
+        >
+          Delete
+        </button>
+      </div>
+    );
+  };
 
   if (loading) {
     return (
