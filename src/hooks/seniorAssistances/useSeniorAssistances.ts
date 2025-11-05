@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
-export interface SeniorVaccineRow {
+export interface SeniorAssistanceRow {
   id: number;
   seniorId: number;
-  vaccineId: number;
-  vaccineDate: string | null;
-  Vaccine?: { id: number; name: string };
+  assistanceId: number;
+  assistanceDate: string | null;
+  Assistance?: { id: number; name: string };
 }
 
-export function useSeniorVaccines(seniorId: number | null) {
+export function useSeniorAssistances(seniorId: number | null) {
   const { token } = useAuth();
-  const [data, setData] = useState<SeniorVaccineRow[]>([]);
+  const [data, setData] = useState<SeniorAssistanceRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -19,14 +19,14 @@ export function useSeniorVaccines(seniorId: number | null) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`http://localhost:8000/senior-vaccines/${id}`, {
+      const res = await fetch(`http://localhost:8000/senior-assistances/${id}`, {
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
-      if (!res.ok) throw new Error("Failed to fetch senior vaccines");
-      const json: SeniorVaccineRow[] = await res.json();
+      if (!res.ok) throw new Error("Failed to fetch senior assistances");
+      const json: SeniorAssistanceRow[] = await res.json();
       setData(json);
     } catch (err) {
       setError(err as Error);
@@ -46,30 +46,30 @@ export function useSeniorVaccines(seniorId: number | null) {
   return { data, loading, error, refetch: () => (seniorId ? fetchAll(seniorId) : Promise.resolve()) };
 }
 
-export async function upsertSeniorVaccine(payload: { id?: number; seniorId: number; vaccineId: number; vaccineDate: string | null; }, token?: string) {
-  const res = await fetch(`http://localhost:8000/senior-vaccines/${payload.seniorId}`,
+export async function upsertSeniorAssistance(payload: { id?: number; seniorId: number; assistanceId: number; assistanceDate: string | null; }, token?: string) {
+  const res = await fetch(`http://localhost:8000/senior-assistances/${payload.seniorId}`,
     {
       method: "PUT",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      body: JSON.stringify({ id: payload.id, vaccineId: payload.vaccineId, vaccineDate: payload.vaccineDate }),
+      body: JSON.stringify({ id: payload.id, assistanceId: payload.assistanceId, assistanceDate: payload.assistanceDate }),
     }
   );
-  if (!res.ok) throw new Error("Failed to save vaccine");
+  if (!res.ok) throw new Error("Failed to save assistance");
   return res.json();
 }
 
-export async function deleteSeniorVaccine(seniorId: number, recordId: number, token?: string) {
-  const res = await fetch(`http://localhost:8000/senior-vaccines/${seniorId}/${recordId}`, { 
+export async function deleteSeniorAssistance(seniorId: number, recordId: number, token?: string) {
+  const res = await fetch(`http://localhost:8000/senior-assistances/${seniorId}/${recordId}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
-  if (!res.ok) throw new Error("Failed to delete vaccine");
+  if (!res.ok) throw new Error("Failed to delete assistance");
   return res.json();
 }
 

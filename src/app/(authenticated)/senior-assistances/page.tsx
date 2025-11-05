@@ -2,29 +2,24 @@
 import { useMemo, useState } from "react";
 import { useSeniors } from "@/hooks/useSeniors";
 import { useOptions } from "@/hooks/options/useOptions";
-import { deleteSeniorVaccine, upsertSeniorVaccine, useSeniorVaccines } from "@/hooks/seniorVaccines/useSeniorVaccines";
+import { deleteSeniorAssistance, upsertSeniorAssistance, useSeniorAssistances } from "@/hooks/seniorAssistances/useSeniorAssistances";
 import { useAuth } from "@/context/AuthContext";
 import DataTable from "@/components/DataTable";
 
-export default function SeniorVaccinesPage() {
+export default function SeniorAssistancesPage() {
   const { token, user } = useAuth();
   const { data: seniors } = useSeniors();
   const [selectedSeniorId, setSelectedSeniorId] = useState<number | null>(null);
 
-  const { data: vaccines } = useOptions("vaccines");
-  const { data: seniorVaccines, refetch } = useSeniorVaccines(selectedSeniorId);
+  const { data: assistances } = useOptions("assistances");
+  const { data: seniorAssistances, refetch } = useSeniorAssistances(selectedSeniorId);
 
-  // Filter out deceased and non-active seniors
   const activeSeniors = useMemo(() => {
     return seniors.filter((senior) => {
-      // Filter out deceased seniors
       if (senior.DeathInfo) {
         return false;
       }
-
-      // Filter out seniors without Active status
       if (senior.SeniorStatusHistories && senior.SeniorStatusHistories.length > 0) {
-        // Check if any status history entry is 'Active'
         const hasActiveStatus = senior.SeniorStatusHistories.some(
           (history) => history.status === 'Active'
         );
@@ -32,10 +27,8 @@ export default function SeniorVaccinesPage() {
           return false;
         }
       } else {
-        // If no status history, exclude the senior
         return false;
       }
-
       return true;
     });
   }, [seniors]);
@@ -44,30 +37,29 @@ export default function SeniorVaccinesPage() {
 
   const [showModal, setShowModal] = useState(false);
   const [modalRecordId, setModalRecordId] = useState<number | null>(null);
-  const [modalVaccineId, setModalVaccineId] = useState<number | null>(null);
+  const [modalAssistanceId, setModalAssistanceId] = useState<number | null>(null);
   const [modalDate, setModalDate] = useState<string>("");
   const [actionError, setActionError] = useState<string>("");
 
-  // Prepare table data when a senior is selected
   const rows = useMemo(() => {
-    if (!selectedSeniorId) return [] as Array<{ id: number; vaccine: string; vaccineDate: string }>; 
-    return seniorVaccines.map((row: any) => ({
+    if (!selectedSeniorId) return [] as Array<{ id: number; assistance: string; assistanceDate: string }>; 
+    return seniorAssistances.map((row: any) => ({
       id: row.id,
-      vaccine: row.Vaccine?.name || String(row.vaccineId),
-      vaccineDate: row.vaccineDate || "-",
+      assistance: row.Assistance?.name || String(row.assistanceId),
+      assistanceDate: row.assistanceDate || "-",
     }));
-  }, [selectedSeniorId, seniorVaccines]);
+  }, [selectedSeniorId, seniorAssistances]);
 
   const columns = [
-    { label: "Vaccine", accessor: "vaccine" },
-    { label: "Vaccine Date", accessor: "vaccineDate" },
+    { label: "Assistance", accessor: "assistance" },
+    { label: "Assistance Date", accessor: "assistanceDate" },
   ];
 
   const renderActions = (row: { id: number }) => {
     if (user?.role === "viewOnly") {
       return <span className="text-muted">View only</span>;
     }
-    const found = seniorVaccines.find((rv: any) => rv.id === row.id);
+    const found = seniorAssistances.find((rv: any) => rv.id === row.id);
     return (
       <div className="d-grid gap-2">
         <button className="btn btn-secondary btn-sm w-100" onClick={() => found && openEdit(found)}>Edit</button>
@@ -78,23 +70,23 @@ export default function SeniorVaccinesPage() {
 
   const openCreate = () => {
     setModalRecordId(null);
-    setModalVaccineId(null);
+    setModalAssistanceId(null);
     setModalDate("");
     setShowModal(true);
   };
 
   const openEdit = (row: any) => {
     setModalRecordId(row.id);
-    setModalVaccineId(row.vaccineId);
-    setModalDate(row.vaccineDate || "");
+    setModalAssistanceId(row.assistanceId);
+    setModalDate(row.assistanceDate || "");
     setShowModal(true);
   };
 
   const onSave = async () => {
-    if (!selectedSeniorId || modalVaccineId == null) return;
+    if (!selectedSeniorId || modalAssistanceId == null) return;
     setActionError("");
     try {
-      await upsertSeniorVaccine({ id: modalRecordId ?? undefined, seniorId: selectedSeniorId, vaccineId: modalVaccineId, vaccineDate: modalDate || null } as any, token || undefined);
+      await upsertSeniorAssistance({ id: modalRecordId ?? undefined, seniorId: selectedSeniorId, assistanceId: modalAssistanceId, assistanceDate: modalDate || null } as any, token || undefined);
       setShowModal(false);
       await refetch();
     } catch (err: any) {
@@ -106,7 +98,7 @@ export default function SeniorVaccinesPage() {
     if (!selectedSeniorId) return;
     setActionError("");
     try {
-      await deleteSeniorVaccine(selectedSeniorId, recordId, token || undefined);
+      await deleteSeniorAssistance(selectedSeniorId, recordId, token || undefined);
       await refetch();
     } catch (err: any) {
       setActionError(err.message || "Failed to delete");
@@ -116,7 +108,7 @@ export default function SeniorVaccinesPage() {
   return (
     <section>
       <div className="container py-4">
-        <h2 className="mb-3">Senior Vaccines</h2>
+        <h2 className="mb-3">Senior Assistances</h2>
 
         <div className="row g-3 align-items-end">
           <div className="col-md-6">
@@ -140,7 +132,7 @@ export default function SeniorVaccinesPage() {
           </div>
           <div className="col-md-6 text-end">
             {user?.role !== "viewOnly" && (
-              <button className="btn btn-primary" disabled={!selectedSenior} onClick={openCreate}>Add Vaccine to Senior</button>
+              <button className="btn btn-primary" disabled={!selectedSenior} onClick={openCreate}>Add Assistance to Senior</button>
             )}
           </div>
         </div>
@@ -148,7 +140,7 @@ export default function SeniorVaccinesPage() {
         {selectedSenior && (
           <div className="mt-4">
             <div className="d-flex justify-content-between align-items-center mb-2">
-              <h5 className="mb-0">Vaccines for {(() => {
+              <h5 className="mb-0">Assistances for {(() => {
                 const info = selectedSenior.IdentifyingInformation;
                 return info
                   ? `${info.firstname} ${info.middlename || ""} ${info.lastname}`.replace(/\s+/g, " ").trim()
@@ -157,10 +149,10 @@ export default function SeniorVaccinesPage() {
             </div>
 
             <DataTable
-              title="Vaccines"
+              title="Assistances"
               data={rows}
               columns={columns as any}
-              searchableField="vaccine"
+              searchableField="assistance"
               renderActions={renderActions as any}
             />
           </div>
@@ -171,33 +163,33 @@ export default function SeniorVaccinesPage() {
             <div className="modal-dialog" role="document">
               <div className="modal-content">
                 <div className="modal-header">
-                  <h5 className="modal-title">{modalVaccineId == null ? "Add Vaccine" : "Edit Vaccine Date"}</h5>
+                  <h5 className="modal-title">{modalAssistanceId == null ? "Add Assistance" : "Edit Assistance Date"}</h5>
                   <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
                 </div>
                 <div className="modal-body">
                   {actionError && <div className="alert alert-danger">{actionError}</div>}
                   <div className="mb-3">
-                    <label className="form-label">Vaccine</label>
+                    <label className="form-label">Assistance</label>
                     <select
                       className="form-select"
-                      value={modalVaccineId ?? ""}
-                      onChange={(e) => setModalVaccineId(e.target.value ? Number(e.target.value) : null)}
+                      value={modalAssistanceId ?? ""}
+                      onChange={(e) => setModalAssistanceId(e.target.value ? Number(e.target.value) : null)}
                       disabled={modalRecordId != null}
                     >
-                      <option value="">-- Choose Vaccine --</option>
-                      {vaccines.map((v) => (
+                      <option value="">-- Choose Assistance --</option>
+                      {assistances.map((v) => (
                         <option key={v.id} value={v.id}>{v.name}</option>
                       ))}
                     </select>
                   </div>
                   <div className="mb-3">
-                    <label className="form-label">Vaccine Date</label>
+                    <label className="form-label">Assistance Date</label>
                     <input type="date" className="form-control" value={modalDate} onChange={(e) => setModalDate(e.target.value)} />
                   </div>
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                  <button type="button" className="btn btn-primary" disabled={!selectedSeniorId || modalVaccineId == null} onClick={onSave}>Save</button>
+                  <button type="button" className="btn btn-primary" disabled={!selectedSeniorId || modalAssistanceId == null} onClick={onSave}>Save</button>
                 </div>
               </div>
             </div>

@@ -24,3 +24,4 @@ export const useHelpDeskRecordCategories = () =>
   useOptions("help-desk-record-categories");
 export const useVaccines = () =>
   useOptions("vaccines");
+export const useAssistances = () => useOptions("assistances");

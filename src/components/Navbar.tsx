@@ -70,6 +70,11 @@ const OSCA_ROUTES: NavRoute[] = [
     label: "Senior Vaccines",
     iconClassName: "bi bi-prescription",
   },
+  {
+    route: ROUTES.SENIOR_ASSISTANCES,
+    label: "Senior Assistances",
+    iconClassName: "bi bi-ui-checks-grid",
+  },
 ];
 
 const BARANGAY_ROUTES: NavRoute[] = [
@@ -103,6 +108,11 @@ const BARANGAY_ROUTES: NavRoute[] = [
     label: "Senior Vaccines",
     iconClassName: "bi bi-prescription",
   },
+  {
+    route: ROUTES.SENIOR_ASSISTANCES,
+    label: "Senior Assistances",
+    iconClassName: "bi bi-ui-checks-grid",
+  },
 ];
 
 const VIEW_ONLY_ROUTES: NavRoute[] = [
@@ -130,6 +140,11 @@ const VIEW_ONLY_ROUTES: NavRoute[] = [
     route: ROUTES.SENIOR_VACCINES,
     label: "Senior Vaccines",
     iconClassName: "bi bi-prescription",
+  },
+  {
+    route: ROUTES.SENIOR_ASSISTANCES,
+    label: "Senior Assistances",
+    iconClassName: "bi bi-ui-checks-grid",
   },
 ];
 

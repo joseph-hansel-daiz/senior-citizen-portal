@@ -8,6 +8,7 @@ export const ROUTES = {
   OPTIONS: "/options",
   USERS: "/users",
   SENIOR_VACCINES: "/senior-vaccines",
+  SENIOR_ASSISTANCES: "/senior-assistances",
   GENERATE_BACKUP: "/generate-backup",
 
   MY_ACCOUNT: "/my-account",
