@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 export interface SeniorVaccineRow {
+  id: number;
   seniorId: number;
   VaccineId: number;
-  lastVaccineDate: string | null;
+  vaccineDate: string | null;
   Vaccine?: { id: number; name: string };
 }
 
@@ -45,7 +46,7 @@ export function useSeniorVaccines(seniorId: number | null) {
   return { data, loading, error, refetch: () => (seniorId ? fetchAll(seniorId) : Promise.resolve()) };
 }
 
-export async function upsertSeniorVaccine(payload: { seniorId: number; vaccineId: number; lastVaccineDate: string | null; }, token?: string) {
+export async function upsertSeniorVaccine(payload: { id?: number; seniorId: number; vaccineId: number; vaccineDate: string | null; }, token?: string) {
   const res = await fetch(`http://localhost:8000/senior-vaccines/${payload.seniorId}`,
     {
       method: "PUT",
@@ -53,15 +54,15 @@ export async function upsertSeniorVaccine(payload: { seniorId: number; vaccineId
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      body: JSON.stringify({ vaccineId: payload.vaccineId, lastVaccineDate: payload.lastVaccineDate }),
+      body: JSON.stringify({ id: payload.id, vaccineId: payload.vaccineId, vaccineDate: payload.vaccineDate }),
     }
   );
   if (!res.ok) throw new Error("Failed to save vaccine");
   return res.json();
 }
 
-export async function deleteSeniorVaccine(seniorId: number, vaccineId: number, token?: string) {
-  const res = await fetch(`http://localhost:8000/senior-vaccines/${seniorId}/${vaccineId}`, { 
+export async function deleteSeniorVaccine(seniorId: number, recordId: number, token?: string) {
+  const res = await fetch(`http://localhost:8000/senior-vaccines/${seniorId}/${recordId}`, { 
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",

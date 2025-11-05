@@ -43,30 +43,31 @@ export default function SeniorVaccinesPage() {
   const selectedSenior = useMemo(() => activeSeniors.find((s) => s.id === selectedSeniorId) || null, [activeSeniors, selectedSeniorId]);
 
   const [showModal, setShowModal] = useState(false);
+  const [modalRecordId, setModalRecordId] = useState<number | null>(null);
   const [modalVaccineId, setModalVaccineId] = useState<number | null>(null);
   const [modalDate, setModalDate] = useState<string>("");
   const [actionError, setActionError] = useState<string>("");
 
   // Prepare table data when a senior is selected
   const rows = useMemo(() => {
-    if (!selectedSeniorId) return [] as Array<{ id: number; vaccine: string; lastVaccineDate: string }>; 
+    if (!selectedSeniorId) return [] as Array<{ id: number; vaccine: string; vaccineDate: string }>; 
     return seniorVaccines.map((row: any) => ({
-      id: row.VaccineId,
+      id: row.id,
       vaccine: row.Vaccine?.name || String(row.VaccineId),
-      lastVaccineDate: row.lastVaccineDate || "-",
+      vaccineDate: row.vaccineDate || "-",
     }));
   }, [selectedSeniorId, seniorVaccines]);
 
   const columns = [
     { label: "Vaccine", accessor: "vaccine" },
-    { label: "Last Vaccine Date", accessor: "lastVaccineDate" },
+    { label: "Vaccine Date", accessor: "vaccineDate" },
   ];
 
   const renderActions = (row: { id: number }) => {
     if (user?.role === "viewOnly") {
       return <span className="text-muted">View only</span>;
     }
-    const found = seniorVaccines.find((rv: any) => rv.VaccineId === row.id);
+    const found = seniorVaccines.find((rv: any) => rv.id === row.id);
     return (
       <div className="d-grid gap-2">
         <button className="btn btn-secondary btn-sm w-100" onClick={() => found && openEdit(found)}>Edit</button>
@@ -76,14 +77,16 @@ export default function SeniorVaccinesPage() {
   };
 
   const openCreate = () => {
+    setModalRecordId(null);
     setModalVaccineId(null);
     setModalDate("");
     setShowModal(true);
   };
 
   const openEdit = (row: any) => {
+    setModalRecordId(row.id);
     setModalVaccineId(row.VaccineId);
-    setModalDate(row.lastVaccineDate || "");
+    setModalDate(row.vaccineDate || "");
     setShowModal(true);
   };
 
@@ -91,7 +94,7 @@ export default function SeniorVaccinesPage() {
     if (!selectedSeniorId || modalVaccineId == null) return;
     setActionError("");
     try {
-      await upsertSeniorVaccine({ seniorId: selectedSeniorId, vaccineId: modalVaccineId, lastVaccineDate: modalDate || null }, token || undefined);
+      await upsertSeniorVaccine({ id: modalRecordId ?? undefined, seniorId: selectedSeniorId, vaccineId: modalVaccineId, vaccineDate: modalDate || null } as any, token || undefined);
       setShowModal(false);
       await refetch();
     } catch (err: any) {
@@ -99,11 +102,11 @@ export default function SeniorVaccinesPage() {
     }
   };
 
-  const onDelete = async (vaccineId: number) => {
+  const onDelete = async (recordId: number) => {
     if (!selectedSeniorId) return;
     setActionError("");
     try {
-      await deleteSeniorVaccine(selectedSeniorId, vaccineId, token || undefined);
+      await deleteSeniorVaccine(selectedSeniorId, recordId, token || undefined);
       await refetch();
     } catch (err: any) {
       setActionError(err.message || "Failed to delete");
@@ -179,7 +182,7 @@ export default function SeniorVaccinesPage() {
                       className="form-select"
                       value={modalVaccineId ?? ""}
                       onChange={(e) => setModalVaccineId(e.target.value ? Number(e.target.value) : null)}
-                      disabled={modalVaccineId != null}
+                      disabled={modalRecordId != null}
                     >
                       <option value="">-- Choose Vaccine --</option>
                       {vaccines.map((v) => (
@@ -188,7 +191,7 @@ export default function SeniorVaccinesPage() {
                     </select>
                   </div>
                   <div className="mb-3">
-                    <label className="form-label">Last Vaccine Date</label>
+                    <label className="form-label">Vaccine Date</label>
                     <input type="date" className="form-control" value={modalDate} onChange={(e) => setModalDate(e.target.value)} />
                   </div>
                 </div>
