@@ -4,6 +4,7 @@ import { useSeniors } from "@/hooks/useSeniors";
 import { useOptions } from "@/hooks/options/useOptions";
 import { deleteSeniorVaccine, upsertSeniorVaccine, useSeniorVaccines } from "@/hooks/seniorVaccines/useSeniorVaccines";
 import { useAuth } from "@/context/AuthContext";
+import DataTable from "@/components/DataTable";
 
 export default function SeniorVaccinesPage() {
   const { token, user } = useAuth();
@@ -45,6 +46,34 @@ export default function SeniorVaccinesPage() {
   const [modalVaccineId, setModalVaccineId] = useState<number | null>(null);
   const [modalDate, setModalDate] = useState<string>("");
   const [actionError, setActionError] = useState<string>("");
+
+  // Prepare table data when a senior is selected
+  const rows = useMemo(() => {
+    if (!selectedSeniorId) return [] as Array<{ id: number; vaccine: string; lastVaccineDate: string }>; 
+    return seniorVaccines.map((row: any) => ({
+      id: row.VaccineId,
+      vaccine: row.Vaccine?.name || String(row.VaccineId),
+      lastVaccineDate: row.lastVaccineDate || "-",
+    }));
+  }, [selectedSeniorId, seniorVaccines]);
+
+  const columns = [
+    { label: "Vaccine", accessor: "vaccine" },
+    { label: "Last Vaccine Date", accessor: "lastVaccineDate" },
+  ];
+
+  const renderActions = (row: { id: number }) => {
+    if (user?.role === "viewOnly") {
+      return <span className="text-muted">View only</span>;
+    }
+    const found = seniorVaccines.find((rv: any) => rv.VaccineId === row.id);
+    return (
+      <div className="d-grid gap-2">
+        <button className="btn btn-secondary btn-sm w-100" onClick={() => found && openEdit(found)}>Edit</button>
+        <button className="btn btn-danger btn-sm w-100" onClick={() => onDelete(row.id)}>Delete</button>
+      </div>
+    );
+  };
 
   const openCreate = () => {
     setModalVaccineId(null);
@@ -124,40 +153,13 @@ export default function SeniorVaccinesPage() {
               })()}</h5>
             </div>
 
-            <div className="table-responsive">
-              <table className="table table-striped">
-                <thead>
-                  <tr>
-                    <th>Vaccine</th>
-                    <th>Last Vaccine Date</th>
-                    <th className="text-end">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {seniorVaccines.map((row) => (
-                    <tr key={`${row.seniorId}-${row.VaccineId}`}>
-                      <td>{row.Vaccine?.name || row.VaccineId}</td>
-                      <td>{row.lastVaccineDate || "-"}</td>
-                      <td className="text-end">
-                        {user?.role !== "viewOnly" ? (
-                          <>
-                            <button className="btn btn-sm btn-secondary me-2" onClick={() => openEdit(row)}>Edit</button>
-                            <button className="btn btn-sm btn-danger" onClick={() => onDelete(row.VaccineId)}>Delete</button>
-                          </>
-                        ) : (
-                          <span className="text-muted">View only</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                  {seniorVaccines.length === 0 && (
-                    <tr>
-                      <td colSpan={3} className="text-center text-muted">No vaccines yet.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              title="Vaccines"
+              data={rows}
+              columns={columns as any}
+              searchableField="vaccine"
+              renderActions={renderActions as any}
+            />
           </div>
         )}
 
