@@ -15,15 +15,15 @@ export function useCreateSenior() {
 
     try {
       // Check if there's a photo to upload
-      const hasPhoto = payload.photo && payload.photo instanceof Blob;
+      const hasPhoto = payload.photo && (payload.photo instanceof File || payload.photo instanceof Blob);
       
       let response;
       if (hasPhoto) {
         // Use FormData for multipart upload
         const formData = new FormData();
         
-        // Add photo file
-        formData.append('photo', payload.photo as Blob, 'photo.jpg');
+        // Add photo file with actual filename if it's a File, otherwise use default
+        formData.append('photo', payload.photo as Blob, (payload.photo as File).name || 'photo.jpg');
         
         // Add other data as JSON string
         const { photo, ...otherData } = payload;

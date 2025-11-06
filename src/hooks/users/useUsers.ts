@@ -50,15 +50,42 @@ export async function createUser(payload: {
   name: string;
   role?: UserRole;
   barangayId?: number | null;
+  photo?: File | Blob;
 }, token?: string) {
-  const res = await fetch("http://localhost:8000/users/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(payload),
-  });
+  // Check if there's a photo to upload
+  const hasPhoto = payload.photo && (payload.photo instanceof File || payload.photo instanceof Blob);
+  
+  let res: Response;
+  if (hasPhoto) {
+    // Use FormData for multipart upload
+    const formData = new FormData();
+    
+    // Add photo file
+    formData.append('photo', payload.photo as Blob, (payload.photo as File).name || 'photo.jpg');
+    
+    // Add other data as JSON string
+    const { photo, ...otherData } = payload;
+    formData.append('data', JSON.stringify(otherData));
+    
+    res = await fetch("http://localhost:8000/users/register", {
+      method: "POST",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData, // Don't set Content-Type header, let browser set it with boundary
+    });
+  } else {
+    // Use JSON for regular data
+    res = await fetch("http://localhost:8000/users/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(payload),
+    });
+  }
+  
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     throw new Error((data && (data.message || data.error)) || "Create user failed");
@@ -70,15 +97,42 @@ export async function updateUser(userId: number, payload: {
   name?: string;
   role?: UserRole;
   barangayId?: number | null;
+  photo?: File | Blob;
 }, token?: string) {
-  const res = await fetch(`http://localhost:8000/users/${userId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(payload),
-  });
+  // Check if there's a photo to upload
+  const hasPhoto = payload.photo && (payload.photo instanceof File || payload.photo instanceof Blob);
+  
+  let res: Response;
+  if (hasPhoto) {
+    // Use FormData for multipart upload
+    const formData = new FormData();
+    
+    // Add photo file
+    formData.append('photo', payload.photo as Blob, (payload.photo as File).name || 'photo.jpg');
+    
+    // Add other data as JSON string
+    const { photo, ...otherData } = payload;
+    formData.append('data', JSON.stringify(otherData));
+    
+    res = await fetch(`http://localhost:8000/users/${userId}`, {
+      method: "PUT",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData, // Don't set Content-Type header, let browser set it with boundary
+    });
+  } else {
+    // Use JSON for regular data
+    res = await fetch(`http://localhost:8000/users/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(payload),
+    });
+  }
+  
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     throw new Error((data && (data.message || data.error)) || "Update user failed");

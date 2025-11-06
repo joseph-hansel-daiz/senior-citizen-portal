@@ -7,6 +7,7 @@ type ProfileShape = {
   name?: string;
   role?: string;
   barangayId?: number | null;
+  photo?: any;
 };
 
 type UseProfileOperationsReturn = {
@@ -16,7 +17,7 @@ type UseProfileOperationsReturn = {
   error: string;
   success: string;
   fetchProfile: () => Promise<void>;
-  updateProfile: (name: string) => Promise<{ success: boolean; error?: string }>;
+  updateProfile: (name: string, photo?: File | Blob | string | null) => Promise<{ success: boolean; error?: string }>;
   setError: (error: string) => void;
   setSuccess: (success: string) => void;
 };
@@ -78,7 +79,7 @@ export const useProfileOperations = (): UseProfileOperationsReturn => {
     }
   };
 
-  const updateProfile = async (name: string): Promise<{ success: boolean; error?: string }> => {
+  const updateProfile = async (name: string, photo?: File | Blob | string | null): Promise<{ success: boolean; error?: string }> => {
     setSaving(true);
     setError("");
     setSuccess("");
@@ -90,14 +91,44 @@ export const useProfileOperations = (): UseProfileOperationsReturn => {
     }
 
     try {
-      const res = await fetch("http://localhost:8000/users/me", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ name: name.trim() }),
-      });
+      let res: Response;
+      const endpoint = "http://localhost:8000/users/me";
+      if (photo) {
+        const formData = new FormData();
+        formData.append("data", JSON.stringify({ name: name.trim() }));
+        if (typeof photo === "string") {
+          // If caller passed a data URL string, send as part of JSON (backend also supports base64)
+          // But since we chose multipart, try to convert data URL to Blob
+          try {
+            const m = photo.match(/^data:(.*?);base64,(.*)$/);
+            if (m) {
+              const bstr = atob(m[2]);
+              const n = bstr.length;
+              const u8 = new Uint8Array(n);
+              for (let i = 0; i < n; i++) u8[i] = bstr.charCodeAt(i);
+              formData.append("photo", new Blob([u8], { type: m[1] }), "photo");
+            }
+          } catch {}
+        } else {
+          formData.append("photo", photo, (photo as File).name || "photo");
+        }
+        res = await fetch(endpoint, {
+          method: "PUT",
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: formData,
+        });
+      } else {
+        res = await fetch(endpoint, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ name: name.trim() }),
+        });
+      }
 
       const payload = await res.json().catch(() => ({}));
 
