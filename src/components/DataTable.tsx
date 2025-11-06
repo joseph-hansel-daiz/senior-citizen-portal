@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useBarangays } from "@/hooks/options";
+import { useAuth } from "@/context/AuthContext";
 
 export interface Column<T> {
   label: string;
@@ -26,18 +28,38 @@ export default function DataTable<T extends { id: number | string }>({
   searchableField,
   renderActions,
 }: DataTableProps<T>) {
+  const { user } = useAuth();
+  const { data: barangayOptions } = useBarangays();
   const [searchTerm, setSearchTerm] = useState("");
   const [pageSize, setPageSize] = useState(defaultPageSize);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedBarangay, setSelectedBarangay] = useState("");
+
+  const hasBarangayColumn = useMemo(
+    () => columns.some((c) => String(c.accessor) === "barangay"),
+    [columns]
+  );
+  const barangayAccessor = useMemo(() => {
+    const col = columns.find((c) => String(c.accessor) === "barangay");
+    return col?.accessor as keyof T | undefined;
+  }, [columns]);
 
   const filteredData = useMemo(() => {
-    if (!searchTerm || !searchableField) return data;
-    return data.filter((item) =>
-      String(item[searchableField])
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    );
-  }, [data, searchTerm, searchableField]);
+    let next = data;
+    if (searchTerm && searchableField) {
+      next = next.filter((item) =>
+        String(item[searchableField])
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      );
+    }
+    if (selectedBarangay && barangayAccessor) {
+      next = next.filter(
+        (item) => String(item[barangayAccessor]) === selectedBarangay
+      );
+    }
+    return next;
+  }, [data, searchTerm, searchableField, selectedBarangay, barangayAccessor]);
 
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
@@ -54,12 +76,30 @@ export default function DataTable<T extends { id: number | string }>({
   return (
     <div className="container p-4 card">
       {/* Title + Search */}
-      {(title || searchableField) && (
+      {(title || searchableField || (hasBarangayColumn && user?.role !== "barangay")) && (
         <div className="row mb-3">
           <div className="col-12 col-md-6 mb-2 mb-md-0 d-flex align-items-center">
             {title && <h2 className="h5 mb-0">{title}</h2>}
           </div>
-          <div className="col-12 col-md-6 d-flex justify-content-md-end">
+          <div className="col-12 col-md-6 d-flex justify-content-md-end gap-2">
+            {hasBarangayColumn && user?.role !== "barangay" && (
+              <select
+                className="form-select"
+                style={{ maxWidth: "220px", width: "100%" }}
+                value={selectedBarangay}
+                onChange={(e) => {
+                  setSelectedBarangay(e.target.value);
+                  setCurrentPage(1);
+                }}
+              >
+                <option value="">All Barangays</option>
+                {barangayOptions.map((opt) => (
+                  <option key={opt.id} value={opt.name}>
+                    {opt.name}
+                  </option>
+                ))}
+              </select>
+            )}
             {searchableField && (
               <input
                 type="text"
