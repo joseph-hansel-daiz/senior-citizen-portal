@@ -557,10 +557,43 @@ export default function SeniorForm({
     return null;
   };
 
+  // Helper function to capitalize the first letter of each word in a name
+  const capitalizeName = (text: string): string => {
+    if (!text) return text;
+    return text
+      .split(/\s+/)
+      .map((word) => {
+        if (word.length === 0) return word;
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join(" ");
+  };
+
+  // Check if a field name is a name field
+  const isNameField = (fieldName: string): boolean => {
+    const nameFields = [
+      "lastName",
+      "firstName",
+      "middleName",
+      "spouseLastName",
+      "spouseFirstName",
+      "spouseMiddleName",
+      "fatherLastName",
+      "fatherFirstName",
+      "fatherMiddleName",
+      "motherLastName",
+      "motherFirstName",
+      "motherMiddleName",
+    ];
+    return nameFields.includes(fieldName);
+  };
+
   const handleChange = (e: { target: { name: any; value: any } }) => {
     if (isReadOnly) return;
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Automatically capitalize name fields
+    const processedValue = isNameField(name) ? capitalizeName(value) : value;
+    setFormData((prev) => ({ ...prev, [name]: processedValue }));
   };
 
   const handleBooleanInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -606,13 +639,18 @@ export default function SeniorForm({
     value: string | boolean
   ) => {
     if (isReadOnly) return;
+    // Automatically capitalize name field
+    const processedValue =
+      field === "name" && typeof value === "string"
+        ? capitalizeName(value)
+        : value;
     if (collectionName === "children") {
       const updated = [...children];
-      updated[index] = { ...updated[index], [field]: value } as Member;
+      updated[index] = { ...updated[index], [field]: processedValue } as Member;
       setChildren(updated);
     } else {
       const updated = [...dependents];
-      updated[index] = { ...updated[index], [field]: value } as Member;
+      updated[index] = { ...updated[index], [field]: processedValue } as Member;
       setDependents(updated);
     }
   };
