@@ -798,7 +798,7 @@ export default function SeniorForm({
     return (
       <>
         <div className="mb-3">
-          <label className="form-label">Photo</label>
+          <label className="form-label">Photo {mode === "create" && (<span className="text-danger">*</span>)}</label>
           {isReadOnly ? (
             <div className="mt-2">
               {photoUrl ? (
@@ -835,6 +835,7 @@ export default function SeniorForm({
                 accept="image/png, image/jpeg"
                 onChange={handlePhotoChange}
                 disabled={isReadOnly}
+                required={mode === "create"}
               />
               <div className="form-text">
                 Only JPG and PNG formats accepted.
