@@ -118,7 +118,6 @@ export default function DashboardPage() {
     { label: "Age", accessor: "age" },
     { label: "Address", accessor: "address" },
     { label: "Contact #", accessor: "contact" },
-    { label: "Living Status", accessor: "livingStatus" },
     { label: "Has Pension", accessor: "hasPension" },
   ];
 
