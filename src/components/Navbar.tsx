@@ -23,6 +23,11 @@ enum Role {
 // ===== Route definitions =====
 const ADMIN_ROUTES: NavRoute[] = [
   {
+    route: ROUTES.DASHBOARD,
+    label: "Dashboard",
+    iconClassName: "bi bi-bar-chart-fill",
+  },
+  {
     route: ROUTES.OPTIONS,
     label: "Options",
     iconClassName: "bi bi-sliders",
