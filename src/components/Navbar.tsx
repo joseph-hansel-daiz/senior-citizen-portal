@@ -185,7 +185,7 @@ export default function Navbar() {
     <div className="container-fluid">
       {/* ===== Desktop Sidebar ===== */}
       <aside
-        className="d-none d-md-flex flex-column border-end position-fixed top-0 start-0 p-0 bg-body-tertiary"
+        className="d-none d-md-flex flex-column border-end position-fixed top-0 start-0 p-0 bg-dark"
         style={{ width: 240, height: "100vh", zIndex: 1040 }}
         aria-label="Sidebar"
       >
@@ -196,7 +196,7 @@ export default function Navbar() {
             className="img-fluid rounded-circle mb-2"
             style={{ maxWidth: 100 }}
           />
-          <div className="fw-bold text-uppercase small text-break">
+          <div className="fw-bold text-uppercase small text-break text-light">
             Senior Citizen Portal
           </div>
         </div>
@@ -237,10 +237,10 @@ export default function Navbar() {
       </aside>
 
       {/* ===== Mobile Navbar ===== */}
-      <nav className="navbar navbar-expand-lg bg-body-tertiary fixed-top d-md-none">
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top d-md-none">
         <div className="container-fluid">
           <Link className="navbar-brand mb-1" href={"/"}>
-            <div className="fw-bold text-uppercase small text-break">
+            <div className="fw-bold text-uppercase small text-break text-light">
               Senior Citizen Portal
             </div>
           </Link>
