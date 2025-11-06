@@ -105,46 +105,49 @@ export default function UsersPage() {
 
   return (
     <section>
-      <div className="d-flex flex-wrap gap-2 justify-content-between align-items-end mb-3">
-        <div className="flex-grow-1" style={{ minWidth: 320 }}>
-          <div className="row g-2">
-            <div className="col-md-3">
-              <label className="form-label">Username</label>
-              <input className="form-control" value={createForm.username} onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })} />
-            </div>
-            <div className="col-md-3">
-              <label className="form-label">Password</label>
-              <input type="password" className="form-control" value={createForm.password} onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} />
-            </div>
-            <div className="col-md-3">
-              <label className="form-label">Name</label>
-              <input className="form-control" value={createForm.name} onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })} />
-            </div>
-            <div className="col-md-3">
-              <label className="form-label">Role</label>
-              <select className="form-select" value={createForm.role} onChange={(e) => setCreateForm({ ...createForm, role: e.target.value as UserRole })}>
-                {ROLES.map(r => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-3">
-              <label className="form-label">Barangay</label>
-              <select
-                className="form-select"
-                value={createForm.barangayId === null ? "" : String(createForm.barangayId)}
-                onChange={(e) => setCreateForm({ ...createForm, barangayId: e.target.value ? Number(e.target.value) : null })}
-                disabled={createForm.role !== "barangay"}
-              >
-                <option value="">— None —</option>
-                {barangays.map((b) => (
-                  <option key={b.id} value={b.id}>{b.name}</option>
-                ))}
-              </select>
+      <div className="container p-4 card mb-3">
+        <div className="row g-3">
+          <div className="col-12 col-md-6">
+            <label className="form-label">Username</label>
+            <input className="form-control" value={createForm.username} onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })} />
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label">Password</label>
+            <input type="password" className="form-control" value={createForm.password} onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} />
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label">Name</label>
+            <input className="form-control" value={createForm.name} onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })} />
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label">Role</label>
+            <select className="form-select" value={createForm.role} onChange={(e) => setCreateForm({ ...createForm, role: e.target.value as UserRole })}>
+              {ROLES.map(r => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label">Barangay</label>
+            <select
+              className="form-select"
+              value={createForm.barangayId === null ? "" : String(createForm.barangayId)}
+              onChange={(e) => setCreateForm({ ...createForm, barangayId: e.target.value ? Number(e.target.value) : null })}
+              disabled={createForm.role !== "barangay"}
+            >
+              <option value="">— None —</option>
+              {barangays.map((b) => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-12">
+            <div className="d-grid">
+              <button className="btn btn-primary" onClick={onCreate}>Add User</button>
             </div>
           </div>
         </div>
-        <button className="btn btn-primary" onClick={onCreate}>Add User</button>
       </div>
 
       {actionError && (

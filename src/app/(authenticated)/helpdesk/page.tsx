@@ -181,13 +181,15 @@ export default function HelpdeskPage() {
 
   return (
     <section>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="m-0">Help Desk</h2>
-        {user?.role !== "viewOnly" && (
-          <button className="btn btn-primary" onClick={() => setShowCreate(true)}>
-            New Record
-          </button>
-        )}
+      <div className="container p-1 mb-3">
+        <div className="d-flex justify-content-between align-items-center">
+          <h2 className="m-0">Help Desk</h2>
+          {user?.role !== "viewOnly" && (
+            <button className="btn btn-primary" onClick={() => setShowCreate(true)}>
+              New Record
+            </button>
+          )}
+        </div>
       </div>
 
       {actionError && (

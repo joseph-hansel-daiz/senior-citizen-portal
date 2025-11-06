@@ -123,28 +123,28 @@ export default function OptionsPage() {
 
   return (
     <section>
-      <div className="d-flex flex-wrap gap-2 justify-content-between align-items-end mb-3">
-        <div style={{ minWidth: 260 }}>
-          <label className="form-label">Select Option Type</label>
-          <select
-            className="form-select"
-            value={selectedKey}
-            onChange={(e) => {
-              setSelectedKey(e.target.value as OptionKey);
-              setActionError("");
-              setNewValue("");
-              setEditId(null);
-              setEditValue("");
-            }}
-          >
-            {OPTIONS.map((o) => (
-              <option key={o.key} value={o.key}>{o.label}</option>
-            ))}
-          </select>
-        </div>
+      <div className="container p-4 card mb-3">
+        <div className="row g-3">
+          <div className="col-12 col-md-6">
+            <label className="form-label">Select Option Type</label>
+            <select
+              className="form-select"
+              value={selectedKey}
+              onChange={(e) => {
+                setSelectedKey(e.target.value as OptionKey);
+                setActionError("");
+                setNewValue("");
+                setEditId(null);
+                setEditValue("");
+              }}
+            >
+              {OPTIONS.map((o) => (
+                <option key={o.key} value={o.key}>{o.label}</option>
+              ))}
+            </select>
+          </div>
 
-        <div className="d-flex align-items-end gap-2 flex-grow-1" style={{ minWidth: 280 }}>
-          <div className="flex-grow-1">
+          <div className="col-12 col-md-6">
             <label className="form-label">New Entry</label>
             <input
               type="text"
@@ -154,7 +154,12 @@ export default function OptionsPage() {
               onChange={(e) => setNewValue(e.target.value)}
             />
           </div>
-          <button className="btn btn-primary" onClick={onCreate}>Add</button>
+
+          <div className="col-12">
+            <div className="d-grid">
+              <button className="btn btn-primary" onClick={onCreate}>Add</button>
+            </div>
+          </div>
         </div>
       </div>
 
