@@ -94,6 +94,11 @@ const BARANGAY_ROUTES: NavRoute[] = [
     iconClassName: "bi bi-card-checklist",
   },
   {
+    route: ROUTES.PENDING_PROFILES,
+    label: "Pending Profiles",
+    iconClassName: "bi bi-clock-history",
+  },
+  {
     route: ROUTES.DECEASED_SENIORS,
     label: "Deceased Seniors",
     iconClassName: "bi bi-flower3",

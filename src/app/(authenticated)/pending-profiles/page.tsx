@@ -8,6 +8,7 @@ import { useApproveSenior } from "@/hooks/useApproveSenior";
 import { useDeclineSenior } from "@/hooks/useDeclineSenior";
 import { useSeniors } from "@/hooks/useSeniors";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface SeniorCitizenTableRow {
   id: number;
@@ -22,6 +23,7 @@ interface SeniorCitizenTableRow {
 
 export default function DashboardPage() {
   const { data: seniors, loading, error } = useSeniors();
+  const { user } = useAuth();
   const [showViewModal, setShowViewModal] = useState(false);
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showDeclineModal, setShowDeclineModal] = useState(false);
@@ -167,28 +169,43 @@ export default function DashboardPage() {
     setSelectedSeniorId(null);
   };
 
-  const renderActions = (item: SeniorCitizenTableRow) => (
-    <div className="d-grid gap-2">
-      <button
-        className="btn btn-primary btn-sm w-100"
-        onClick={() => handleViewSenior(item.id)}
-      >
-        View
-      </button>
-      <button
-        className="btn btn-success btn-sm w-100"
-        onClick={() => handleApproveSenior(item.id)}
-      >
-        Approve
-      </button>
-      <button
-        className="btn btn-danger btn-sm w-100"
-        onClick={() => handleDeclineSenior(item.id)}
-      >
-        Decline
-      </button>
-    </div>
-  );
+  const renderActions = (item: SeniorCitizenTableRow) => {
+    if (user?.role === "barangay") {
+      return (
+        <div className="d-grid gap-2">
+          <button
+            className="btn btn-primary btn-sm w-100"
+            onClick={() => handleViewSenior(item.id)}
+          >
+            View
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="d-grid gap-2">
+        <button
+          className="btn btn-primary btn-sm w-100"
+          onClick={() => handleViewSenior(item.id)}
+        >
+          View
+        </button>
+        <button
+          className="btn btn-success btn-sm w-100"
+          onClick={() => handleApproveSenior(item.id)}
+        >
+          Approve
+        </button>
+        <button
+          className="btn btn-danger btn-sm w-100"
+          onClick={() => handleDeclineSenior(item.id)}
+        >
+          Decline
+        </button>
+      </div>
+    );
+  };
 
   if (loading) {
     return (
