@@ -54,9 +54,26 @@ export default function Page() {
     <AuthProvider>
       <section
         className="d-flex align-items-center justify-content-center"
-        style={{ minHeight: "100vh" }}
+        style={{ minHeight: "100vh", position: "relative" }}
       >
-        <div className="container">
+        <div
+          aria-hidden
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundImage: "url(/kevin/login-background-image.jpg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            filter: "blur(4px)",
+            transform: "scale(1.05)",
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        />
+        <div className="container position-relative" style={{ zIndex: 1 }}>
           <div className="row justify-content-center">
             <div className="col-md-6 col-lg-4">
               <div className="card shadow-sm border-0">
