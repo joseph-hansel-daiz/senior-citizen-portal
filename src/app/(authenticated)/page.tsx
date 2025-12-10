@@ -8,9 +8,18 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { gender, ages, assistances, vaccines, usersPerRole, usersPerBarangay, loading, error } =
-    useDashboardAnalytics();
-  
+  const {
+    gender,
+    ages,
+    assistances,
+    vaccines,
+    usersPerRole,
+    usersPerBarangay,
+    deadAliveCount,
+    loading,
+    error,
+  } = useDashboardAnalytics();
+
   const isAdmin = user?.role === "admin";
 
   const genderTotal = useMemo(
@@ -28,12 +37,23 @@ export default function DashboardPage() {
   ]; // bootstrap palette
 
   const genderPieData = useMemo(
-    () => gender.map(g => ({ label: g.sexAtBirth, value: g.count })),
+    () => gender.map((g) => ({ label: g.sexAtBirth, value: g.count })),
     [gender]
   );
 
+  const deadAlivePieData = useMemo(
+    () =>
+      deadAliveCount
+        .filter((d) => Number(d.count) > 0)
+        .map((d) => ({
+          label: d.status.charAt(0).toUpperCase() + d.status.slice(1),
+          value: Number(d.count),
+        })),
+    [deadAliveCount]
+  );
+
   const usersPerRolePieData = useMemo(
-    () => usersPerRole.map(r => ({ label: r.role, value: r.count })),
+    () => usersPerRole.map((r) => ({ label: r.role, value: r.count })),
     [usersPerRole]
   );
 
@@ -45,7 +65,7 @@ export default function DashboardPage() {
             {/* Charts Row 1 */}
             <div className="row">
               {/* Gender Distribution - Pie */}
-              <div className="col-md-6 mb-4">
+              <div className="col-md-4 mb-4">
                 <div className="card shadow-sm">
                   <div className="card-header bg-primary text-white fw-bold">
                     Gender Distribution
@@ -54,14 +74,38 @@ export default function DashboardPage() {
                     {gender.length === 0 ? (
                       <span className="text-muted">No data</span>
                     ) : (
-                      <PieChart data={genderPieData} colors={colors} size={200} />
+                      <PieChart
+                        data={genderPieData}
+                        colors={colors}
+                        size={200}
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Active/Deceased Distribution - Pie */}
+              <div className="col-md-4 mb-4">
+                <div className="card shadow-sm">
+                  <div className="card-header bg-primary text-white fw-bold">
+                    Active/Deceased Distribution
+                  </div>
+                  <div className="card-body d-flex align-items-center justify-content-center">
+                    {deadAlivePieData.length === 0 ? (
+                      <span className="text-muted">No data</span>
+                    ) : (
+                      <PieChart
+                        data={deadAlivePieData}
+                        colors={colors}
+                        size={200}
+                      />
                     )}
                   </div>
                 </div>
               </div>
 
               {/* Age Demographics - Bar */}
-              <div className="col-md-6 mb-4">
+              <div className="col-md-4 mb-4">
                 <div className="card shadow-sm">
                   <div className="card-header bg-primary text-white fw-bold">
                     Age Demographics
@@ -70,7 +114,13 @@ export default function DashboardPage() {
                     {ages.length === 0 ? (
                       <span className="text-muted">No data</span>
                     ) : (
-                      <BarChart items={ages.map(a => ({ label: a.bucket, value: a.count }))} colors={colors} />
+                      <BarChart
+                        items={ages.map((a) => ({
+                          label: a.bucket,
+                          value: a.count,
+                        }))}
+                        colors={colors}
+                      />
                     )}
                   </div>
                 </div>
@@ -89,7 +139,13 @@ export default function DashboardPage() {
                     {assistances.length === 0 ? (
                       <span className="text-muted">No data</span>
                     ) : (
-                      <BarChart items={assistances.map(a => ({ label: a.name, value: a.count }))} colors={colors} />
+                      <BarChart
+                        items={assistances.map((a) => ({
+                          label: a.name,
+                          value: a.count,
+                        }))}
+                        colors={colors}
+                      />
                     )}
                   </div>
                 </div>
@@ -105,7 +161,13 @@ export default function DashboardPage() {
                     {vaccines.length === 0 ? (
                       <span className="text-muted">No data</span>
                     ) : (
-                      <BarChart items={vaccines.map(v => ({ label: v.name, value: v.count }))} colors={colors} />
+                      <BarChart
+                        items={vaccines.map((v) => ({
+                          label: v.name,
+                          value: v.count,
+                        }))}
+                        colors={colors}
+                      />
                     )}
                   </div>
                 </div>
@@ -127,7 +189,11 @@ export default function DashboardPage() {
                   {usersPerRole.length === 0 ? (
                     <span className="text-muted">No data</span>
                   ) : (
-                    <PieChart data={usersPerRolePieData} colors={colors} size={200} />
+                    <PieChart
+                      data={usersPerRolePieData}
+                      colors={colors}
+                      size={200}
+                    />
                   )}
                 </div>
               </div>
@@ -143,7 +209,13 @@ export default function DashboardPage() {
                   {usersPerBarangay.length === 0 ? (
                     <span className="text-muted">No data</span>
                   ) : (
-                    <BarChart items={usersPerBarangay.map(b => ({ label: b.name, value: b.count }))} colors={colors} />
+                    <BarChart
+                      items={usersPerBarangay.map((b) => ({
+                        label: b.name,
+                        value: b.count,
+                      }))}
+                      colors={colors}
+                    />
                   )}
                 </div>
               </div>

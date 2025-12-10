@@ -7,6 +7,7 @@ export type AssistanceTotalsItem = { assistanceId: number; name: string; count: 
 export type VaccineCoverageItem = { vaccineId: number; name: string; count: number };
 export type UsersPerRoleItem = { role: string; count: number };
 export type UsersPerBarangayItem = { barangayId: number | null; name: string; count: number };
+export type DeadAliveCountItem = { status: string; count: number };
 
 export function useDashboardAnalytics() {
   const { token, user } = useAuth();
@@ -16,6 +17,7 @@ export function useDashboardAnalytics() {
   const [vaccines, setVaccines] = useState<VaccineCoverageItem[]>([]);
   const [usersPerRole, setUsersPerRole] = useState<UsersPerRoleItem[]>([]);
   const [usersPerBarangay, setUsersPerBarangay] = useState<UsersPerBarangayItem[]>([]);
+  const [deadAliveCount, setDeadAliveCount] = useState<DeadAliveCountItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -36,6 +38,7 @@ export function useDashboardAnalytics() {
           fetch("http://localhost:8000/analytics/age-demographics", { headers }),
           fetch("http://localhost:8000/analytics/assistance", { headers }),
           fetch("http://localhost:8000/analytics/vaccines", { headers }),
+          fetch("http://localhost:8000/analytics/dead-alive-count", { headers }),
         ];
         
         const adminPromises = isAdmin
@@ -50,7 +53,7 @@ export function useDashboardAnalytics() {
         
         if (!responses.every((r) => r.ok)) throw new Error("Failed to load analytics");
         
-        const [gj, aj, asj, vj, ...adminData] = await Promise.all(
+        const [gj, aj, asj, vj, dacj, ...adminData] = await Promise.all(
           responses.map((r) => r.json())
         );
         
@@ -59,6 +62,7 @@ export function useDashboardAnalytics() {
         setAges(aj);
         setAssistances(asj);
         setVaccines(vj);
+        setDeadAliveCount(dacj);
         
         if (isAdmin && adminData.length >= 2) {
           setUsersPerRole(adminData[0]);
@@ -85,7 +89,7 @@ export function useDashboardAnalytics() {
     return { genderTotal, ageTotal };
   }, [gender, ages]);
 
-  return { gender, ages, assistances, vaccines, usersPerRole, usersPerBarangay, totals, loading, error };
+  return { gender, ages, assistances, vaccines, usersPerRole, usersPerBarangay, deadAliveCount, totals, loading, error };
 }
 
 
