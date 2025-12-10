@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 
 interface SeniorCitizenTableRow {
   id: number;
+  photo: Blob | null | undefined;
   fullName: string;
   age: number;
   address: string;
@@ -38,6 +39,7 @@ export default function DashboardPage() {
     .filter((senior) => senior.DeathInfo)
     .map((senior) => {
       const identifyingInfo = senior.IdentifyingInformation;
+      const photo = senior.photo;
       const fullName = identifyingInfo
         ? `${identifyingInfo.firstname} ${identifyingInfo.middlename} ${identifyingInfo.lastname}`.trim()
         : "N/A";
@@ -67,6 +69,7 @@ export default function DashboardPage() {
 
       return {
         id: senior.id!,
+        photo,
         fullName,
         age,
         address,
@@ -79,6 +82,7 @@ export default function DashboardPage() {
     });
 
   const columns: Column<SeniorCitizenTableRow>[] = [
+    { label: "Photo", accessor: "photo" },
     { label: "Barangay", accessor: "barangay" },
     { label: "Full Name", accessor: "fullName" },
     { label: "Age", accessor: "age" },
@@ -167,6 +171,7 @@ export default function DashboardPage() {
       <DataTable
         title="Deceased Citizens"
         data={data}
+        imageAccessor="photo"
         columns={columns}
         searchableField="fullName"
         renderActions={renderActions}

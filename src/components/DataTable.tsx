@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useBarangays } from "@/hooks/options";
 import { useAuth } from "@/context/AuthContext";
 
@@ -16,6 +16,7 @@ interface DataTableProps<T extends { id: number | string }> {
   pageSizeOptions?: number[];
   defaultPageSize?: number;
   searchableField?: keyof T;
+  imageAccessor?: keyof T; // Optional accessor for image column
   renderActions?: (item: T) => React.ReactNode;
 }
 
@@ -26,6 +27,7 @@ export default function DataTable<T extends { id: number | string }>({
   pageSizeOptions = [5, 10, 25],
   defaultPageSize = 10,
   searchableField,
+  imageAccessor,
   renderActions,
 }: DataTableProps<T>) {
   const { user } = useAuth();
@@ -34,6 +36,10 @@ export default function DataTable<T extends { id: number | string }>({
   const [pageSize, setPageSize] = useState(defaultPageSize);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBarangay, setSelectedBarangay] = useState("");
+  const [imageUrls, setImageUrls] = useState<Map<string | number, string>>(
+    new Map()
+  );
+  const imageUrlsRef = useRef<Map<string | number, string>>(new Map());
 
   const hasBarangayColumn = useMemo(
     () => columns.some((c) => String(c.accessor) === "barangay"),
@@ -72,6 +78,109 @@ export default function DataTable<T extends { id: number | string }>({
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
   };
+
+  // Helper function to convert Buffer/Blob photo to URL (similar to SeniorForm)
+  const resolvePhotoToUrl = async (photo: any): Promise<string | null> => {
+    if (!photo) {
+      return null;
+    }
+
+    // If it's already a string (URL or file path), return it
+    if (typeof photo === "string") {
+      // If it's a file path, we might need to construct a full URL
+      if (photo.startsWith("http") || photo.startsWith("data:")) {
+        return photo;
+      } else {
+        // Assume it's a file path, construct URL
+        return `http://localhost:8000/${photo}`;
+      }
+    }
+
+    if (
+      photo &&
+      typeof photo === "object" &&
+      (photo.type === "Buffer" || Array.isArray(photo.data))
+    ) {
+      try {
+        const bytes: number[] = photo.type === "Buffer" ? photo.data : photo;
+        const uint8 = new Uint8Array(bytes);
+        const blob = new Blob([uint8.buffer], { type: "image/jpeg" });
+        const url = URL.createObjectURL(blob);
+        return url;
+      } catch (err) {
+        console.warn("Failed to convert Buffer photo to blob URL", err);
+        return null;
+      }
+    }
+
+    // If it's already a Blob
+    if (photo instanceof Blob) {
+      return URL.createObjectURL(photo);
+    }
+
+    return null;
+  };
+
+  // Resolve images for paginated data when imageAccessor is provided
+  useEffect(() => {
+    if (!imageAccessor) return;
+
+    let active = true;
+    const newImageUrls = new Map<string | number, string>();
+
+    const resolveImages = async () => {
+      // Revoke previous blob URLs that are no longer needed
+      const prevUrls = imageUrlsRef.current;
+      const currentItemIds = new Set(paginatedData.map((item) => item.id));
+      
+      prevUrls.forEach((url, itemId) => {
+        if (!currentItemIds.has(itemId) && url.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+          prevUrls.delete(itemId);
+        }
+      });
+
+      // Resolve images for current paginated data
+      for (const item of paginatedData) {
+        // Skip if URL already exists
+        if (prevUrls.has(item.id)) {
+          newImageUrls.set(item.id, prevUrls.get(item.id)!);
+          continue;
+        }
+
+        const photoData = item[imageAccessor];
+        if (photoData) {
+          const url = await resolvePhotoToUrl(photoData);
+          if (url && active) {
+            newImageUrls.set(item.id, url);
+          }
+        }
+      }
+
+      if (active) {
+        imageUrlsRef.current = newImageUrls;
+        setImageUrls(newImageUrls);
+      }
+    };
+
+    resolveImages();
+
+    return () => {
+      active = false;
+    };
+  }, [paginatedData, imageAccessor]);
+
+  // Cleanup blob URLs on unmount
+  useEffect(() => {
+    return () => {
+      imageUrlsRef.current.forEach((url) => {
+        if (url.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+        }
+      });
+      imageUrlsRef.current.clear();
+    };
+  }, []);
 
   return (
     <div className="container p-4 card">
@@ -137,11 +246,43 @@ export default function DataTable<T extends { id: number | string }>({
             <tbody>
               {paginatedData.map((item) => (
                 <tr key={item.id}>
-                  {columns.map((col) => (
-                    <td key={String(col.accessor)}>
-                      {String(item[col.accessor])}
-                    </td>
-                  ))}
+                  {columns.map((col) => {
+                    const isImageColumn = imageAccessor === col.accessor;
+                    const imageUrl = isImageColumn ? imageUrls.get(item.id) : null;
+
+                    return (
+                      <td key={String(col.accessor)}>
+                        {isImageColumn ? (
+                          imageUrl ? (
+                            <img
+                              src={imageUrl}
+                              alt={String(item[col.accessor]) || "Image"}
+                              className="img-thumbnail"
+                              style={{
+                                maxWidth: "80px",
+                                maxHeight: "80px",
+                                objectFit: "cover",
+                              }}
+                              onError={(e) => {
+                                console.log("Image failed to load:", e);
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = "none";
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  parent.innerHTML =
+                                    '<div class="text-muted">No image</div>';
+                                }
+                              }}
+                            />
+                          ) : (
+                            <div className="text-muted">No image</div>
+                          )
+                        ) : (
+                          String(item[col.accessor])
+                        )}
+                      </td>
+                    );
+                  })}
                   {renderActions && <td>{renderActions(item)}</td>}
                 </tr>
               ))}
