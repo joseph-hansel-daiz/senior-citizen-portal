@@ -4,11 +4,12 @@ import { useAuth } from "@/context/AuthContext";
 export interface HelpdeskRecord {
   id: number;
   seniorId: number;
-  helpDeskRecordCategory: number;
+  helpDeskRecordCategory?: number; // Deprecated, kept for backward compatibility
   details: string;
   createdAt: string;
   updatedAt: string;
-  HelpDeskRecordCategory?: { id: number; name: string };
+  HelpDeskRecordCategory?: { id: number; name: string }; // Deprecated, kept for backward compatibility
+  HelpDeskRecordCategories?: Array<{ id: number; name: string }>; // New: array of categories
   Senior?: {
     id: number;
     barangayId: number;
@@ -152,7 +153,7 @@ export function useHelpdeskRecords() {
 
 export async function createHelpdeskRecord(payload: {
   seniorId: number;
-  helpDeskRecordCategory: number;
+  helpDeskRecordCategoryIds: number[];
   details: string;
 }, token?: string) {
   const res = await fetch("http://localhost:8000/helpdesk", {
@@ -170,7 +171,7 @@ export async function createHelpdeskRecord(payload: {
 }
 
 export async function updateHelpdeskRecord(id: number, payload: {
-  helpDeskRecordCategory?: number;
+  helpDeskRecordCategoryIds?: number[];
   details?: string;
 }, token?: string) {
   const res = await fetch(`http://localhost:8000/helpdesk/${id}`, {

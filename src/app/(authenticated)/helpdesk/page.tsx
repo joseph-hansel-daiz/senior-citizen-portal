@@ -40,12 +40,23 @@ export default function HelpdeskPage() {
             }`
           : "N/A";
 
+        // Handle categories - support both new array format and old single category format
+        let categoryDisplay = "N/A";
+        if (r.HelpDeskRecordCategories && Array.isArray(r.HelpDeskRecordCategories) && r.HelpDeskRecordCategories.length > 0) {
+          // New format: array of categories
+          categoryDisplay = r.HelpDeskRecordCategories.map((cat: { name: string }) => cat.name).join(", ");
+        } else if (r.HelpDeskRecordCategory?.name) {
+          // Old format: single category object
+          categoryDisplay = r.HelpDeskRecordCategory.name;
+        } else if (r.helpDeskRecordCategory) {
+          // Old format: single category ID
+          categoryDisplay = String(r.helpDeskRecordCategory);
+        }
+
         return {
           id: r.id,
           seniorName,
-          category:
-            r.HelpDeskRecordCategory?.name ||
-            String(r.helpDeskRecordCategory),
+          category: categoryDisplay,
           details: r.details,
           createdAt: new Date(r.createdAt).toLocaleString(),
         };
@@ -62,15 +73,18 @@ export default function HelpdeskPage() {
 
   const handleCreate = async (payload: {
     seniorId?: number;
-    helpDeskRecordCategory: number;
+    helpDeskRecordCategoryIds: number[];
     details: string;
   }) => {
     setActionError("");
     try {
       if (!payload.seniorId) throw new Error("Senior is required");
+      if (!payload.helpDeskRecordCategoryIds || payload.helpDeskRecordCategoryIds.length === 0) {
+        throw new Error("At least one category is required");
+      }
       await createHelpdeskRecord({
         seniorId: payload.seniorId,
-        helpDeskRecordCategory: payload.helpDeskRecordCategory,
+        helpDeskRecordCategoryIds: payload.helpDeskRecordCategoryIds,
         details: payload.details,
       }, token || undefined);
       setShowCreate(false);
@@ -81,7 +95,7 @@ export default function HelpdeskPage() {
   };
 
   const handleUpdate = async (payload: {
-    helpDeskRecordCategory: number;
+    helpDeskRecordCategoryIds: number[];
     details: string;
   }) => {
     setActionError("");

@@ -11,7 +11,7 @@ interface HelpdeskRecordModalProps {
   mode: Mode;
   onHide: () => void;
   initialData?: any | null;
-  onSubmit?: (payload: { seniorId?: number; helpDeskRecordCategory: number; details: string }) => Promise<void> | void;
+  onSubmit?: (payload: { seniorId?: number; helpDeskRecordCategoryIds: number[]; details: string }) => Promise<void> | void;
 }
 
 export default function HelpdeskRecordModal({ show, mode, onHide, initialData, onSubmit }: HelpdeskRecordModalProps) {
@@ -53,19 +53,34 @@ export default function HelpdeskRecordModal({ show, mode, onHide, initialData, o
     return allSeniors;
   }, [allSeniors, isCreate]);
 
-  const [form, setForm] = useState<{ seniorId: string; categoryId: string; details: string }>(
-    { seniorId: "", categoryId: "", details: "" }
+  const [form, setForm] = useState<{ seniorId: string; details: string }>(
+    { seniorId: "", details: "" }
   );
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (initialData) {
       setForm({
         seniorId: String(initialData.seniorId ?? ""),
-        categoryId: String(initialData.helpDeskRecordCategory ?? initialData.HelpDeskRecordCategory?.id ?? ""),
         details: String(initialData.details ?? ""),
       });
+      
+      // Handle categories - support both old single category and new array format
+      if (initialData.HelpDeskRecordCategories && Array.isArray(initialData.HelpDeskRecordCategories)) {
+        // New format: array of category objects
+        setSelectedCategoryIds(initialData.HelpDeskRecordCategories.map((cat: { id: number }) => cat.id));
+      } else if (initialData.helpDeskRecordCategory) {
+        // Old format: single category ID (backward compatibility)
+        setSelectedCategoryIds([Number(initialData.helpDeskRecordCategory)]);
+      } else if (initialData.HelpDeskRecordCategory?.id) {
+        // Old format: single category object (backward compatibility)
+        setSelectedCategoryIds([initialData.HelpDeskRecordCategory.id]);
+      } else {
+        setSelectedCategoryIds([]);
+      }
     } else {
-      setForm({ seniorId: "", categoryId: "", details: "" });
+      setForm({ seniorId: "", details: "" });
+      setSelectedCategoryIds([]);
     }
   }, [initialData, show]);
 
@@ -75,12 +90,27 @@ export default function HelpdeskRecordModal({ show, mode, onHide, initialData, o
     return "Edit Help Desk Record";
   }, [mode]);
 
+  const handleCheckboxChange = (categoryId: number) => {
+    if (isView) return;
+    if (selectedCategoryIds.includes(categoryId)) {
+      setSelectedCategoryIds(selectedCategoryIds.filter((id) => id !== categoryId));
+    } else {
+      setSelectedCategoryIds([...selectedCategoryIds, categoryId]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!onSubmit) return;
+    
+    if (selectedCategoryIds.length === 0) {
+      alert("Please select at least one category");
+      return;
+    }
+    
     await onSubmit({
       seniorId: form.seniorId ? Number(form.seniorId) : undefined,
-      helpDeskRecordCategory: Number(form.categoryId),
+      helpDeskRecordCategoryIds: selectedCategoryIds,
       details: form.details.trim(),
     });
   };
@@ -124,20 +154,35 @@ export default function HelpdeskRecordModal({ show, mode, onHide, initialData, o
               )}
 
               <div className="mb-3">
-                <label className="form-label">Category</label>
-                <select
-                  className="form-select"
-                  value={form.categoryId}
-                  onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-                  disabled={isView}
-                >
-                  <option value="">Select category...</option>
+                <label className="form-label">
+                  Categories <span className="text-danger">*</span>
+                </label>
+                <div className="border rounded p-3" style={{ maxHeight: "200px", overflowY: "auto" }}>
                   {categories.map((c) => (
-                    <option key={c.id} value={String(c.id)}>
-                      {c.name}
-                    </option>
+                    <div className="form-check" key={c.id}>
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        value={c.id}
+                        id={`category-${c.id}`}
+                        checked={selectedCategoryIds.includes(c.id)}
+                        onChange={() => handleCheckboxChange(c.id)}
+                        disabled={isView}
+                      />
+                      <label
+                        className="form-check-label"
+                        htmlFor={`category-${c.id}`}
+                      >
+                        {c.name}
+                      </label>
+                    </div>
                   ))}
-                </select>
+                </div>
+                {selectedCategoryIds.length === 0 && !isView && (
+                  <div className="form-text text-danger">
+                    Please select at least one category
+                  </div>
+                )}
               </div>
 
               <div className="mb-3">

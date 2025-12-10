@@ -159,7 +159,7 @@ export interface SeniorStatusHistory {
 export interface HelpDeskRecord {
   id?: number;
   seniorId: number;
-  helpDeskRecordCategory: number;
+  helpDeskRecordCategory?: number; // Deprecated, kept for backward compatibility
   details: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -167,6 +167,8 @@ export interface HelpDeskRecord {
   createdBy?: number | null;
   updatedBy?: number | null;
   deletedBy?: number | null;
+  HelpDeskRecordCategory?: { id: number; name: string }; // Deprecated, kept for backward compatibility
+  HelpDeskRecordCategories?: Array<{ id: number; name: string }>; // New: array of categories
 }
 
 export interface Children {
