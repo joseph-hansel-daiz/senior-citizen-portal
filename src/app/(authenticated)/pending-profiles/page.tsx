@@ -175,36 +175,40 @@ export default function DashboardPage() {
   const renderActions = (item: SeniorCitizenTableRow) => {
     if (user?.role === "barangay") {
       return (
-        <div className="d-grid gap-2">
+        <div className="d-flex gap-1">
           <button
-            className="btn btn-primary btn-sm w-100"
+            className="btn btn-primary btn-sm"
             onClick={() => handleViewSenior(item.id)}
+            title="View"
           >
-            View
+            <i className="bi bi-eye"></i>
           </button>
         </div>
       );
     }
 
     return (
-      <div className="d-grid gap-2">
+      <div className="d-flex gap-1">
         <button
-          className="btn btn-primary btn-sm w-100"
+          className="btn btn-primary btn-sm"
           onClick={() => handleViewSenior(item.id)}
+          title="View"
         >
-          View
+          <i className="bi bi-eye"></i>
         </button>
         <button
-          className="btn btn-success btn-sm w-100"
+          className="btn btn-success btn-sm"
           onClick={() => handleApproveSenior(item.id)}
+          title="Approve"
         >
-          Approve
+          <i className="bi bi-check-circle"></i>
         </button>
         <button
-          className="btn btn-danger btn-sm w-100"
+          className="btn btn-danger btn-sm"
           onClick={() => handleDeclineSenior(item.id)}
+          title="Decline"
         >
-          Decline
+          <i className="bi bi-x-circle"></i>
         </button>
       </div>
     );

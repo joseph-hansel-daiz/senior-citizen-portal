@@ -123,48 +123,52 @@ export default function HelpdeskPage() {
   const renderActions = (row: TableRow) => {
     if (user?.role === "viewOnly") {
       return (
-        <div className="d-grid gap-2">
+        <div className="d-flex gap-1">
           <button
-            className="btn btn-primary btn-sm w-100"
+            className="btn btn-primary btn-sm"
             onClick={() => {
               const rec = records.find((r) => r.id === row.id) || null;
               setSelected(rec);
               setShowView(true);
             }}
+            title="View"
           >
-            View
+            <i className="bi bi-eye"></i>
           </button>
         </div>
       );
     }
 
     return (
-      <div className="d-grid gap-2">
+      <div className="d-flex gap-1">
         <button
-          className="btn btn-primary btn-sm w-100"
+          className="btn btn-primary btn-sm"
           onClick={() => {
             const rec = records.find((r) => r.id === row.id) || null;
             setSelected(rec);
             setShowView(true);
           }}
+          title="View"
         >
-          View
+          <i className="bi bi-eye"></i>
         </button>
         <button
-          className="btn btn-secondary btn-sm w-100"
+          className="btn btn-secondary btn-sm"
           onClick={() => {
             const rec = records.find((r) => r.id === row.id) || null;
             setSelected(rec);
             setShowEdit(true);
           }}
+          title="Edit"
         >
-          Edit
+          <i className="bi bi-pencil"></i>
         </button>
         <button
-          className="btn btn-danger btn-sm w-100"
+          className="btn btn-danger btn-sm"
           onClick={() => handleDelete(row.id)}
+          title="Delete"
         >
-          Delete
+          <i className="bi bi-trash"></i>
         </button>
       </div>
     );

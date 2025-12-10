@@ -156,42 +156,47 @@ export default function DashboardPage() {
   const renderActions = (item: SeniorCitizenTableRow) => {
     if (user?.role === "viewOnly") {
       return (
-        <div className="d-grid gap-2">
+        <div className="d-flex gap-1">
           <button
-            className="btn btn-primary btn-sm w-100"
+            className="btn btn-primary btn-sm"
             onClick={() => handleViewSenior(item.id)}
+            title="View"
           >
-            View
+            <i className="bi bi-eye"></i>
           </button>
         </div>
       );
     }
 
     return (
-      <div className="d-grid gap-2">
+      <div className="d-flex gap-1">
         <button
-          className="btn btn-primary btn-sm w-100"
+          className="btn btn-primary btn-sm"
           onClick={() => handleViewSenior(item.id)}
+          title="View"
         >
-          View
+          <i className="bi bi-eye"></i>
         </button>
         <button
-          className="btn btn-secondary btn-sm w-100"
+          className="btn btn-secondary btn-sm"
           onClick={() => handleEditSenior(item.id)}
+          title="Edit"
         >
-          Edit
+          <i className="bi bi-pencil"></i>
         </button>
         <button
-          className="btn btn-warning btn-sm w-100"
+          className="btn btn-warning btn-sm"
           onClick={() => handleMarkDeceased(item.id)}
+          title="Mark as Deceased"
         >
-          Mark as Deceased
+          <i className="bi bi-person-x"></i>
         </button>
         <button
-          className="btn btn-danger btn-sm w-100"
+          className="btn btn-danger btn-sm"
           onClick={() => handleDelete(item.id)}
+          title="Delete"
         >
-          Delete
+          <i className="bi bi-trash"></i>
         </button>
       </div>
     );
