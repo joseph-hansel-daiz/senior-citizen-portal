@@ -915,14 +915,13 @@ export default function SeniorForm({
             />
           </div>
           <div className="col-md-3">
-            <label className="form-label">Middle Name <span className="text-danger">*</span></label>
+            <label className="form-label">Middle Name</label>
             <input
               type="text"
               className="form-control"
               name="middleName"
               value={formData.middleName}
               onChange={handleChange}
-              required={!isReadOnly}
               readOnly={isReadOnly}
             />
           </div>
