@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useProfileOperations } from "@/hooks/useProfileOperations";
+import ChangePasswordModal from "@/components/ChangePasswordModal";
 
 type ProfileShape = {
   id?: number;
@@ -24,6 +25,7 @@ export default function ProfilePage() {
     error,
     success,
     updateProfile,
+    updatePassword,
     setError,
     setSuccess,
   } = useProfileOperations();
@@ -32,6 +34,10 @@ export default function ProfilePage() {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Password change modal state
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
 
 
@@ -98,6 +104,15 @@ export default function ProfilePage() {
     if (!result.success) {
       setError(result.error || "Failed to update profile");
     }
+  };
+
+  const handlePasswordSave = async (password: string) => {
+    setPasswordError(null);
+    const result = await updatePassword(password);
+    if (!result.success) {
+      setPasswordError(result.error || "Failed to update password");
+    }
+    return result;
   };
 
   return (
@@ -179,6 +194,14 @@ export default function ProfilePage() {
                     >
                       Reset
                     </button>
+
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary"
+                      onClick={() => setShowPasswordModal(true)}
+                    >
+                      Change Password
+                    </button>
                   </div>
 
                   {success && (
@@ -205,6 +228,16 @@ export default function ProfilePage() {
             </div>
           </div>
         )}
+
+        <ChangePasswordModal
+          show={showPasswordModal}
+          onHide={() => {
+            setShowPasswordModal(false);
+            setPasswordError(null);
+          }}
+          onSave={handlePasswordSave}
+          error={passwordError}
+        />
       </div>
     </section>
   );

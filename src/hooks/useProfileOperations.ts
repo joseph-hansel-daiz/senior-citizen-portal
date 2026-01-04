@@ -18,6 +18,7 @@ type UseProfileOperationsReturn = {
   success: string;
   fetchProfile: () => Promise<void>;
   updateProfile: (name: string, photo?: File | Blob | string | null) => Promise<{ success: boolean; error?: string }>;
+  updatePassword: (password: string) => Promise<{ success: boolean; error?: string }>;
   setError: (error: string) => void;
   setSuccess: (success: string) => void;
 };
@@ -153,6 +154,49 @@ export const useProfileOperations = (): UseProfileOperationsReturn => {
     }
   };
 
+  const updatePassword = async (password: string): Promise<{ success: boolean; error?: string }> => {
+    setSaving(true);
+    setError("");
+    setSuccess("");
+
+    if (!password.trim()) {
+      setError("Password cannot be empty");
+      setSaving(false);
+      return { success: false, error: "Password cannot be empty" };
+    }
+
+    try {
+      const res = await fetch("http://localhost:8000/users/me/password", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ password: password.trim() }),
+      });
+
+      const payload = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        const msg =
+          (payload && (payload.message || payload.error)) ||
+          `Password update failed (${res.status})`;
+        setError(msg);
+        return { success: false, error: msg };
+      }
+
+      setSuccess("Password updated successfully.");
+      return { success: true };
+    } catch (err: any) {
+      console.error("updatePassword error", err);
+      const errorMsg = err.message || "Network error while updating password";
+      setError(errorMsg);
+      return { success: false, error: errorMsg };
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return {
     profile,
     loading,
@@ -161,6 +205,7 @@ export const useProfileOperations = (): UseProfileOperationsReturn => {
     success,
     fetchProfile,
     updateProfile,
+    updatePassword,
     setError,
     setSuccess,
   };
