@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useAuthOperations } from "@/hooks/useAuthOperations";
 import { ROUTES } from "@/lib/constants";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Page() {
@@ -133,6 +134,18 @@ export default function Page() {
                       <button type="submit" className="btn btn-primary">
                         Login
                       </button>
+                    </div>
+                    <div className="text-center mt-3">
+                      <div className="mb-2">
+                        <Link href={ROUTES.FORGOT_PASSWORD} className="text-decoration-none">
+                          Forgot Password?
+                        </Link>
+                      </div>
+                      <div>
+                        <Link href={ROUTES.RESET_PASSWORD} className="text-decoration-none">
+                          Reset Password with Code
+                        </Link>
+                      </div>
                     </div>
                   </form>
                 </div>

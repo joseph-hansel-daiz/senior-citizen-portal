@@ -10,7 +10,10 @@ export const ROUTES = {
   SENIOR_VACCINES: "/senior-vaccines",
   SENIOR_ASSISTANCES: "/senior-assistances",
   GENERATE_BACKUP: "/generate-backup",
+  RESET_CODES: "/reset-codes",
 
   MY_ACCOUNT: "/my-account",
   LOGIN: "/login",
+  FORGOT_PASSWORD: "/forgot-password",
+  RESET_PASSWORD: "/reset-password",
 };

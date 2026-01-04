@@ -37,6 +37,11 @@ const ADMIN_ROUTES: NavRoute[] = [
     label: "Users",
     iconClassName: "bi bi-people",
   },
+  {
+    route: ROUTES.RESET_CODES,
+    label: "Reset Codes",
+    iconClassName: "bi bi-key",
+  },
 ];
 
 const OSCA_ROUTES: NavRoute[] = [
