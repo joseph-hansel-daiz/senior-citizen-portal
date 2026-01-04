@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { type AdminUserRow, type UserRole } from "@/hooks/users/useUsers";
+import SearchableSelect from "@/components/SearchableSelect";
 
 type Mode = "view" | "edit";
 
@@ -36,6 +37,16 @@ export default function UserModal({
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoInputKey, setPhotoInputKey] = useState<number>(0);
   const [loading, setLoading] = useState(false);
+
+  // Prepare barangay options for SearchableSelect
+  const barangayOptions = useMemo(() => {
+    return barangays
+      .filter((b) => b.id != null)
+      .map((b) => ({
+        value: b.id as number,
+        label: b.name,
+      }));
+  }, [barangays]);
 
   // Initialize form when user changes
   useEffect(() => {
@@ -238,24 +249,21 @@ export default function UserModal({
             </div>
             <div className="mb-3">
               <label className="form-label">Barangay</label>
-              <select
-                className="form-select"
-                value={formUser.barangayId === null ? "" : String(formUser.barangayId)}
-                onChange={(e) =>
+              <SearchableSelect
+                options={[
+                  { value: "", label: "— None —" },
+                  ...barangayOptions,
+                ]}
+                value={formUser.barangayId === null ? "" : formUser.barangayId}
+                onChange={(value) =>
                   setFormUser({
                     ...formUser,
-                    barangayId: e.target.value ? Number(e.target.value) : null,
+                    barangayId: value ? Number(value) : null,
                   })
                 }
+                placeholder="— None —"
                 disabled={isView || formUser.role !== "barangay"}
-              >
-                <option value="">— None —</option>
-                {barangays.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
             {error && (
               <div className="alert alert-danger" role="alert">

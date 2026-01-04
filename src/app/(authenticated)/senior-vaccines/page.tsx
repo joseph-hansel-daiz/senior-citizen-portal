@@ -5,6 +5,7 @@ import { useOptions } from "@/hooks/options/useOptions";
 import { deleteSeniorVaccine, upsertSeniorVaccine, useSeniorVaccines } from "@/hooks/seniorVaccines/useSeniorVaccines";
 import { useAuth } from "@/context/AuthContext";
 import DataTable from "@/components/DataTable";
+import SearchableSelect from "@/components/SearchableSelect";
 
 export default function SeniorVaccinesPage() {
   const { token, user } = useAuth();
@@ -41,6 +42,32 @@ export default function SeniorVaccinesPage() {
   }, [seniors]);
 
   const selectedSenior = useMemo(() => activeSeniors.find((s) => s.id === selectedSeniorId) || null, [activeSeniors, selectedSeniorId]);
+
+  // Prepare options for SearchableSelect
+  const seniorOptions = useMemo(() => {
+    return activeSeniors
+      .filter((s) => s.id != null)
+      .map((s) => {
+        const info = s.IdentifyingInformation;
+        const name = info
+          ? `${info.firstname} ${info.middlename || ""} ${info.lastname}`.replace(/\s+/g, " ").trim()
+          : `Senior #${s.id}`;
+        return {
+          value: s.id as number,
+          label: name,
+        };
+      });
+  }, [activeSeniors]);
+
+  // Prepare vaccine options for SearchableSelect
+  const vaccineOptions = useMemo(() => {
+    return vaccines
+      .filter((v) => v.id != null)
+      .map((v) => ({
+        value: v.id as number,
+        label: v.name,
+      }));
+  }, [vaccines]);
 
   const [showModal, setShowModal] = useState(false);
   const [modalRecordId, setModalRecordId] = useState<number | null>(null);
@@ -121,22 +148,12 @@ export default function SeniorVaccinesPage() {
         <div className="row g-3 align-items-end">
           <div className="col-md-6">
             <label className="form-label">Select Senior</label>
-            <select
-              className="form-select"
-              value={selectedSeniorId ?? ""}
-              onChange={(e) => setSelectedSeniorId(e.target.value ? Number(e.target.value) : null)}
-            >
-              <option value="">-- Choose Senior --</option>
-              {activeSeniors.map((s) => {
-                const info = s.IdentifyingInformation;
-                const name = info
-                  ? `${info.firstname} ${info.middlename || ""} ${info.lastname}`.replace(/\s+/g, " ").trim()
-                  : `Senior #${s.id}`;
-                return (
-                  <option key={s.id} value={s.id}>{name}</option>
-                );
-              })}
-            </select>
+            <SearchableSelect
+              options={seniorOptions}
+              value={selectedSeniorId}
+              onChange={(value) => setSelectedSeniorId(value ? Number(value) : null)}
+              placeholder="-- Choose Senior --"
+            />
           </div>
           <div className="col-md-6 text-end">
             {user?.role !== "viewOnly" && (
@@ -178,17 +195,13 @@ export default function SeniorVaccinesPage() {
                   {actionError && <div className="alert alert-danger">{actionError}</div>}
                   <div className="mb-3">
                     <label className="form-label">Vaccine</label>
-                    <select
-                      className="form-select"
-                      value={modalVaccineId ?? ""}
-                      onChange={(e) => setModalVaccineId(e.target.value ? Number(e.target.value) : null)}
+                    <SearchableSelect
+                      options={vaccineOptions}
+                      value={modalVaccineId}
+                      onChange={(value) => setModalVaccineId(value ? Number(value) : null)}
+                      placeholder="-- Choose Vaccine --"
                       disabled={modalRecordId != null}
-                    >
-                      <option value="">-- Choose Vaccine --</option>
-                      {vaccines.map((v) => (
-                        <option key={v.id} value={v.id}>{v.name}</option>
-                      ))}
-                    </select>
+                    />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Vaccine Date</label>

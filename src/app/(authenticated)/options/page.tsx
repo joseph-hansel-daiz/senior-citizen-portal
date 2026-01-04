@@ -9,6 +9,7 @@ import {
   useOptions,
 } from "@/hooks/options/useOptions";
 import { useAuth } from "@/context/AuthContext";
+import SearchableSelect from "@/components/SearchableSelect";
 
 type OptionKey =
   | "area-of-difficulties"
@@ -73,6 +74,14 @@ export default function OptionsPage() {
     { label: "Name", accessor: "name" },
   ];
 
+  // Prepare option type options for SearchableSelect
+  const optionTypeOptions = useMemo(() => {
+    return OPTIONS.map((o) => ({
+      value: o.key,
+      label: o.label,
+    }));
+  }, []);
+
   const onCreate = async () => {
     setActionError("");
     try {
@@ -127,21 +136,18 @@ export default function OptionsPage() {
         <div className="row g-3">
           <div className="col-12 col-md-6">
             <label className="form-label">Select Option Type</label>
-            <select
-              className="form-select"
+            <SearchableSelect
+              options={optionTypeOptions}
               value={selectedKey}
-              onChange={(e) => {
-                setSelectedKey(e.target.value as OptionKey);
+              onChange={(value) => {
+                setSelectedKey(value as OptionKey);
                 setActionError("");
                 setNewValue("");
                 setEditId(null);
                 setEditValue("");
               }}
-            >
-              {OPTIONS.map((o) => (
-                <option key={o.key} value={o.key}>{o.label}</option>
-              ))}
-            </select>
+              placeholder="Select Option Type"
+            />
           </div>
 
           <div className="col-12 col-md-6">

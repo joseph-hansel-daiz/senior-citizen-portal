@@ -5,6 +5,7 @@ import { useOptions } from "@/hooks/options/useOptions";
 import { deleteSeniorAssistance, upsertSeniorAssistance, useSeniorAssistances } from "@/hooks/seniorAssistances/useSeniorAssistances";
 import { useAuth } from "@/context/AuthContext";
 import DataTable from "@/components/DataTable";
+import SearchableSelect from "@/components/SearchableSelect";
 
 export default function SeniorAssistancesPage() {
   const { token, user } = useAuth();
@@ -34,6 +35,32 @@ export default function SeniorAssistancesPage() {
   }, [seniors]);
 
   const selectedSenior = useMemo(() => activeSeniors.find((s) => s.id === selectedSeniorId) || null, [activeSeniors, selectedSeniorId]);
+
+  // Prepare options for SearchableSelect
+  const seniorOptions = useMemo(() => {
+    return activeSeniors
+      .filter((s) => s.id != null)
+      .map((s) => {
+        const info = s.IdentifyingInformation;
+        const name = info
+          ? `${info.firstname} ${info.middlename || ""} ${info.lastname}`.replace(/\s+/g, " ").trim()
+          : `Senior #${s.id}`;
+        return {
+          value: s.id as number,
+          label: name,
+        };
+      });
+  }, [activeSeniors]);
+
+  // Prepare assistance options for SearchableSelect
+  const assistanceOptions = useMemo(() => {
+    return assistances
+      .filter((a) => a.id != null)
+      .map((a) => ({
+        value: a.id as number,
+        label: a.name,
+      }));
+  }, [assistances]);
 
   const [showModal, setShowModal] = useState(false);
   const [modalRecordId, setModalRecordId] = useState<number | null>(null);
@@ -113,22 +140,12 @@ export default function SeniorAssistancesPage() {
         <div className="row g-3 align-items-end">
           <div className="col-md-6">
             <label className="form-label">Select Senior</label>
-            <select
-              className="form-select"
-              value={selectedSeniorId ?? ""}
-              onChange={(e) => setSelectedSeniorId(e.target.value ? Number(e.target.value) : null)}
-            >
-              <option value="">-- Choose Senior --</option>
-              {activeSeniors.map((s) => {
-                const info = s.IdentifyingInformation;
-                const name = info
-                  ? `${info.firstname} ${info.middlename || ""} ${info.lastname}`.replace(/\s+/g, " ").trim()
-                  : `Senior #${s.id}`;
-                return (
-                  <option key={s.id} value={s.id}>{name}</option>
-                );
-              })}
-            </select>
+            <SearchableSelect
+              options={seniorOptions}
+              value={selectedSeniorId}
+              onChange={(value) => setSelectedSeniorId(value ? Number(value) : null)}
+              placeholder="-- Choose Senior --"
+            />
           </div>
           <div className="col-md-6 text-end">
             {user?.role !== "viewOnly" && (
@@ -170,17 +187,13 @@ export default function SeniorAssistancesPage() {
                   {actionError && <div className="alert alert-danger">{actionError}</div>}
                   <div className="mb-3">
                     <label className="form-label">Assistance</label>
-                    <select
-                      className="form-select"
-                      value={modalAssistanceId ?? ""}
-                      onChange={(e) => setModalAssistanceId(e.target.value ? Number(e.target.value) : null)}
+                    <SearchableSelect
+                      options={assistanceOptions}
+                      value={modalAssistanceId}
+                      onChange={(value) => setModalAssistanceId(value ? Number(value) : null)}
+                      placeholder="-- Choose Assistance --"
                       disabled={modalRecordId != null}
-                    >
-                      <option value="">-- Choose Assistance --</option>
-                      {assistances.map((v) => (
-                        <option key={v.id} value={v.id}>{v.name}</option>
-                      ))}
-                    </select>
+                    />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Assistance Date</label>

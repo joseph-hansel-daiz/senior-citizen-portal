@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSeniors } from "@/hooks/useSeniors";
 import { useHelpDeskRecordCategories } from "@/hooks/options";
+import SearchableSelect from "@/components/SearchableSelect";
 
 type Mode = "view" | "create" | "edit";
 
@@ -57,6 +58,22 @@ export default function HelpdeskRecordModal({ show, mode, onHide, initialData, o
     { seniorId: "", details: "" }
   );
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
+
+  // Prepare senior options for SearchableSelect
+  const seniorOptions = useMemo(() => {
+    return seniors
+      .filter((s) => s.id != null)
+      .map((s) => {
+        const info = s.IdentifyingInformation;
+        const label = info
+          ? `${info.firstname} ${info.middlename || ""} ${info.lastname}`.replace(/\s+/g, " ").trim()
+          : `OSCA #${s.id}`;
+        return {
+          value: String(s.id),
+          label: label,
+        };
+      });
+  }, [seniors]);
 
   useEffect(() => {
     if (initialData) {
@@ -131,25 +148,13 @@ export default function HelpdeskRecordModal({ show, mode, onHide, initialData, o
               {isCreate && (
                 <div className="mb-3">
                   <label className="form-label">Senior</label>
-                  <select
-                    className="form-select"
+                  <SearchableSelect
+                    options={seniorOptions}
                     value={form.seniorId}
-                    onChange={(e) => setForm({ ...form, seniorId: e.target.value })}
+                    onChange={(value) => setForm({ ...form, seniorId: value as string })}
+                    placeholder="Select senior..."
                     disabled={isView}
-                  >
-                    <option value="">Select senior...</option>
-                    {seniors.map((s) => {
-                      const info = s.IdentifyingInformation;
-                      const label = info
-                        ? `${info.firstname} ${info.middlename || ""} ${info.lastname}`.replace(/\s+/g, " ").trim()
-                        : `OSCA #${s.id}`;
-                      return (
-                        <option key={s.id} value={String(s.id)}>
-                          {label}
-                        </option>
-                      );
-                    })}
-                  </select>
+                  />
                 </div>
               )}
 

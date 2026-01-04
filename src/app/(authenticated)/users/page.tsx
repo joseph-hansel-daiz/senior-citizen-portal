@@ -7,6 +7,7 @@ import PasswordModal from "@/components/PasswordModal";
 import { useAuth } from "@/context/AuthContext";
 import { createUser, deleteUser, updateUser, updateUserPassword, useUsers, type AdminUserRow, type UserRole } from "@/hooks/users/useUsers";
 import { useOptions } from "@/hooks/options/useOptions";
+import SearchableSelect from "@/components/SearchableSelect";
 
 const ROLES: UserRole[] = ["admin", "barangay", "osca", "viewOnly"];
 
@@ -23,6 +24,16 @@ export default function UsersPage() {
     { label: "Role", accessor: "role" },
     { label: "Barangay ID", accessor: "barangayId" },
   ];
+
+  // Prepare barangay options for SearchableSelect
+  const barangayOptions = useMemo(() => {
+    return barangays
+      .filter((b) => b.id != null)
+      .map((b) => ({
+        value: b.id as number,
+        label: b.name,
+      }));
+  }, [barangays]);
 
   const [actionError, setActionError] = useState("");
   const [passwordError, setPasswordError] = useState<Error | null>(null);
@@ -234,17 +245,16 @@ export default function UsersPage() {
           </div>
           <div className="col-12 col-md-6">
             <label className="form-label">Barangay</label>
-            <select
-              className="form-select"
-              value={createForm.barangayId === null ? "" : String(createForm.barangayId)}
-              onChange={(e) => setCreateForm({ ...createForm, barangayId: e.target.value ? Number(e.target.value) : null })}
+            <SearchableSelect
+              options={[
+                { value: "", label: "— None —" },
+                ...barangayOptions,
+              ]}
+              value={createForm.barangayId === null ? "" : createForm.barangayId}
+              onChange={(value) => setCreateForm({ ...createForm, barangayId: value ? Number(value) : null })}
+              placeholder="— None —"
               disabled={createForm.role !== "barangay"}
-            >
-              <option value="">— None —</option>
-              {barangays.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
-            </select>
+            />
           </div>
 
           <div className="col-12 col-md-6">

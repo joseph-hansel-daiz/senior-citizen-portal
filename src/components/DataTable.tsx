@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useBarangays } from "@/hooks/options";
 import { useAuth } from "@/context/AuthContext";
+import SearchableSelect from "@/components/SearchableSelect";
 
 export interface Column<T> {
   label: string;
@@ -49,6 +50,14 @@ export default function DataTable<T extends { id: number | string }>({
     const col = columns.find((c) => String(c.accessor) === "barangay");
     return col?.accessor as keyof T | undefined;
   }, [columns]);
+
+  // Prepare barangay options for SearchableSelect
+  const barangaySelectOptions = useMemo(() => {
+    return barangayOptions.map((opt) => ({
+      value: opt.name,
+      label: opt.name,
+    }));
+  }, [barangayOptions]);
 
   const filteredData = useMemo(() => {
     let next = data;
@@ -192,22 +201,20 @@ export default function DataTable<T extends { id: number | string }>({
           </div>
           <div className="col-12 col-md-6 d-flex justify-content-md-end gap-2">
             {hasBarangayColumn && user?.role !== "barangay" && (
-              <select
-                className="form-select"
-                style={{ maxWidth: "220px", width: "100%" }}
-                value={selectedBarangay}
-                onChange={(e) => {
-                  setSelectedBarangay(e.target.value);
-                  setCurrentPage(1);
-                }}
-              >
-                <option value="">All Barangays</option>
-                {barangayOptions.map((opt) => (
-                  <option key={opt.id} value={opt.name}>
-                    {opt.name}
-                  </option>
-                ))}
-              </select>
+              <div style={{ maxWidth: "220px", width: "100%" }}>
+                <SearchableSelect
+                  options={[
+                    { value: "", label: "All Barangays" },
+                    ...barangaySelectOptions,
+                  ]}
+                  value={selectedBarangay}
+                  onChange={(value) => {
+                    setSelectedBarangay(value as string);
+                    setCurrentPage(1);
+                  }}
+                  placeholder="All Barangays"
+                />
+              </div>
             )}
             {searchableField && (
               <input

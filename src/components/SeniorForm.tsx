@@ -25,6 +25,7 @@ import {
   SeniorCitizenCreateInput,
   SeniorCitizenUpdateInput,
 } from "@/types/senior-citizen.types";
+import SearchableSelect from "@/components/SearchableSelect";
 
 // Form-specific interface for the local form state
 export interface SeniorCitizenForm {
@@ -79,7 +80,7 @@ export interface SeniorCitizenForm {
   // Education Profile fields
   sharedSkills: string;
 }
-import { JSX, useState, useEffect } from "react";
+import { JSX, useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 export interface Member {
@@ -333,6 +334,17 @@ export default function SeniorForm({
   const { data: areaOfDifficulties } = useAreaOfDifficulties();
   const { data: hearingConditions } = useAuralConcerns();
   const { data: barangays } = useBarangays();
+  
+  // Prepare barangay options for SearchableSelect
+  const barangayOptions = useMemo(() => {
+    return barangays
+      .filter((b) => b.name != null)
+      .map((b) => ({
+        value: b.name,
+        label: b.name,
+      }));
+  }, [barangays]);
+  
   const { data: cohabitants } = useCohabitants();
   const { data: comunityInvolvements } = useCommunityInvolvements();
   const { data: dentalConcerns } = useDentalConcerns();
@@ -973,23 +985,22 @@ export default function SeniorForm({
           </div>
           <div className="col-md-3">
             <label className="form-label">Barangay <span className="text-danger">*</span></label>
-            <select
-              className="form-select"
-              name="barangay"
+            <SearchableSelect
+              options={[
+                { value: "", label: "Select Barangay" },
+                ...barangayOptions,
+              ]}
               value={formData.barangay}
-              onChange={handleChange}
-              required={!isReadOnly}
-              disabled={
-                isReadOnly || (mode === "create" && !!user?.barangayId)
-              }
-            >
-              <option value="">Select Barangay</option>
-              {barangays.map((barangay) => (
-                <option key={barangay.id} value={barangay.name}>
-                  {barangay.name}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => {
+                if (!isReadOnly) {
+                  handleChange({
+                    target: { name: "barangay", value: value as string },
+                  });
+                }
+              }}
+              placeholder="Select Barangay"
+              disabled={isReadOnly || (mode === "create" && !!user?.barangayId)}
+            />
           </div>
           <div className="col-12 mt-2">
             <label className="form-label">Street (Zone/Purok/Sitio) <span className="text-danger">*</span></label>
