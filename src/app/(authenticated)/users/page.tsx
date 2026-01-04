@@ -3,9 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import DataTable from "@/components/DataTable";
 import UserModal from "@/components/UserModal";
-import PasswordModal from "@/components/PasswordModal";
 import { useAuth } from "@/context/AuthContext";
-import { createUser, deleteUser, updateUser, updateUserPassword, useUsers, type AdminUserRow, type UserRole } from "@/hooks/users/useUsers";
+import { createUser, deleteUser, updateUser, useUsers, type AdminUserRow, type UserRole } from "@/hooks/users/useUsers";
 import { useOptions } from "@/hooks/options/useOptions";
 import SearchableSelect from "@/components/SearchableSelect";
 
@@ -36,7 +35,6 @@ export default function UsersPage() {
   }, [barangays]);
 
   const [actionError, setActionError] = useState("");
-  const [passwordError, setPasswordError] = useState<Error | null>(null);
   const [userEditError, setUserEditError] = useState<Error | null>(null);
   const [createForm, setCreateForm] = useState({
     username: "",
@@ -51,7 +49,6 @@ export default function UsersPage() {
 
   const [modalUser, setModalUser] = useState<AdminUserRow | null>(null);
   const [modalMode, setModalMode] = useState<"view" | "edit">("view");
-  const [passwordUser, setPasswordUser] = useState<AdminUserRow | null>(null);
 
   // Helper function to convert Buffer photo to data URL (from SeniorForm.tsx)
   const resolvePhotoToUrl = async (photo: any): Promise<string | null> => {
@@ -170,23 +167,10 @@ export default function UsersPage() {
     }
   };
 
-  const onSavePassword = async (userId: number, password: string) => {
-    setPasswordError(null);
-    try {
-      await updateUserPassword(userId, password, token || undefined);
-      setPasswordUser(null);
-    } catch (err: any) {
-      const error = new Error(err.message || "Failed to update password");
-      setPasswordError(error);
-      throw error; // Re-throw so modal can handle it
-    }
-  };
-
   const renderActions = (row: AdminUserRow) => (
     <div className="d-grid gap-2">
       <button className="btn btn-info btn-sm w-100" onClick={() => { setModalUser(row); setModalMode("view"); }}>View</button>
       <button className="btn btn-secondary btn-sm w-100" onClick={() => { setModalUser(row); setModalMode("edit"); }}>Edit</button>
-      <button className="btn btn-warning btn-sm w-100" onClick={() => setPasswordUser(row)}>Set Password</button>
       <button className="btn btn-danger btn-sm w-100" onClick={() => onDelete(row.id)}>Delete</button>
     </div>
   );
@@ -314,17 +298,6 @@ export default function UsersPage() {
         onSave={modalMode === "edit" ? onSaveEdit : undefined}
         resolvePhotoToUrl={resolvePhotoToUrl}
         error={userEditError}
-      />
-
-      <PasswordModal
-        show={!!passwordUser}
-        user={passwordUser}
-        onHide={() => {
-          setPasswordUser(null);
-          setPasswordError(null);
-        }}
-        onSave={onSavePassword}
-        error={passwordError}
       />
     </section>
   );
