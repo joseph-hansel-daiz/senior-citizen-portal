@@ -10,6 +10,7 @@ import { useSeniors } from "@/hooks/useSeniors";
 import { useUpdateSenior } from "@/hooks/useUpdateSenior";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import * as XLSX from "xlsx";
 
 interface SeniorCitizenTableRow {
   id: number;
@@ -153,6 +154,35 @@ export default function DashboardPage() {
     setSelectedSeniorId(null);
   };
 
+  const handleExport = (
+    filteredData: SeniorCitizenTableRow[],
+    columns: Column<SeniorCitizenTableRow>[]
+  ) => {
+    // Filter out the photo column from export
+    const exportColumns = columns.filter((col) => col.accessor !== "photo");
+    
+    // Prepare data for export
+    const exportData = filteredData.map((row) => {
+      const rowData: Record<string, any> = {};
+      exportColumns.forEach((col) => {
+        rowData[col.label] = row[col.accessor];
+      });
+      return rowData;
+    });
+
+    // Create workbook and worksheet
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Senior Citizens");
+
+    // Generate filename with current date
+    const date = new Date().toISOString().split("T")[0];
+    const filename = `senior-citizens-${date}.xlsx`;
+
+    // Write file and trigger download
+    XLSX.writeFile(wb, filename);
+  };
+
   const renderActions = (item: SeniorCitizenTableRow) => {
     if (user?.role === "viewOnly") {
       return (
@@ -237,6 +267,7 @@ export default function DashboardPage() {
         columns={columns}
         searchableField="fullName"
         renderActions={renderActions}
+        onExport={handleExport}
       />
 
       {/* View Modal - Now loads full data by seniorId */}

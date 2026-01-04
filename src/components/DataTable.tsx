@@ -19,6 +19,7 @@ interface DataTableProps<T extends { id: number | string }> {
   searchableField?: keyof T;
   imageAccessor?: keyof T; // Optional accessor for image column
   renderActions?: (item: T) => React.ReactNode;
+  onExport?: (filteredData: T[], columns: Column<T>[]) => void;
 }
 
 export default function DataTable<T extends { id: number | string }>({
@@ -30,6 +31,7 @@ export default function DataTable<T extends { id: number | string }>({
   searchableField,
   imageAccessor,
   renderActions,
+  onExport,
 }: DataTableProps<T>) {
   const { user } = useAuth();
   const { data: barangayOptions } = useBarangays();
@@ -228,6 +230,15 @@ export default function DataTable<T extends { id: number | string }>({
                   setCurrentPage(1);
                 }}
               />
+            )}
+            {onExport && (
+              <button
+                className="btn btn-success btn-sm"
+                onClick={() => onExport(filteredData, columns)}
+                title="Export to Excel"
+              >
+                <i className="bi bi-download"></i> Export
+              </button>
             )}
           </div>
         </div>
