@@ -136,7 +136,7 @@ export default function SearchableSelect({
       </div>
       {isOpen && !disabled && (
         <div
-          className="position-absolute w-100 bg-white border rounded mt-1 shadow-lg"
+          className="position-absolute w-100 bg-body border rounded mt-1 shadow-lg"
           style={{
             maxHeight: "300px",
             overflowY: "auto",
@@ -160,12 +160,12 @@ export default function SearchableSelect({
                 }}
                 onMouseEnter={(e) => {
                   if (option.value !== value) {
-                    e.currentTarget.classList.add("bg-light");
+                    e.currentTarget.classList.add("bg-body-secondary");
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (option.value !== value) {
-                    e.currentTarget.classList.remove("bg-light");
+                    e.currentTarget.classList.remove("bg-body-secondary");
                   }
                 }}
               >
