@@ -2271,7 +2271,12 @@ export default function SeniorForm({
   };
 
   const accordionItem = (formSection: () => JSX.Element, header: string) => {
-    const accordionName = `panelsStayOpen-collapse-${formSection.name}`;
+    // Generate a unique ID from the header text
+    const accordionName = `panelsStayOpen-collapse-${header
+      .replace(/[^a-zA-Z0-9]/g, "-")
+      .toLowerCase()
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "")}`;
     return (
       <div className="accordion-item">
         <h2 className="accordion-header">
