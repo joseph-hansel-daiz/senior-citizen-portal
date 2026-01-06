@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { SeniorCitizen } from "@/types/senior-citizen.types";
 import { useAuth } from "@/context/AuthContext";
+import { getApiUrl } from "@/lib/api";
 
 export function useUnmarkDeceased() {
   const { token } = useAuth();
@@ -12,7 +13,7 @@ export function useUnmarkDeceased() {
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:8000/seniors/${id}/unmark-deceased`, {
+      const response = await fetch(getApiUrl(`seniors/${id}/unmark-deceased`), {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

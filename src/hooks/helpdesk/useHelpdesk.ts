@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { getApiUrl } from "@/lib/api";
 
 export interface HelpdeskRecord {
   id: number;
@@ -128,7 +129,7 @@ export function useHelpdeskRecords() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("http://localhost:8000/helpdesk", {
+      const res = await fetch(getApiUrl("helpdesk"), {
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -156,7 +157,7 @@ export async function createHelpdeskRecord(payload: {
   helpDeskRecordCategoryIds: number[];
   details: string;
 }, token?: string) {
-  const res = await fetch("http://localhost:8000/helpdesk", {
+  const res = await fetch(getApiUrl("helpdesk"), {
     method: "POST",
     headers: { 
       "Content-Type": "application/json",
@@ -174,7 +175,7 @@ export async function updateHelpdeskRecord(id: number, payload: {
   helpDeskRecordCategoryIds?: number[];
   details?: string;
 }, token?: string) {
-  const res = await fetch(`http://localhost:8000/helpdesk/${id}`, {
+  const res = await fetch(getApiUrl(`helpdesk/${id}`), {
     method: "PUT",
     headers: { 
       "Content-Type": "application/json",
@@ -189,7 +190,7 @@ export async function updateHelpdeskRecord(id: number, payload: {
 }
 
 export async function deleteHelpdeskRecord(id: number, token?: string) {
-  const res = await fetch(`http://localhost:8000/helpdesk/${id}`, {
+  const res = await fetch(getApiUrl(`helpdesk/${id}`), {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",

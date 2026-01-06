@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { SeniorCitizen } from "@/types/senior-citizen.types";
 import { useAuth } from "@/context/AuthContext";
+import { getApiUrl } from "@/lib/api";
 
 interface DeclineSeniorParams {
   note?: string;
@@ -19,7 +20,7 @@ export function useDeclineSenior() {
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:8000/seniors/${id}/decline`, {
+      const response = await fetch(getApiUrl(`seniors/${id}/decline`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

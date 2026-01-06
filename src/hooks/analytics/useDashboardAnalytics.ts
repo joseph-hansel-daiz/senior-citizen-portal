@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { getApiUrl } from "@/lib/api";
 
 export type GenderDistributionItem = { sexAtBirth: string; count: number };
 export type AgeDemographicsItem = { bucket: string; count: number };
@@ -34,17 +35,17 @@ export function useDashboardAnalytics() {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         };
         const basePromises = [
-          fetch("http://localhost:8000/analytics/gender-distribution", { headers }),
-          fetch("http://localhost:8000/analytics/age-demographics", { headers }),
-          fetch("http://localhost:8000/analytics/assistance", { headers }),
-          fetch("http://localhost:8000/analytics/vaccines", { headers }),
-          fetch("http://localhost:8000/analytics/dead-alive-count", { headers }),
+          fetch(getApiUrl("analytics/gender-distribution"), { headers }),
+          fetch(getApiUrl("analytics/age-demographics"), { headers }),
+          fetch(getApiUrl("analytics/assistance"), { headers }),
+          fetch(getApiUrl("analytics/vaccines"), { headers }),
+          fetch(getApiUrl("analytics/dead-alive-count"), { headers }),
         ];
         
         const adminPromises = isAdmin
           ? [
-              fetch("http://localhost:8000/analytics/users-per-role", { headers }),
-              fetch("http://localhost:8000/analytics/users-per-barangay", { headers }),
+              fetch(getApiUrl("analytics/users-per-role"), { headers }),
+              fetch(getApiUrl("analytics/users-per-barangay"), { headers }),
             ]
           : [];
 

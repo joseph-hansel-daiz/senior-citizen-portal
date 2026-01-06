@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { createUser, deleteUser, updateUser, useUsers, type AdminUserRow, type UserRole } from "@/hooks/users/useUsers";
 import { useOptions } from "@/hooks/options/useOptions";
 import SearchableSelect from "@/components/SearchableSelect";
+import { getApiUrl } from "@/lib/api";
 
 const ROLES: UserRole[] = ["admin", "barangay", "osca", "viewOnly"];
 
@@ -63,7 +64,7 @@ export default function UsersPage() {
         return photo;
       } else {
         // Assume it's a file path, construct URL
-        return `http://localhost:8000/${photo}`;
+        return getApiUrl(photo);
       }
     }
 

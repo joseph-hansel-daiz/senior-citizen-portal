@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { SeniorCitizen } from "@/types/senior-citizen.types";
 import { useAuth } from "@/context/AuthContext";
+import { getApiUrl } from "@/lib/api";
 
 export function useSeniors() {
   const { token } = useAuth();
@@ -12,7 +13,7 @@ export function useSeniors() {
     let active = true;
     const fetchData = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/seniors`, {
+        const res = await fetch(getApiUrl("seniors"), {
           headers: {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {}),

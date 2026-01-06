@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { SeniorCitizen } from "@/types/senior-citizen.types";
 import { useAuth } from "@/context/AuthContext";
+import { getApiUrl } from "@/lib/api";
 
 interface ApproveSeniorParams {
   oscaId: string;
@@ -20,7 +21,7 @@ export function useApproveSenior() {
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:8000/seniors/${id}/approve`, {
+      const response = await fetch(getApiUrl(`seniors/${id}/approve`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

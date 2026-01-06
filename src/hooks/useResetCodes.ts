@@ -1,5 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
+import { getApiUrl } from "@/lib/api";
 
 export interface ResetCodeRow {
   id: number;
@@ -20,7 +21,7 @@ export function useResetCodes() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("http://localhost:8000/auth/reset-codes", {
+      const res = await fetch(getApiUrl("auth/reset-codes"), {
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),

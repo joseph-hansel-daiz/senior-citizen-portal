@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useProfileOperations } from "@/hooks/useProfileOperations";
 import ChangePasswordModal from "@/components/ChangePasswordModal";
+import { getApiUrl } from "@/lib/api";
 
 type ProfileShape = {
   id?: number;
@@ -73,7 +74,7 @@ export default function ProfilePage() {
     if (!photo) return null;
     if (typeof photo === "string") {
       if (photo.startsWith("http") || photo.startsWith("data:")) return photo;
-      return `http://localhost:8000/${photo}`;
+      return getApiUrl(photo);
     }
     if (photo && typeof photo === "object" && (photo.type === "Buffer" || Array.isArray(photo.data))) {
       try {

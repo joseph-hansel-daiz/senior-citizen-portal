@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { SeniorCitizen } from "@/types/senior-citizen.types";
 import { useAuth } from "@/context/AuthContext";
+import { getApiUrl } from "@/lib/api";
 
 export function useSenior(seniorId: number | null) {
   const { token } = useAuth();
@@ -21,7 +22,7 @@ export function useSenior(seniorId: number | null) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://localhost:8000/seniors/${seniorId}`, {
+        const res = await fetch(getApiUrl(`seniors/${seniorId}`), {
           headers: {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -47,7 +48,7 @@ export function useSenior(seniorId: number | null) {
     if (seniorId) {
       setLoading(true);
       setError(null);
-      fetch(`http://localhost:8000/seniors/${seniorId}`, {
+      fetch(getApiUrl(`seniors/${seniorId}`), {
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),

@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useBarangays } from "@/hooks/options";
 import { useAuth } from "@/context/AuthContext";
 import SearchableSelect from "@/components/SearchableSelect";
+import { getApiUrl } from "@/lib/api";
 
 export interface Column<T> {
   label: string;
@@ -103,7 +104,7 @@ export default function DataTable<T extends { id: number | string }>({
         return photo;
       } else {
         // Assume it's a file path, construct URL
-        return `http://localhost:8000/${photo}`;
+        return getApiUrl(photo);
       }
     }
 

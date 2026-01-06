@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { getApiUrl } from "@/lib/api";
 
 export function useDeleteSenior() {
   const { token } = useAuth();
@@ -11,7 +12,7 @@ export function useDeleteSenior() {
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:8000/seniors/${id}`, {
+      const response = await fetch(getApiUrl(`seniors/${id}`), {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

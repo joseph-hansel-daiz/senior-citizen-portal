@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { SeniorCitizen } from "@/types/senior-citizen.types";
 import { useAuth } from "@/context/AuthContext";
+import { getApiUrl } from "@/lib/api";
 
 interface MarkDeceasedParams {
   dateOfDeath: string;
@@ -26,7 +27,7 @@ export function useMarkDeceased() {
         form.append("deathCertificate", params.deathCertificate);
       }
 
-      const response = await fetch(`http://localhost:8000/seniors/${id}/mark-deceased`, {
+      const response = await fetch(getApiUrl(`seniors/${id}/mark-deceased`), {
         method: "POST",
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),

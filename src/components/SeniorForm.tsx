@@ -26,6 +26,7 @@ import {
   SeniorCitizenUpdateInput,
 } from "@/types/senior-citizen.types";
 import SearchableSelect from "@/components/SearchableSelect";
+import { getApiUrl } from "@/lib/api";
 
 // Form-specific interface for the local form state
 export interface SeniorCitizenForm {
@@ -540,7 +541,7 @@ export default function SeniorForm({
         return photo;
       } else {
         // Assume it's a file path, construct URL
-        return `http://localhost:8000/${photo}`;
+        return getApiUrl(photo);
       }
     }
 

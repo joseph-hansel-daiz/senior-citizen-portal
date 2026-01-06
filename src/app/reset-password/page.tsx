@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constants";
+import { getApiUrl } from "@/lib/api";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export default function ResetPasswordPage() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/auth/reset-password", {
+      const res = await fetch(getApiUrl("auth/reset-password"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

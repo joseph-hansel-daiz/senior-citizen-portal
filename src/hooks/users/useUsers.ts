@@ -1,5 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
+import { getApiUrl } from "@/lib/api";
 
 export type UserRole = "admin" | "barangay" | "osca" | "viewOnly";
 
@@ -21,7 +22,7 @@ export function useUsers() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("http://localhost:8000/users", {
+      const res = await fetch(getApiUrl("users"), {
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -67,7 +68,7 @@ export async function createUser(payload: {
     const { photo, ...otherData } = payload;
     formData.append('data', JSON.stringify(otherData));
     
-    res = await fetch("http://localhost:8000/users/register", {
+    res = await fetch(getApiUrl("users/register"), {
       method: "POST",
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -76,7 +77,7 @@ export async function createUser(payload: {
     });
   } else {
     // Use JSON for regular data
-    res = await fetch("http://localhost:8000/users/register", {
+    res = await fetch(getApiUrl("users/register"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -114,7 +115,7 @@ export async function updateUser(userId: number, payload: {
     const { photo, ...otherData } = payload;
     formData.append('data', JSON.stringify(otherData));
     
-    res = await fetch(`http://localhost:8000/users/${userId}`, {
+    res = await fetch(getApiUrl(`users/${userId}`), {
       method: "PUT",
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -123,7 +124,7 @@ export async function updateUser(userId: number, payload: {
     });
   } else {
     // Use JSON for regular data
-    res = await fetch(`http://localhost:8000/users/${userId}`, {
+    res = await fetch(getApiUrl(`users/${userId}`), {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -141,7 +142,7 @@ export async function updateUser(userId: number, payload: {
 }
 
 export async function deleteUser(userId: number, token?: string) {
-  const res = await fetch(`http://localhost:8000/users/${userId}`, {
+  const res = await fetch(getApiUrl(`users/${userId}`), {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -156,7 +157,7 @@ export async function deleteUser(userId: number, token?: string) {
 }
 
 export async function updateUserPassword(userId: number, password: string, token?: string) {
-  const res = await fetch(`http://localhost:8000/users/${userId}/password`, {
+  const res = await fetch(getApiUrl(`users/${userId}/password`), {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

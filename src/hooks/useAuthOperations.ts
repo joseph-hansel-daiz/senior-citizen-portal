@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { getApiUrl } from '@/lib/api';
 
 type LoginCredentials = {
   username: string;
@@ -33,7 +34,7 @@ export const useAuthOperations = (): UseAuthOperationsReturn => {
     setLoading(true);
     
     try {
-      const res = await fetch("http://localhost:8000/auth/login", {
+      const res = await fetch(getApiUrl("auth/login"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

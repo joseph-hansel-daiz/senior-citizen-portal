@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { getApiUrl } from "@/lib/api";
 
 export interface SeniorAssistanceRow {
   id: number;
@@ -19,7 +20,7 @@ export function useSeniorAssistances(seniorId: number | null) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`http://localhost:8000/senior-assistances/${id}`, {
+      const res = await fetch(getApiUrl(`senior-assistances/${id}`), {
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -47,7 +48,7 @@ export function useSeniorAssistances(seniorId: number | null) {
 }
 
 export async function upsertSeniorAssistance(payload: { id?: number; seniorId: number; assistanceId: number; assistanceDate: string | null; }, token?: string) {
-  const res = await fetch(`http://localhost:8000/senior-assistances/${payload.seniorId}`,
+  const res = await fetch(getApiUrl(`senior-assistances/${payload.seniorId}`),
     {
       method: "PUT",
       headers: {
@@ -62,7 +63,7 @@ export async function upsertSeniorAssistance(payload: { id?: number; seniorId: n
 }
 
 export async function deleteSeniorAssistance(seniorId: number, recordId: number, token?: string) {
-  const res = await fetch(`http://localhost:8000/senior-assistances/${seniorId}/${recordId}`, {
+  const res = await fetch(getApiUrl(`senior-assistances/${seniorId}/${recordId}`), {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",

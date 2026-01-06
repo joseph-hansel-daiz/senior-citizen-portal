@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { getApiUrl } from "@/lib/api";
 
 interface Option {
   id: number;
@@ -16,7 +17,7 @@ export function useOptions(endpoint: string) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`http://localhost:8000/options/${endpoint}`, {
+      const res = await fetch(getApiUrl(`options/${endpoint}`), {
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -36,7 +37,7 @@ export function useOptions(endpoint: string) {
     let active = true;
     (async () => {
       try {
-        const res = await fetch(`http://localhost:8000/options/${endpoint}`, {
+        const res = await fetch(getApiUrl(`options/${endpoint}`), {
           headers: {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -61,7 +62,7 @@ export function useOptions(endpoint: string) {
 }
 
 export async function createOption(endpoint: string, name: string, token?: string) {
-  const res = await fetch(`http://localhost:8000/options/${endpoint}`, {
+  const res = await fetch(getApiUrl(`options/${endpoint}`), {
     method: "POST",
     headers: { 
       "Content-Type": "application/json",
@@ -77,7 +78,7 @@ export async function createOption(endpoint: string, name: string, token?: strin
 }
 
 export async function updateOption(endpoint: string, id: number, name: string, token?: string) {
-  const res = await fetch(`http://localhost:8000/options/${endpoint}/${id}`, {
+  const res = await fetch(getApiUrl(`options/${endpoint}/${id}`), {
     method: "PUT",
     headers: { 
       "Content-Type": "application/json",
@@ -93,7 +94,7 @@ export async function updateOption(endpoint: string, id: number, name: string, t
 }
 
 export async function deleteOption(endpoint: string, id: number, token?: string) {
-  const res = await fetch(`http://localhost:8000/options/${endpoint}/${id}`, {
+  const res = await fetch(getApiUrl(`options/${endpoint}/${id}`), {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",

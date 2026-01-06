@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { getApiUrl } from '@/lib/api';
 
 type ProfileShape = {
   id?: number;
@@ -43,7 +44,7 @@ export const useProfileOperations = (): UseProfileOperationsReturn => {
     setError("");
     
     try {
-      const res = await fetch("http://localhost:8000/users/me", {
+      const res = await fetch(getApiUrl("users/me"), {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -93,7 +94,7 @@ export const useProfileOperations = (): UseProfileOperationsReturn => {
 
     try {
       let res: Response;
-      const endpoint = "http://localhost:8000/users/me";
+      const endpoint = getApiUrl("users/me");
       if (photo) {
         const formData = new FormData();
         formData.append("data", JSON.stringify({ name: name.trim() }));
@@ -166,7 +167,7 @@ export const useProfileOperations = (): UseProfileOperationsReturn => {
     }
 
     try {
-      const res = await fetch("http://localhost:8000/users/me/password", {
+      const res = await fetch(getApiUrl("users/me/password"), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

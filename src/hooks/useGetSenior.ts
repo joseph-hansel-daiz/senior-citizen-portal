@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { SeniorCitizen } from "@/types/senior-citizen.types";
 import { useAuth } from "@/context/AuthContext";
+import { getApiUrl } from "@/lib/api";
 
 export function useGetSenior(id: number | null) {
   const { token } = useAuth();
@@ -14,7 +15,7 @@ export function useGetSenior(id: number | null) {
     setData(null);
 
     try {
-      const response = await fetch(`http://localhost:8000/seniors/${seniorId}`, {
+      const response = await fetch(getApiUrl(`seniors/${seniorId}`), {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

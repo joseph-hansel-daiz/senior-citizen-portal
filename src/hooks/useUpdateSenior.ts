@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { SeniorCitizen, SeniorCitizenUpdateInput } from "@/types/senior-citizen.types";
 import { useAuth } from "@/context/AuthContext";
+import { getApiUrl } from "@/lib/api";
 
 export function useUpdateSenior() {
   const { token } = useAuth();
@@ -29,7 +30,7 @@ export function useUpdateSenior() {
         const { photo, ...otherData } = payload;
         formData.append('data', JSON.stringify(otherData));
         
-        response = await fetch(`http://localhost:8000/seniors/${id}`, {
+        response = await fetch(getApiUrl(`seniors/${id}`), {
           method: "PUT",
           headers: {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -38,7 +39,7 @@ export function useUpdateSenior() {
         });
       } else {
         // Use JSON for regular data
-        response = await fetch(`http://localhost:8000/seniors/${id}`, {
+        response = await fetch(getApiUrl(`seniors/${id}`), {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
