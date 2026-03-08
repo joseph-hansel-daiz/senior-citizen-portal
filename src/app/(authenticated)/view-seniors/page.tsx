@@ -17,6 +17,7 @@ interface SeniorCitizenTableRow {
   photo: Blob | null | undefined;
   fullName: string;
   age: number;
+  birthYear: number;
   address: string;
   contact: string;
   livingStatus: string;
@@ -62,7 +63,7 @@ export default function DashboardPage() {
     ) {
       // Check if any status history entry is 'Active'
       const hasActiveStatus = senior.SeniorStatusHistories.some(
-        (history) => history.status === "Active"
+        (history) => history.status === "Active",
       );
       if (!hasActiveStatus) {
         return false;
@@ -89,6 +90,7 @@ export default function DashboardPage() {
     const age = birthDate
       ? new Date().getFullYear() - birthDate.getFullYear()
       : 0;
+    const birthYear = birthDate ? birthDate.getFullYear() : 0;
 
     const address = identifyingInfo
       ? `${identifyingInfo.street}, ${identifyingInfo.barangay}, ${identifyingInfo.city}`
@@ -108,6 +110,7 @@ export default function DashboardPage() {
       photo,
       fullName,
       age,
+      birthYear,
       address,
       contact,
       livingStatus,
@@ -156,11 +159,11 @@ export default function DashboardPage() {
 
   const handleExport = (
     filteredData: SeniorCitizenTableRow[],
-    columns: Column<SeniorCitizenTableRow>[]
+    columns: Column<SeniorCitizenTableRow>[],
   ) => {
     // Filter out the photo column from export
     const exportColumns = columns.filter((col) => col.accessor !== "photo");
-    
+
     // Prepare data for export
     const exportData = filteredData.map((row) => {
       const rowData: Record<string, any> = {};
@@ -266,6 +269,7 @@ export default function DashboardPage() {
         imageAccessor="photo"
         columns={columns}
         searchableField="fullName"
+        yearFilterAccessor="birthYear"
         renderActions={renderActions}
         onExport={handleExport}
       />

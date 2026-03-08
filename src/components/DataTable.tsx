@@ -19,6 +19,8 @@ interface DataTableProps<T extends { id: number | string }> {
   defaultPageSize?: number;
   searchableField?: keyof T;
   imageAccessor?: keyof T; // Optional accessor for image column
+  /** When set, shows a Year filter and filters by this field (numeric year, e.g. birth year) */
+  yearFilterAccessor?: keyof T;
   renderActions?: (item: T) => React.ReactNode;
   onExport?: (filteredData: T[], columns: Column<T>[]) => void;
 }
@@ -31,6 +33,7 @@ export default function DataTable<T extends { id: number | string }>({
   defaultPageSize = 10,
   searchableField,
   imageAccessor,
+  yearFilterAccessor,
   renderActions,
   onExport,
 }: DataTableProps<T>) {
@@ -40,6 +43,7 @@ export default function DataTable<T extends { id: number | string }>({
   const [pageSize, setPageSize] = useState(defaultPageSize);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBarangay, setSelectedBarangay] = useState("");
+  const [selectedYear, setSelectedYear] = useState<string>("");
   const [imageUrls, setImageUrls] = useState<Map<string | number, string>>(
     new Map()
   );
@@ -62,6 +66,18 @@ export default function DataTable<T extends { id: number | string }>({
     }));
   }, [barangayOptions]);
 
+  // Year options for birth year filter (current year down to 1920)
+  const yearSelectOptions = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const years: { value: string; label: string }[] = [
+      { value: "", label: "All Years" },
+    ];
+    for (let y = currentYear; y >= 1920; y--) {
+      years.push({ value: String(y), label: String(y) });
+    }
+    return years;
+  }, []);
+
   const filteredData = useMemo(() => {
     let next = data;
     if (searchTerm && searchableField) {
@@ -76,8 +92,14 @@ export default function DataTable<T extends { id: number | string }>({
         (item) => String(item[barangayAccessor]) === selectedBarangay
       );
     }
+    if (selectedYear && yearFilterAccessor) {
+      const yearNum = Number(selectedYear);
+      next = next.filter(
+        (item) => Number(item[yearFilterAccessor]) === yearNum
+      );
+    }
     return next;
-  }, [data, searchTerm, searchableField, selectedBarangay, barangayAccessor]);
+  }, [data, searchTerm, searchableField, selectedBarangay, barangayAccessor, selectedYear, yearFilterAccessor]);
 
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
@@ -197,12 +219,12 @@ export default function DataTable<T extends { id: number | string }>({
   return (
     <div className="container p-4 card">
       {/* Title + Search */}
-      {(title || searchableField || (hasBarangayColumn && user?.role !== "barangay")) && (
+      {(title || searchableField || (hasBarangayColumn && user?.role !== "barangay") || yearFilterAccessor) && (
         <div className="row mb-3">
-          <div className="col-12 col-md-6 mb-2 mb-md-0 d-flex align-items-center">
+          <div className="col-12 col-md-3 mb-2 mb-md-0 d-flex align-items-center">
             {title && <h2 className="h5 mb-0">{title}</h2>}
           </div>
-          <div className="col-12 col-md-6 d-flex justify-content-md-end gap-2">
+          <div className="col-12 col-md-9 d-flex justify-content-md-end gap-2 flex-wrap">
             {hasBarangayColumn && user?.role !== "barangay" && (
               <div style={{ maxWidth: "220px", width: "100%" }}>
                 <SearchableSelect
@@ -216,6 +238,19 @@ export default function DataTable<T extends { id: number | string }>({
                     setCurrentPage(1);
                   }}
                   placeholder="All Barangays"
+                />
+              </div>
+            )}
+            {yearFilterAccessor && (
+              <div>
+                <SearchableSelect
+                  options={yearSelectOptions}
+                  value={selectedYear}
+                  onChange={(value) => {
+                    setSelectedYear(value as string);
+                    setCurrentPage(1);
+                  }}
+                  placeholder="All Years"
                 />
               </div>
             )}
