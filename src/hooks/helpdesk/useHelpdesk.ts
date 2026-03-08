@@ -43,41 +43,10 @@ export interface HelpdeskRecord {
       username: string;
       role: string;
     };
-    IdentifyingInformation?: {
-      seniorId: number;
-      picture: string | null;
-      lastname: string;
+    SeniorProfile?: {
       firstname: string;
-      middlename: string;
-      extension: string;
-      region: string;
-      province: string;
-      city: string;
-      barangay: string;
-      residence: string;
-      street: string;
-      birthDate: string;
-      birthPlace: string;
-      maritalStatus: string;
-      religion: string;
-      sexAtBirth: string;
-      contactNumber: string;
-      emailAddress: string;
-      fbMessengerName: string;
-      ethnicOrigin: string;
-      languageSpoken: string;
-      oscaIdNo: string;
-      gsisSssNo: string;
-      tin: string;
-      philhealthNo: string;
-      scAssociationIdNo: string;
-      otherGovIdNo: string;
-      employmentBusiness: string;
-      hasPension: boolean;
-      pensionList: string;
-      capabilityToTravel: boolean;
-      createdBy: number;
-      updatedBy: number | null;
+      middlename: string | null;
+      lastname: string;
     };
     FamilyComposition?: {
       seniorId: number;

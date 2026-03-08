@@ -10,6 +10,29 @@ export interface Option {
   name: string;
 }
 
+// List DTO from GET /seniors (denormalized)
+export interface SeniorListItem {
+  id: number;
+  barangayId: number;
+  photo?: Blob;
+  displayName: string;
+  birthDate?: string;
+  address: string;
+  contactNumber?: string;
+  hasPension?: boolean;
+  livingConditionNames: string[];
+  status: string;
+  isDeceased: boolean;
+  dateOfDeath?: string;
+  barangay?: Barangay;
+}
+
+// Option DTO from GET /seniors/options (for dropdowns)
+export interface SeniorOption {
+  id: number;
+  name: string;
+}
+
 export interface User {
   id: number;
   username: string;

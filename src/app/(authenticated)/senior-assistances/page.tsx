@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { useSeniors } from "@/hooks/useSeniors";
+import { useSeniorOptions } from "@/hooks/useSeniorOptions";
 import { useOptions } from "@/hooks/options/useOptions";
 import { deleteSeniorAssistance, upsertSeniorAssistance, useSeniorAssistances } from "@/hooks/seniorAssistances/useSeniorAssistances";
 import { useAuth } from "@/context/AuthContext";
@@ -9,48 +9,26 @@ import SearchableSelect from "@/components/SearchableSelect";
 
 export default function SeniorAssistancesPage() {
   const { token, user } = useAuth();
-  const { data: seniors } = useSeniors();
+  const { data: seniorOptionsList } = useSeniorOptions("active");
   const [selectedSeniorId, setSelectedSeniorId] = useState<number | null>(null);
 
   const { data: assistances } = useOptions("assistances");
   const { data: seniorAssistances, refetch } = useSeniorAssistances(selectedSeniorId);
 
-  const activeSeniors = useMemo(() => {
-    return seniors.filter((senior) => {
-      if (senior.DeathInfo) {
-        return false;
-      }
-      if (senior.SeniorStatusHistories && senior.SeniorStatusHistories.length > 0) {
-        const hasActiveStatus = senior.SeniorStatusHistories.some(
-          (history) => history.status === 'Active'
-        );
-        if (!hasActiveStatus) {
-          return false;
-        }
-      } else {
-        return false;
-      }
-      return true;
-    });
-  }, [seniors]);
+  const seniorOptions = useMemo(
+    () =>
+      seniorOptionsList.map((s) => ({
+        value: s.id,
+        label: s.name,
+      })),
+    [seniorOptionsList]
+  );
 
-  const selectedSenior = useMemo(() => activeSeniors.find((s) => s.id === selectedSeniorId) || null, [activeSeniors, selectedSeniorId]);
-
-  // Prepare options for SearchableSelect
-  const seniorOptions = useMemo(() => {
-    return activeSeniors
-      .filter((s) => s.id != null)
-      .map((s) => {
-        const info = s.IdentifyingInformation;
-        const name = info
-          ? `${info.firstname} ${info.middlename || ""} ${info.lastname}`.replace(/\s+/g, " ").trim()
-          : `Senior #${s.id}`;
-        return {
-          value: s.id as number,
-          label: name,
-        };
-      });
-  }, [activeSeniors]);
+  const selectedSeniorName = useMemo(
+    () => seniorOptionsList.find((s) => s.id === selectedSeniorId)?.name ?? null,
+    [seniorOptionsList, selectedSeniorId]
+  );
+  const selectedSenior = selectedSeniorId != null ? { id: selectedSeniorId, name: selectedSeniorName } : null;
 
   // Prepare assistance options for SearchableSelect
   const assistanceOptions = useMemo(() => {
@@ -157,12 +135,7 @@ export default function SeniorAssistancesPage() {
         {selectedSenior && (
           <div className="mt-4">
             <div className="d-flex justify-content-between align-items-center mb-2">
-              <h5 className="mb-0">Assistances for {(() => {
-                const info = selectedSenior.IdentifyingInformation;
-                return info
-                  ? `${info.firstname} ${info.middlename || ""} ${info.lastname}`.replace(/\s+/g, " ").trim()
-                  : `Senior #${selectedSenior.id}`;
-              })()}</h5>
+              <h5 className="mb-0">Assistances for {selectedSenior?.name ?? `Senior #${selectedSeniorId}`}</h5>
             </div>
 
             <DataTable

@@ -21,6 +21,10 @@ interface DataTableProps<T extends { id: number | string }> {
   imageAccessor?: keyof T; // Optional accessor for image column
   /** When set, shows a Year filter and filters by this field (numeric year, e.g. birth year) */
   yearFilterAccessor?: keyof T;
+  /** Controlled year filter (use with onYearFilterChange for server-side filtering) */
+  yearFilterValue?: string;
+  /** Called when year filter changes (use with yearFilterValue for server-side filtering) */
+  onYearFilterChange?: (value: string) => void;
   renderActions?: (item: T) => React.ReactNode;
   onExport?: (filteredData: T[], columns: Column<T>[]) => void;
 }
@@ -34,6 +38,8 @@ export default function DataTable<T extends { id: number | string }>({
   searchableField,
   imageAccessor,
   yearFilterAccessor,
+  yearFilterValue,
+  onYearFilterChange,
   renderActions,
   onExport,
 }: DataTableProps<T>) {
@@ -43,7 +49,9 @@ export default function DataTable<T extends { id: number | string }>({
   const [pageSize, setPageSize] = useState(defaultPageSize);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBarangay, setSelectedBarangay] = useState("");
-  const [selectedYear, setSelectedYear] = useState<string>("");
+  const [internalYear, setInternalYear] = useState<string>("");
+  const selectedYear = yearFilterValue !== undefined ? yearFilterValue : internalYear;
+  const setSelectedYear = onYearFilterChange ?? setInternalYear;
   const [imageUrls, setImageUrls] = useState<Map<string | number, string>>(
     new Map()
   );
@@ -92,14 +100,14 @@ export default function DataTable<T extends { id: number | string }>({
         (item) => String(item[barangayAccessor]) === selectedBarangay
       );
     }
-    if (selectedYear && yearFilterAccessor) {
+    if (selectedYear && yearFilterAccessor && onYearFilterChange == null) {
       const yearNum = Number(selectedYear);
       next = next.filter(
         (item) => Number(item[yearFilterAccessor]) === yearNum
       );
     }
     return next;
-  }, [data, searchTerm, searchableField, selectedBarangay, barangayAccessor, selectedYear, yearFilterAccessor]);
+  }, [data, searchTerm, searchableField, selectedBarangay, barangayAccessor, selectedYear, yearFilterAccessor, onYearFilterChange]);
 
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;

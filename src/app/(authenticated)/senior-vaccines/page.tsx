@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { useSeniors } from "@/hooks/useSeniors";
+import { useSeniorOptions } from "@/hooks/useSeniorOptions";
 import { useOptions } from "@/hooks/options/useOptions";
 import { deleteSeniorVaccine, upsertSeniorVaccine, useSeniorVaccines } from "@/hooks/seniorVaccines/useSeniorVaccines";
 import { useAuth } from "@/context/AuthContext";
@@ -9,55 +9,26 @@ import SearchableSelect from "@/components/SearchableSelect";
 
 export default function SeniorVaccinesPage() {
   const { token, user } = useAuth();
-  const { data: seniors } = useSeniors();
+  const { data: seniorOptionsList } = useSeniorOptions("active");
   const [selectedSeniorId, setSelectedSeniorId] = useState<number | null>(null);
 
   const { data: vaccines } = useOptions("vaccines");
   const { data: seniorVaccines, refetch } = useSeniorVaccines(selectedSeniorId);
 
-  // Filter out deceased and non-active seniors
-  const activeSeniors = useMemo(() => {
-    return seniors.filter((senior) => {
-      // Filter out deceased seniors
-      if (senior.DeathInfo) {
-        return false;
-      }
+  const seniorOptions = useMemo(
+    () =>
+      seniorOptionsList.map((s) => ({
+        value: s.id,
+        label: s.name,
+      })),
+    [seniorOptionsList]
+  );
 
-      // Filter out seniors without Active status
-      if (senior.SeniorStatusHistories && senior.SeniorStatusHistories.length > 0) {
-        // Check if any status history entry is 'Active'
-        const hasActiveStatus = senior.SeniorStatusHistories.some(
-          (history) => history.status === 'Active'
-        );
-        if (!hasActiveStatus) {
-          return false;
-        }
-      } else {
-        // If no status history, exclude the senior
-        return false;
-      }
-
-      return true;
-    });
-  }, [seniors]);
-
-  const selectedSenior = useMemo(() => activeSeniors.find((s) => s.id === selectedSeniorId) || null, [activeSeniors, selectedSeniorId]);
-
-  // Prepare options for SearchableSelect
-  const seniorOptions = useMemo(() => {
-    return activeSeniors
-      .filter((s) => s.id != null)
-      .map((s) => {
-        const info = s.IdentifyingInformation;
-        const name = info
-          ? `${info.firstname} ${info.middlename || ""} ${info.lastname}`.replace(/\s+/g, " ").trim()
-          : `Senior #${s.id}`;
-        return {
-          value: s.id as number,
-          label: name,
-        };
-      });
-  }, [activeSeniors]);
+  const selectedSeniorName = useMemo(
+    () => seniorOptionsList.find((s) => s.id === selectedSeniorId)?.name ?? null,
+    [seniorOptionsList, selectedSeniorId]
+  );
+  const selectedSenior = selectedSeniorId != null ? { id: selectedSeniorId, name: selectedSeniorName } : null;
 
   // Prepare vaccine options for SearchableSelect
   const vaccineOptions = useMemo(() => {
@@ -165,12 +136,7 @@ export default function SeniorVaccinesPage() {
         {selectedSenior && (
           <div className="mt-4">
             <div className="d-flex justify-content-between align-items-center mb-2">
-              <h5 className="mb-0">Vaccines for {(() => {
-                const info = selectedSenior.IdentifyingInformation;
-                return info
-                  ? `${info.firstname} ${info.middlename || ""} ${info.lastname}`.replace(/\s+/g, " ").trim()
-                  : `Senior #${selectedSenior.id}`;
-              })()}</h5>
+              <h5 className="mb-0">Vaccines for {selectedSenior?.name ?? `Senior #${selectedSeniorId}`}</h5>
             </div>
 
             <DataTable

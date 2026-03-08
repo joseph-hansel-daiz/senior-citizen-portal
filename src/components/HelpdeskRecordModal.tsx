@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSeniors } from "@/hooks/useSeniors";
+import { useSeniorOptions } from "@/hooks/useSeniorOptions";
 import { useHelpDeskRecordCategories } from "@/hooks/options";
 import SearchableSelect from "@/components/SearchableSelect";
 
@@ -19,61 +19,22 @@ export default function HelpdeskRecordModal({ show, mode, onHide, initialData, o
   const isView = mode === "view";
   const isCreate = mode === "create";
 
-  const { data: allSeniors } = useSeniors();
+  const { data: seniorOptionsList } = useSeniorOptions(isCreate ? "active" : undefined);
   const { data: categories } = useHelpDeskRecordCategories();
-
-  // Filter seniors for create mode - only show active, non-deceased seniors
-  const seniors = useMemo(() => {
-    if (isCreate) {
-      return allSeniors.filter((senior) => {
-        // Filter out deceased seniors
-        if (senior.DeathInfo) {
-          return false;
-        }
-
-        // Filter out seniors without Active status
-        if (
-          senior.SeniorStatusHistories &&
-          senior.SeniorStatusHistories.length > 0
-        ) {
-          // Check if any status history entry is 'Active'
-          const hasActiveStatus = senior.SeniorStatusHistories.some(
-            (history) => history.status === "Active"
-          );
-          if (!hasActiveStatus) {
-            return false;
-          }
-        } else {
-          // If no status history, exclude the senior
-          return false;
-        }
-
-        return true;
-      });
-    }
-    return allSeniors;
-  }, [allSeniors, isCreate]);
 
   const [form, setForm] = useState<{ seniorId: string; details: string }>(
     { seniorId: "", details: "" }
   );
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
 
-  // Prepare senior options for SearchableSelect
-  const seniorOptions = useMemo(() => {
-    return seniors
-      .filter((s) => s.id != null)
-      .map((s) => {
-        const info = s.IdentifyingInformation;
-        const label = info
-          ? `${info.firstname} ${info.middlename || ""} ${info.lastname}`.replace(/\s+/g, " ").trim()
-          : `OSCA #${s.id}`;
-        return {
-          value: String(s.id),
-          label: label,
-        };
-      });
-  }, [seniors]);
+  const seniorOptions = useMemo(
+    () =>
+      (seniorOptionsList ?? []).map((s) => ({
+        value: String(s.id),
+        label: s.name,
+      })),
+    [seniorOptionsList]
+  );
 
   useEffect(() => {
     if (initialData) {

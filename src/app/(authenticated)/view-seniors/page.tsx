@@ -26,7 +26,12 @@ interface SeniorCitizenTableRow {
 }
 
 export default function DashboardPage() {
-  const { data: seniors, loading, error } = useSeniors();
+  const [selectedBirthYear, setSelectedBirthYear] = useState<string>("");
+  const filter =
+    selectedBirthYear && !Number.isNaN(Number(selectedBirthYear))
+      ? { birthYear: Number(selectedBirthYear) }
+      : undefined;
+  const { data: seniors, loading, error } = useSeniors(filter);
   const { user } = useAuth();
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -49,73 +54,32 @@ export default function DashboardPage() {
   const [showMarkDeceased, setShowMarkDeceased] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Filter out deceased seniors and non-active seniors
-  const activeSeniors = seniors.filter((senior) => {
-    // Filter out deceased seniors
-    if (senior.DeathInfo) {
-      return false;
-    }
+  // Filter: list DTO already has status and isDeceased
+  const activeSeniors = seniors.filter(
+    (senior) => !senior.isDeceased && senior.status === "Active"
+  );
 
-    // Filter out seniors without Active status
-    if (
-      senior.SeniorStatusHistories &&
-      senior.SeniorStatusHistories.length > 0
-    ) {
-      // Check if any status history entry is 'Active'
-      const hasActiveStatus = senior.SeniorStatusHistories.some(
-        (history) => history.status === "Active",
-      );
-      if (!hasActiveStatus) {
-        return false;
-      }
-    } else {
-      // If no status history, exclude the senior
-      return false;
-    }
-
-    return true;
-  });
-
-  // Transform backend data to match table structure
   const data: SeniorCitizenTableRow[] = activeSeniors.map((senior) => {
-    const identifyingInfo = senior.IdentifyingInformation;
-    const photo = senior.photo;
-    const fullName = identifyingInfo
-      ? `${identifyingInfo.firstname} ${identifyingInfo.middlename} ${identifyingInfo.lastname}`.trim()
-      : "N/A";
-
-    const birthDate = identifyingInfo?.birthDate
-      ? new Date(identifyingInfo.birthDate)
-      : null;
+    const birthDate = senior.birthDate ? new Date(senior.birthDate) : null;
     const age = birthDate
       ? new Date().getFullYear() - birthDate.getFullYear()
       : 0;
     const birthYear = birthDate ? birthDate.getFullYear() : 0;
-
-    const address = identifyingInfo
-      ? `${identifyingInfo.street}, ${identifyingInfo.barangay}, ${identifyingInfo.city}`
-      : "N/A";
-
-    const contact = identifyingInfo?.contactNumber || "N/A";
     const livingStatus =
-      senior.DependencyProfile?.LivingConditions &&
-      senior.DependencyProfile.LivingConditions.length > 0
+      senior.livingConditionNames && senior.livingConditionNames.length > 0
         ? "With Family"
         : "Alone";
-    const hasPension = identifyingInfo?.hasPension ? "Yes" : "No";
-    const barangay = identifyingInfo?.barangay || "N/A";
-
     return {
-      id: senior.id!,
-      photo,
-      fullName,
+      id: senior.id,
+      photo: senior.photo,
+      fullName: senior.displayName,
       age,
       birthYear,
-      address,
-      contact,
+      address: senior.address,
+      contact: senior.contactNumber || "N/A",
       livingStatus,
-      hasPension,
-      barangay,
+      hasPension: senior.hasPension ? "Yes" : "No",
+      barangay: senior.barangay?.name ?? "N/A",
     };
   });
 
@@ -270,6 +234,8 @@ export default function DashboardPage() {
         columns={columns}
         searchableField="fullName"
         yearFilterAccessor="birthYear"
+        yearFilterValue={selectedBirthYear}
+        onYearFilterChange={setSelectedBirthYear}
         renderActions={renderActions}
         onExport={handleExport}
       />

@@ -33,11 +33,9 @@ export default function HelpdeskPage() {
   const rows: TableRow[] = useMemo(
     () =>
       records.map((r) => {
-        const info = r.Senior?.IdentifyingInformation;
-        const seniorName = info
-          ? `${info.lastname}, ${info.firstname}${
-              info.middlename ? " " + info.middlename : ""
-            }`
+        const profile = r.Senior?.SeniorProfile;
+        const seniorName = profile
+          ? `${profile.lastname}, ${profile.firstname}${profile.middlename ? " " + profile.middlename : ""}`.trim()
           : "N/A";
 
         // Handle categories - support both new array format and old single category format

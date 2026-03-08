@@ -33,53 +33,35 @@ export default function DashboardPage() {
   } = useUnmarkDeceased();
   const { user } = useAuth();
 
-  // Transform backend data to match table structure
-  // Filter to only show seniors with DeathInfo
-  const data: SeniorCitizenTableRow[] = seniors
-    .filter((senior) => senior.DeathInfo)
-    .map((senior) => {
-      const identifyingInfo = senior.IdentifyingInformation;
-      const photo = senior.photo;
-      const fullName = identifyingInfo
-        ? `${identifyingInfo.firstname} ${identifyingInfo.middlename} ${identifyingInfo.lastname}`.trim()
-        : "N/A";
+  // Deceased page needs dateOfDeath; list DTO does not include it. Filter by isDeceased and fetch detail for dateOfDeath, or we need backend to include dateOfDeath in list when isDeceased.
+  // Backend list DTO does not include dateOfDeath. So we filter by isDeceased and show list; for dateOfDeath we could show "—" or add it to list DTO later. For now use a placeholder or omit column.
+  const deceasedSeniors = seniors.filter((senior) => senior.isDeceased);
 
-      const birthDate = identifyingInfo?.birthDate
-        ? new Date(identifyingInfo.birthDate)
-        : null;
-      const age = birthDate
-        ? new Date().getFullYear() - birthDate.getFullYear()
-        : 0;
-
-      const address = identifyingInfo
-        ? `${identifyingInfo.street}, ${identifyingInfo.barangay}, ${identifyingInfo.city}`
-        : "N/A";
-
-      const contact = identifyingInfo?.contactNumber || "N/A";
-      const livingStatus =
-        senior.DependencyProfile?.LivingConditions &&
-        senior.DependencyProfile.LivingConditions.length > 0
-          ? "With Family"
-          : "Alone";
-      const hasPension = identifyingInfo?.hasPension ? "Yes" : "No";
-      const barangay = identifyingInfo?.barangay || "N/A";
-      const dateOfDeath = senior.DeathInfo?.dateOfDeath
-        ? new Date(senior.DeathInfo.dateOfDeath).toLocaleDateString()
-        : "N/A";
-
-      return {
-        id: senior.id!,
-        photo,
-        fullName,
-        age,
-        address,
-        contact,
-        livingStatus,
-        hasPension,
-        barangay,
-        dateOfDeath,
-      };
-    });
+  const data: SeniorCitizenTableRow[] = deceasedSeniors.map((senior) => {
+    const birthDate = senior.birthDate ? new Date(senior.birthDate) : null;
+    const age = birthDate
+      ? new Date().getFullYear() - birthDate.getFullYear()
+      : 0;
+    const livingStatus =
+      senior.livingConditionNames && senior.livingConditionNames.length > 0
+        ? "With Family"
+        : "Alone";
+    const dateOfDeath = senior.dateOfDeath
+      ? new Date(senior.dateOfDeath).toLocaleDateString()
+      : "N/A";
+    return {
+      id: senior.id,
+      photo: senior.photo,
+      fullName: senior.displayName,
+      age,
+      address: senior.address,
+      contact: senior.contactNumber || "N/A",
+      livingStatus,
+      hasPension: senior.hasPension ? "Yes" : "No",
+      barangay: senior.barangay?.name ?? "N/A",
+      dateOfDeath,
+    };
+  });
 
   const columns: Column<SeniorCitizenTableRow>[] = [
     { label: "Photo", accessor: "photo" },

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { SeniorListItem } from "@/types/senior-citizen.types";
+import { SeniorOption } from "@/types/senior-citizen.types";
 import { useAuth } from "@/context/AuthContext";
 import { getApiUrl } from "@/lib/api";
 
-export type SeniorsFilter = { birthYear?: number; barangayId?: number };
+export type SeniorOptionsStatus = "active" | "pending" | "all";
 
-export function useSeniors(filter?: SeniorsFilter) {
+export function useSeniorOptions(status?: SeniorOptionsStatus) {
   const { token } = useAuth();
-  const [data, setData] = useState<SeniorListItem[]>([]);
+  const [data, setData] = useState<SeniorOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -15,18 +15,17 @@ export function useSeniors(filter?: SeniorsFilter) {
     let active = true;
     const fetchData = async () => {
       try {
-        const params = new URLSearchParams();
-        if (filter?.birthYear != null) params.set("birthYear", String(filter.birthYear));
-        if (filter?.barangayId != null) params.set("barangayId", String(filter.barangayId));
-        const url = params.toString() ? `${getApiUrl("seniors")}?${params}` : getApiUrl("seniors");
+        const url = status
+          ? `${getApiUrl("seniors/options")}?status=${status}`
+          : getApiUrl("seniors/options");
         const res = await fetch(url, {
           headers: {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         });
-        if (!res.ok) throw new Error(`Failed to fetch seniors`);
-        const json: SeniorListItem[] = await res.json();
+        if (!res.ok) throw new Error("Failed to fetch senior options");
+        const json: SeniorOption[] = await res.json();
         if (active) setData(json);
       } catch (err) {
         if (active) setError(err as Error);
@@ -39,7 +38,7 @@ export function useSeniors(filter?: SeniorsFilter) {
     return () => {
       active = false;
     };
-  }, [filter?.birthYear, filter?.barangayId]);
+  }, [status]);
 
   return { data, loading, error };
 }
