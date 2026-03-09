@@ -4,7 +4,7 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 
 # Accept build argument for API URL
-ARG NEXT_PUBLIC_API_URL=http://35.221.129.106:8002
+ARG NEXT_PUBLIC_API_URL=http://api.josephhanseldaiz.com
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 # Copy package files
@@ -25,7 +25,7 @@ FROM node:18-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
-ENV PORT 3001
+ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
 # Copy package files
@@ -39,8 +39,8 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
-# Expose port 3001
-EXPOSE 3001
+# Expose port 3000
+EXPOSE 3000
 
 # Start the application
 CMD ["node", "server.js"]

@@ -2,7 +2,7 @@
  * API utility functions for making requests to the backend
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://api.josephhanseldaiz.com';
 
 /**
  * Get the full API URL for a given endpoint
@@ -10,6 +10,9 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
  * @returns The full URL
  */
 export function getApiUrl(endpoint: string): string {
+
+  console.log(API_BASE_URL);
+console.log(process.env.NEXT_PUBLIC_API_URL);
   // Remove leading slash if present to avoid double slashes
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
   // Ensure base URL doesn't end with a slash
