@@ -2,7 +2,7 @@
  * API utility functions for making requests to the backend
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://api.josephhanseldaiz.com';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 /**
  * Get the full API URL for a given endpoint

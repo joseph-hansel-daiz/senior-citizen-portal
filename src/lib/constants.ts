@@ -11,6 +11,7 @@ export const ROUTES = {
   SENIOR_ASSISTANCES: "/senior-assistances",
   GENERATE_BACKUP: "/generate-backup",
   RESET_CODES: "/reset-codes",
+  AUDIT_LOGS: "/audit-logs",
 
   MY_ACCOUNT: "/my-account",
   LOGIN: "/login",

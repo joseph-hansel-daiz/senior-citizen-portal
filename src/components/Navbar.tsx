@@ -42,6 +42,11 @@ const ADMIN_ROUTES: NavRoute[] = [
     label: "Reset Codes",
     iconClassName: "bi bi-key",
   },
+  {
+    route: ROUTES.AUDIT_LOGS,
+    label: "Audit Logs",
+    iconClassName: "bi bi-file-earmark-text",
+  },
 ];
 
 const OSCA_ROUTES: NavRoute[] = [
