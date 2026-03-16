@@ -1,10 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useDashboardAnalytics } from "@/hooks/analytics/useDashboardAnalytics";
 import PieChart from "@/components/charts/PieChart";
 import BarChart from "@/components/charts/BarChart";
 import { useAuth } from "@/context/AuthContext";
+import AnalyticsDetailModal, {
+  SelectedSegment,
+} from "@/components/analytics/AnalyticsDetailModal";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -22,6 +25,10 @@ export default function DashboardPage() {
 
   const isAdmin = user?.role === "admin";
 
+  const [selectedSegment, setSelectedSegment] = useState<SelectedSegment | null>(
+    null
+  );
+
   const genderTotal = useMemo(
     () => gender.reduce((s, i) => s + i.count, 0),
     [gender]
@@ -37,7 +44,12 @@ export default function DashboardPage() {
   ]; // bootstrap palette
 
   const genderPieData = useMemo(
-    () => gender.map((g) => ({ label: g.sexAtBirth, value: g.count })),
+    () =>
+      gender.map((g) => ({
+        label: g.sexAtBirth,
+        value: g.count,
+        sexAtBirth: g.sexAtBirth,
+      })),
     [gender]
   );
 
@@ -48,12 +60,18 @@ export default function DashboardPage() {
         .map((d) => ({
           label: d.status.charAt(0).toUpperCase() + d.status.slice(1),
           value: Number(d.count),
+          status: d.status,
         })),
     [deadAliveCount]
   );
 
   const usersPerRolePieData = useMemo(
-    () => usersPerRole.map((r) => ({ label: r.role, value: r.count })),
+    () =>
+      usersPerRole.map((r) => ({
+        label: r.role,
+        value: r.count,
+        role: r.role,
+      })),
     [usersPerRole]
   );
 
@@ -78,6 +96,13 @@ export default function DashboardPage() {
                         data={genderPieData}
                         colors={colors}
                         size={200}
+                        onSliceClick={(item) =>
+                          setSelectedSegment({
+                            metric: "gender-distribution",
+                            label: item.label,
+                            filters: { sexAtBirth: item.sexAtBirth },
+                          })
+                        }
                       />
                     )}
                   </div>
@@ -98,6 +123,13 @@ export default function DashboardPage() {
                         data={deadAlivePieData}
                         colors={colors}
                         size={200}
+                        onSliceClick={(item) =>
+                          setSelectedSegment({
+                            metric: "dead-alive-count",
+                            label: item.label,
+                            filters: { status: item.status },
+                          })
+                        }
                       />
                     )}
                   </div>
@@ -118,8 +150,16 @@ export default function DashboardPage() {
                         items={ages.map((a) => ({
                           label: a.bucket,
                           value: a.count,
+                          bucket: a.bucket,
                         }))}
                         colors={colors}
+                        onBarClick={(item) =>
+                          setSelectedSegment({
+                            metric: "age-demographics",
+                            label: item.label,
+                            filters: { bucket: item.bucket },
+                          })
+                        }
                       />
                     )}
                   </div>
@@ -143,8 +183,16 @@ export default function DashboardPage() {
                         items={assistances.map((a) => ({
                           label: a.name,
                           value: a.count,
+                          assistanceId: a.assistanceId,
                         }))}
                         colors={colors}
+                        onBarClick={(item) =>
+                          setSelectedSegment({
+                            metric: "assistance",
+                            label: item.label,
+                            filters: { assistanceId: item.assistanceId },
+                          })
+                        }
                       />
                     )}
                   </div>
@@ -165,8 +213,16 @@ export default function DashboardPage() {
                         items={vaccines.map((v) => ({
                           label: v.name,
                           value: v.count,
+                          vaccineId: v.vaccineId,
                         }))}
                         colors={colors}
+                        onBarClick={(item) =>
+                          setSelectedSegment({
+                            metric: "vaccines",
+                            label: item.label,
+                            filters: { vaccineId: item.vaccineId },
+                          })
+                        }
                       />
                     )}
                   </div>
@@ -193,6 +249,13 @@ export default function DashboardPage() {
                       data={usersPerRolePieData}
                       colors={colors}
                       size={200}
+                      onSliceClick={(item) =>
+                        setSelectedSegment({
+                          metric: "users-per-role",
+                          label: item.label,
+                          filters: { role: item.role },
+                        })
+                      }
                     />
                   )}
                 </div>
@@ -213,8 +276,16 @@ export default function DashboardPage() {
                       items={usersPerBarangay.map((b) => ({
                         label: b.name,
                         value: b.count,
+                        barangayId: b.barangayId,
                       }))}
                       colors={colors}
+                      onBarClick={(item) =>
+                        setSelectedSegment({
+                          metric: "users-per-barangay",
+                          label: item.label,
+                          filters: { barangayId: item.barangayId },
+                        })
+                      }
                     />
                   )}
                 </div>
@@ -223,6 +294,11 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+      <AnalyticsDetailModal
+        isOpen={!!selectedSegment}
+        segment={selectedSegment}
+        onClose={() => setSelectedSegment(null)}
+      />
     </section>
   );
 }

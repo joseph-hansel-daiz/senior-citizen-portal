@@ -5,9 +5,21 @@ import { useMemo } from "react";
 export interface PieDatum {
   label: string;
   value: number;
+  // allow extra fields for callbacks (e.g., ids)
+  [key: string]: any;
 }
 
-export function PieChart({ data, colors = [], size = 200 }: { data: PieDatum[]; colors?: string[]; size?: number; }) {
+export function PieChart({
+  data,
+  colors = [],
+  size = 200,
+  onSliceClick,
+}: {
+  data: PieDatum[];
+  colors?: string[];
+  size?: number;
+  onSliceClick?: (item: PieDatum, index: number) => void;
+}) {
   const total = useMemo(() => data.reduce((s, d) => s + d.value, 0), [data]);
   const geometry = useMemo(() => {
     const r = size / 2 - 10;
@@ -33,14 +45,38 @@ export function PieChart({ data, colors = [], size = 200 }: { data: PieDatum[]; 
     <div className="d-flex flex-column align-items-center">
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         {data.length === 1 ? (
-          <circle cx={geometry.cx} cy={geometry.cy} r={geometry.r} fill={colors[0] || "#0d6efd"} />
+          <circle
+            cx={geometry.cx}
+            cy={geometry.cy}
+            r={geometry.r}
+            fill={colors[0] || "#0d6efd"}
+            style={onSliceClick ? { cursor: "pointer" } : undefined}
+            onClick={
+              onSliceClick ? () => onSliceClick(data[0], 0) : undefined
+            }
+          />
         ) : (
-          geometry.paths.map((p, i) => <path key={i} d={p.d} fill={p.fill} />)
+          geometry.paths.map((p, i) => (
+            <path
+              key={i}
+              d={p.d}
+              fill={p.fill}
+              style={onSliceClick ? { cursor: "pointer" } : undefined}
+              onClick={
+                onSliceClick ? () => onSliceClick(data[i], i) : undefined
+              }
+            />
+          ))
         )}
       </svg>
       <div className="mt-2" style={{ maxWidth: size + 60 }}>
         {data.map((g, idx) => (
-          <div key={idx} className="d-flex align-items-center small mb-1">
+          <div
+            key={idx}
+            className="d-flex align-items-center small mb-1"
+            style={onSliceClick ? { cursor: "pointer" } : undefined}
+            onClick={onSliceClick ? () => onSliceClick(g, idx) : undefined}
+          >
             <div className="d-flex align-items-center">
               <span
                 className="me-2 d-inline-block"
