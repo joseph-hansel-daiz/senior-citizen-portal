@@ -191,11 +191,13 @@ export default function Navbar() {
   // Get role-based routes
   const navRoutes = user?.role ? ROLE_ROUTES[user?.role as Role] || [] : [];
 
+  const isDark = theme?.theme === ThemeEnum.Dark;
+
   return (
     <div className="container-fluid">
       {/* ===== Desktop Sidebar ===== */}
       <aside
-        className="d-none d-md-flex flex-column border-end position-fixed top-0 start-0 p-0 bg-dark"
+        className="d-none d-md-flex flex-column border-end border-secondary position-fixed top-0 start-0 p-0 bg-body-secondary"
         style={{ width: 240, height: "100vh", zIndex: 1040 }}
         aria-label="Sidebar"
       >
@@ -206,7 +208,7 @@ export default function Navbar() {
             className="img-fluid rounded-circle mb-2"
             style={{ maxWidth: 100 }}
           />
-          <div className="fw-bold text-uppercase small text-break text-light">
+          <div className="fw-bold text-uppercase small text-break text-body-emphasis">
             Senior Citizen Portal
           </div>
         </div>
@@ -215,7 +217,7 @@ export default function Navbar() {
           {navRoutes.map((nav) => (
             <li className="nav-item" key={nav.route}>
               <Link
-                className="nav-link d-flex align-items-center gap-2 fw-bold"
+                className="nav-link d-flex align-items-center gap-2 fw-bold text-body"
                 href={nav.route}
               >
                 <i className={nav.iconClassName}></i>
@@ -225,10 +227,10 @@ export default function Navbar() {
           ))}
         </ul>
 
-        <div className="mt-auto p-3 border-top gap-3">
+        <div className="mt-auto p-3 border-top border-secondary gap-3">
           <button
             className={`btn ${
-              theme?.theme === ThemeEnum.Dark ? "btn-light" : "btn-dark"
+              isDark ? "btn-light" : "btn-dark"
             } w-100 mb-2`}
             onClick={toggle}
           >
@@ -247,10 +249,14 @@ export default function Navbar() {
       </aside>
 
       {/* ===== Mobile Navbar ===== */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top d-md-none">
+      <nav
+        className={`navbar navbar-expand-lg fixed-top d-md-none bg-body-secondary border-bottom border-secondary ${
+          isDark ? "navbar-dark" : "navbar-light"
+        }`}
+      >
         <div className="container-fluid">
           <Link className="navbar-brand mb-1" href={"/"}>
-            <div className="fw-bold text-uppercase small text-break text-light">
+            <div className="fw-bold text-uppercase small text-break text-body-emphasis">
               Senior Citizen Portal
             </div>
           </Link>
@@ -269,7 +275,7 @@ export default function Navbar() {
             <div className="navbar-nav">
               {navRoutes.map((nav) => (
                 <Link
-                  className="nav-item nav-link fw-bold"
+                  className="nav-item nav-link fw-bold text-body"
                   key={nav.route}
                   href={nav.route}
                 >
@@ -280,9 +286,7 @@ export default function Navbar() {
             </div>
             <div className="ms-auto d-flex align-items-center gap-2">
               <button
-                className={`btn ${
-                  theme?.theme === ThemeEnum.Dark ? "btn-light" : "btn-dark"
-                } w-100`}
+                className={`btn ${isDark ? "btn-light" : "btn-dark"} w-100`}
                 onClick={toggle}
               >
                 {themeToggleIcon}
